@@ -1,0 +1,31 @@
+{
+  "folders": [
+    {
+      "path": "/Users/lordwilson/msb-v2",
+      "name": "MSB v2.0"
+    },
+    {
+      "path": "/Users/lordwilson/AutoMoneyMachine",
+      "name": "AutoMoneyMachine"
+    }
+  ],
+  "settings": {
+    "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniforge/base/bin/python",
+    "python.analysis.typeCheckingMode": "basic",
+    "files.exclude": {
+      "**/.snapshots": true,
+      "**/__pycache__": true,
+      "**/*.pyc": true
+    },
+    "files.watcherExclude": {
+      "**/.snapshots/**": true,
+      "**/__pycache__/**": true,
+      "**/mutants/**": true
+    },
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "editor.formatOnSave": false,
+    "python.linting.pylintArgs": [
+      "--disable=C0103"
+    ]
+  }
+}
