@@ -45,16 +45,15 @@ class RuntimeContext:
         if not result.success:
             return result
         self.started_at = time.time()
-        self.event_log.start()
-        self.workers.start()
+        self.lifecycle.start()
         self.health.record("running", detail="runtime started")
         return result
 
     def stop(self, *, wait: bool = True) -> LifecycleResult:
-        self.workers.stop(wait=wait)
-        self.event_log.stop()
         self.health.record("stopped", detail="runtime stopped")
-        return self.lifecycle.shutdown()
+        result = self.lifecycle.shutdown()
+        self.workers.stop(wait=wait)
+        return result
 
     def record_capability(self, event: CapabilityEvent) -> CapabilityEvent:
         self.health.record(
