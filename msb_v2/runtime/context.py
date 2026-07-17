@@ -24,7 +24,7 @@ class RuntimeContext:
     def __init__(self, config: Optional[RuntimeConfig] = None) -> None:
         self.config = config or RuntimeConfig()
         self.lifecycle = LifecycleManager()
-        snapshot_root = Path(tempfile.mkdtemp(prefix="msb2-snapshots-"))
+        snapshot_root = Path(".snapshots").resolve()
         self.snapshots = SnapshotManager(snapshot_root)
         self.event_log = PersistentEventLog(
             self.config.event_log_path,
