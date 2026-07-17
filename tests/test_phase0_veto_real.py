@@ -77,6 +77,6 @@ def test_demo_query_429_after_depth_limit(client_scorer: TestClient) -> None:
         assert r.status_code == expected_status, f"request {i+1} expected {expected_status} got {r.status_code}"
         if expected_status == 429:
             body = r.json()
-            assert body["detail"] == "Budget exceeded – request rejected"
+            assert body["detail"] == "Budget exceeded - request rejected"
             assert body["trace_id"] == trace_id
             assert body["reason"] == "budget_exhausted"

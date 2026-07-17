@@ -16,7 +16,7 @@ router = APIRouter()
 
 
 def _scorer_enabled() -> bool:
-    return os.getenv("MSB_REASONING_SCORER", "0").lower() in ("1", "true", "yes")
+    return os.getenv("MSB_REASONING_SCORER").lower() in ("1", "true", "yes")
 
 
 budget_mgr = CognitiveBudgetManager()
@@ -54,7 +54,7 @@ def _default_events(trace_id: str, query: str, accepted: bool) -> list[dict]:
         "payload": {"verdict": "accepted" if accepted else "rejected"},
         "trace_id": trace_id,
     }
-    return tool_events + [human_event]
+    return [*tool_events, human_event]
 
 
 def _build_events(trace_id: str, query: str, accepted: bool, answer: str) -> list[dict]:
@@ -176,7 +176,7 @@ def demo_query(payload: DemoQueryRequest) -> Dict[str, Any]:
         return JSONResponse(
             status_code=503,
             content={
-                "detail": "Service unavailable – cognitive circuit breaker open",
+                "detail": "Service unavailable - cognitive circuit breaker open",
                 "trace_id": trace_id,
                 "reason": "metabolic_collapse_veto",
             },
@@ -185,7 +185,7 @@ def demo_query(payload: DemoQueryRequest) -> Dict[str, Any]:
         return JSONResponse(
             status_code=429,
             content={
-                "detail": "Budget exceeded – request rejected",
+                "detail": "Budget exceeded - request rejected",
                 "trace_id": trace_id,
                 "reason": "budget_exhausted",
             },
