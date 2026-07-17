@@ -51,7 +51,10 @@ def brain_run(req: ManifestRequest) -> Dict[str, Any]:
 
     if kind == "assess":
         trace_id = req.trace_id or ""
-        result = cognitive_engine.assess(trace_id)
+        try:
+            result = cognitive_engine.assess(trace_id)
+        except Exception as exc:  # noqa: BLE001
+            return _ok("cognitive_error", {"trace_id": trace_id, "error": str(exc)})
         return _ok("cognitive", {"trace_id": trace_id, "assessment": result})
 
     if kind == "branch":
