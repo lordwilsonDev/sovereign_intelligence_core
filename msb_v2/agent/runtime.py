@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -104,6 +105,62 @@ class AgentRuntime:
                 }
                 for t in tasks
             ],
+        }
+
+    def run_loop(self, run_id: str, loop_config: Dict[str, Any]) -> Dict[str, Any]:
+        """VY-NEXUS-style 24-hour loop grounded on WorkerPool/RuntimeContext/EvolutionMemory."""
+        max_iterations = min(int(loop_config.get("max_iterations", 24)), 24)
+        interval_seconds = max(float(loop_config.get("interval_seconds", 60.0)), 0.0)
+        task_template = loop_config.get("task_template", {})
+        stop_on_error = bool(loop_config.get("stop_on_error", False))
+
+        iterations: List[Dict[str, Any]] = []
+        completed = 0
+        failed = 0
+        last_error: Optional[str] = None
+        stopped_reason: Optional[str] = None
+
+        for i in range(max_iterations):
+            iteration_task = {
+                "task_id": f"{run_id}-iter-{i + 1}",
+                "name": task_template.get("name", "loop-iteration"),
+                "callable": task_template.get("callable") or "msb_v2.agent.runtime:_agent_echo",
+                "payload": {
+                    "payload": {
+                        "iteration": i + 1,
+                        "run_id": run_id,
+                        **(task_template.get("payload", {})),
+                    }
+                },
+            }
+            result = self.run(f"{run_id}-iter-{i + 1}", [iteration_task])
+            task = result["tasks"][0]
+            iteration = {
+                "iteration": i + 1,
+                "task_id": task["task_id"],
+                "status": task["status"],
+            }
+            iterations.append(iteration)
+            if task["status"] == "completed":
+                completed += 1
+            else:
+                failed += 1
+                last_error = task.get("error")
+                if stop_on_error:
+                    stopped_reason = f"stopped after {i + 1} iteration(s): {last_error}"
+                    break
+            if interval_seconds > 0 and i + 1 < max_iterations:
+                time.sleep(interval_seconds)
+
+        return {
+            "run_id": run_id,
+            "mode": "loop",
+            "max_iterations": max_iterations,
+            "iterations": iterations,
+            "completed": completed,
+            "failed": failed,
+            "last_error": last_error,
+            "stopped_reason": stopped_reason,
         }
 
 

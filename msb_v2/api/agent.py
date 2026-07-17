@@ -29,6 +29,14 @@ class AgentRunRequest(BaseModel):
     tasks: List[Dict[str, Any]]
 
 
+class AgentRunLoopRequest(BaseModel):
+    run_id: str
+    max_iterations: int = 1
+    interval_seconds: float = 0.0
+    task_template: Dict[str, Any] = {}
+    stop_on_error: bool = False
+
+
 @router.post("/agent/run")
 def agent_run(payload: AgentRunRequest) -> JSONResponse:
     result = _agent.run(payload.run_id, list(payload.tasks))
@@ -42,3 +50,11 @@ def agent_run(payload: AgentRunRequest) -> JSONResponse:
 @router.get("/agent/run/{run_id}")
 def agent_run_status(run_id: str) -> JSONResponse:
     return JSONResponse(_agent.run_status(run_id))
+
+
+@router.post("/agent/run/loop")
+def agent_run_loop(payload: AgentRunLoopRequest) -> JSONResponse:
+    config = dict(payload.model_dump())
+    config.pop("run_id", None)
+    result = _agent.run_loop(payload.run_id, config)
+    return JSONResponse(result)
