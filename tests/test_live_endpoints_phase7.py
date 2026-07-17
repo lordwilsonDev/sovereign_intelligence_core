@@ -32,3 +32,10 @@ def test_live_endpoints_phase7_roundup() -> None:
     environment = client.get("/environment/status")
     assert environment.status_code == 200
     assert environment.json() == sovereign.json()
+
+    demo = client.post("/demo/query", json={"query": "live", "trace_id": "rt-1", "accepted": True})
+    assert demo.status_code == 200
+    demo_body = demo.json()
+    assert demo_body["query"] == "live"
+    assert demo_body["confidence_assessment"] is not None
+    assert "trace_id" in demo_body["confidence_assessment"]
