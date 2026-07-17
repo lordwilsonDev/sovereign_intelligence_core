@@ -70,6 +70,26 @@ class ReasoningStore:
             traces = [t for t in traces if t.status == status]
         return sorted(traces, key=lambda t: t.created_at)
 
+    def list_trace_page(self, offset: int = 0, limit: int = 20, status: ReasoningStatus | None = None) -> list[ReasoningTrace]:
+        traces = self.list_traces(status=status)
+        return traces[offset:offset + max(1, limit)]
+
+    def search_traces(self, query: str, limit: int = 20) -> list[ReasoningTrace]:
+        query_lower = query.lower()
+        results: list[ReasoningTrace] = []
+        for trace in self._traces.values():
+            haystack = " ".join([
+                trace.trace_id or "",
+                trace.title or "",
+                trace.conclusion or "",
+                trace.updated_at or "",
+            ]).lower()
+            if query_lower in haystack:
+                results.append(trace)
+            if len(results) >= limit:
+                break
+        return sorted(results, key=lambda t: t.updated_at)
+
     def set_status(self, trace_id: str, status: ReasoningStatus) -> ReasoningTrace:
         trace = self.get_trace(trace_id)
         updated = ReasoningTrace(

@@ -117,8 +117,17 @@ def _build_evidence_report(trace: ReasoningTrace) -> dict[str, object] | None:
 
 
 @router.get("/traces", response_model=list[TraceOut])
-def list_traces(status: ReasoningStatus | None = None) -> list[TraceOut]:
-    return [_trace_out(t) for t in store.list_traces(status)]
+def list_traces(
+    status: ReasoningStatus | None = None,
+    offset: int = 0,
+    limit: int = 20,
+    q: str | None = None,
+) -> list[TraceOut]:
+    if q:
+        traces = store.search_traces(q, limit=max(1, limit))
+    else:
+        traces = store.list_trace_page(offset=max(0, offset), limit=max(1, limit), status=status)
+    return [_trace_out(t) for t in traces]
 
 
 @router.get("/traces/{trace_id}", response_model=TraceOut)

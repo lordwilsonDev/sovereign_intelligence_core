@@ -113,3 +113,25 @@ def test_duplicate_trace_rejected():
     payload["trace_id"] = tid
     assert client.post("/reasoning/traces", json=payload).status_code == 200
     assert client.post("/reasoning/traces", json=payload).status_code == 409
+
+
+def test_list_traces_pagination() -> None:
+    for idx in range(5):
+        payload = _payload(ReasoningStatus.DRAFT)
+        payload["trace_id"] = f"rtrace-p{idx}"
+        assert client.post("/reasoning/traces", json=payload).status_code == 200
+    page = client.get("/reasoning/traces?offset=2&limit=2").json()
+    assert len(page) == 2
+    ids = [t["trace_id"] for t in page]
+    assert len(set(ids)) == 2
+
+
+def test_list_traces_search() -> None:
+    payload = _payload(ReasoningStatus.DRAFT)
+    payload["trace_id"] = "rtrace-search-1"
+    payload["title"] = "atomic fission revision"
+    assert client.post("/reasoning/traces", json=payload).status_code == 200
+    r = client.get("/reasoning/traces?q=fission")
+    assert r.status_code == 200
+    body = r.json()
+    assert any(t["trace_id"] == "rtrace-search-1" for t in body)
