@@ -3,3 +3,8 @@
 *.pyc
 
 __pycache__/
+
+# Runtime artifacts
+.snapshots/
+evolution_memory.db
+runtime_events.db
