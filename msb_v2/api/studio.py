@@ -33,6 +33,7 @@ async def studio_dashboard() -> Dict[str, Any]:
             "sovereign": "/sovereign/status",
             "environment": "/environment/status",
             "agent": "/agent/run",
+            "agent_loop": "/agent/run/loop",
             "evolution": "/evolution/scan",
             "verification": "/verification/integrity/trace/{trace_id}",
         },
@@ -45,7 +46,21 @@ def studio_status() -> JSONResponse:
     memory = _safe(_memory_summary)
     verification = _safe(_verification_summary)
     evolution = _safe(_evolution_summary)
-    agent = {"run_endpoint": "/agent/run", "status_endpoint": "/agent/run/{run_id}"}
+    agent = {
+        "run_endpoint": "/agent/run",
+        "status_endpoint": "/agent/run/{run_id}",
+        "loop_endpoint": "/agent/run/loop",
+        "loop_schema": {
+            "max_iterations": 1,
+            "interval_seconds": 0.0,
+            "task_template": {
+                "name": "loop-iteration",
+                "callable": "msb_v2.agent.runtime:_agent_echo",
+                "payload": {"payload": {}},
+            },
+            "stop_on_error": False,
+        },
+    }
 
     return JSONResponse(
         {
