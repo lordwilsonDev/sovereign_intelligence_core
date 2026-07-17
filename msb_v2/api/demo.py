@@ -17,7 +17,8 @@ router = APIRouter()
 
 
 def _scorer_enabled() -> bool:
-    return os.getenv("MSB_REASONING_SCORER", "").lower() in ("1", "true", "yes")
+    val = os.getenv("MSB_REASONING_SCORER", "")
+    return val == "1" or val.lower() in ("true", "yes")
 
 
 budget_mgr = CognitiveBudgetManager()
