@@ -11,12 +11,13 @@ from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.reasoning.scorer import ConfidenceAssessment, score_from_events
 from msb_v2.api.reasoning_integrity import _stream
 from msb_v2.core.budget_manager import CognitiveBudgetManager
+from msb_v2.memory.types import MemoryConfidence, MemoryRecord
 
 router = APIRouter()
 
 
 def _scorer_enabled() -> bool:
-    return os.getenv("MSB_REASONING_SCORER").lower() in ("1", "true", "yes")
+    return os.getenv("MSB_REASONING_SCORER", "").lower() in ("1", "true", "yes")
 
 
 budget_mgr = CognitiveBudgetManager()
@@ -206,6 +207,48 @@ def demo_query(payload: DemoQueryRequest) -> Dict[str, Any]:
             for e in _stream.events_for_trace(trace_id)
         ]
         assessment_payload = _assess(full_events, payload.accepted)
+
+        try:
+            store = _get_store()
+            store.add(
+                MemoryRecord(
+                    id=f"demo-{trace_id}",
+                    kind="experience",
+                    content=payload.query,
+                    confidence=MemoryConfidence(
+                        source_reliability=0.9 if payload.accepted else 0.4,
+                        verification_interval_days=1,
+                    ),
+                    tags=["demo", "query"],
+                    outcome="success" if payload.accepted else "failure",
+                    provenance={
+                        "trace_id": trace_id,
+                        "accepted": payload.accepted,
+                        "confidence": assessment_payload.get("confidence"),
+                    },
+                )
+            )
+            _stream.append(
+                ExecutionEvent(
+                    event_id=f"{trace_id}-mem",
+                    sequence=len(events) + 2,
+                    kind=EventKind.MEMORY_WRITE,
+                    source="demo.query",
+                    payload={
+                        "memory_id": f"demo-{trace_id}",
+                        "content": payload.query,
+                        "source_reliability": 0.9 if payload.accepted else 0.4,
+                    },
+                    trace_id=trace_id,
+                )
+            )
+            try:
+                store.verify(f"demo-{trace_id}")
+            except Exception:
+                pass
+        except Exception:
+            pass
+
         return {
             "query": payload.query,
             "answer": events[-1]["payload"].get("answer", "local demo answer") if events else "local demo answer",
