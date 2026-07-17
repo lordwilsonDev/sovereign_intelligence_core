@@ -1,0 +1,14 @@
+# Level 33 Sovereign Architecture - Python Dependencies
+
+# Core AutoGen framework
+pyautogen>=0.2.0
+
+# DSPy for self-optimization
+dspy-ai>=2.0.0
+
+# HTTP requests for API calls
+requests>=2.31.0
+
+# Optional but recommended
+colorama>=0.4.6  # For colored terminal output
+python-dotenv>=1.0.0  # For environment variable management

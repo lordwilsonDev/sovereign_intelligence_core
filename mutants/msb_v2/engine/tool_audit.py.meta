@@ -1,0 +1,31 @@
+{
+    "exit_code_by_key": {
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1__init____mutmut_1": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1record__mutmut_1": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1record__mutmut_2": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_1": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_2": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_3": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_4": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_5": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_6": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_7": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_8": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_9": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_10": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_11": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_12": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_13": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_14": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_15": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_16": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_17": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1recent__mutmut_18": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1blocked_count__mutmut_1": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1blocked_count__mutmut_2": null,
+        "msb_v2.engine.tool_audit.x\u01c1ToolAudit\u01c1blocked_count__mutmut_3": null
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

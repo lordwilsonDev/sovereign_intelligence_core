@@ -1,0 +1,24 @@
+[
+  {
+    "test_id": "demo_query_200",
+    "input": "Phase 0 closed",
+    "expected_status": 200,
+    "expected_properties": ["trace_id", "answer", "budget"],
+    "minimum_score": 0.5
+  },
+  {
+    "test_id": "demo_query_budget_limit_429",
+    "input": "repeat budget breach",
+    "expected_last_call_status": 429,
+    "repeat": 6,
+    "expected_properties": ["detail", "trace_id", "reason"],
+    "minimum_score": 0.5
+  },
+  {
+    "test_id": "health_200",
+    "input": "",
+    "expected_status": 200,
+    "expected_properties": ["status"],
+    "minimum_score": 0.5
+  }
+]

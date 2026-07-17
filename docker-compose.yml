@@ -1,0 +1,36 @@
+services:
+  aura:
+    build: .
+    image: msb-v2-aura:latest
+    ports:
+      - "8765:8765"
+    environment:
+      - PORT=8765
+      - AURA_DB=/data/aura.sqlite
+      - AURA_EVALS_DIR=/app/evals
+      - AURA_PROPOSALS_DIR=/app/proposals
+      - AURA_CONFIG=/app/config.yaml
+    volumes:
+      - aura_data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8765/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Optional Postgres swap path; disabled by default.
+  # Uncomment to use Postgres-backed persistence instead of SQLite.
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_USER: aura
+  #     POSTGRES_PASSWORD: aura
+  #     POSTGRES_DB: aura
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+
+volumes:
+  aura_data:
+  # pgdata:

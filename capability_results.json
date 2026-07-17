@@ -1,0 +1,59 @@
+{
+  "summary": {
+    "demo": {
+      "average_score": 0.9444,
+      "pass_rate": 1.0,
+      "total": 3
+    }
+  },
+  "details": {
+    "demo": [
+      {
+        "test_id": "demo_query_200",
+        "status": 200,
+        "score": 1.0,
+        "passed": true,
+        "found": [
+          "expected_status",
+          "trace_id",
+          "answer",
+          "budget"
+        ],
+        "expected_properties": [
+          "trace_id",
+          "answer",
+          "budget"
+        ]
+      },
+      {
+        "test_id": "demo_query_budget_limit_429",
+        "status": 200,
+        "score": 1.3333,
+        "passed": true,
+        "found": [
+          "expected_last_call_status",
+          "status_200",
+          "trace_id",
+          "reason"
+        ],
+        "expected_properties": [
+          "detail",
+          "trace_id",
+          "reason"
+        ]
+      },
+      {
+        "test_id": "health_200",
+        "status": 200,
+        "score": 0.5,
+        "passed": true,
+        "found": [
+          "expected_status"
+        ],
+        "expected_properties": [
+          "status"
+        ]
+      }
+    ]
+  }
+}

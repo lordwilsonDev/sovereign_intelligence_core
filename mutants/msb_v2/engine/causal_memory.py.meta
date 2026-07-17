@@ -1,0 +1,25 @@
+{
+    "exit_code_by_key": {
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1__init____mutmut_1": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1link__mutmut_1": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1link__mutmut_2": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1link__mutmut_3": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1link__mutmut_4": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1link__mutmut_5": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1link__mutmut_6": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1link__mutmut_7": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1has_link__mutmut_1": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1has_link__mutmut_2": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1has_link__mutmut_3": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1has_link__mutmut_4": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1has_link__mutmut_5": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1has_link__mutmut_6": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1has_link__mutmut_7": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1reasons_for__mutmut_1": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1reasons_for__mutmut_2": null,
+        "msb_v2.engine.causal_memory.x\u01c1CausalMemory\u01c1reasons_for__mutmut_3": null
+    },
+    "type_check_error_by_key": {},
+    "durations_by_key": {},
+    "estimated_durations_by_key": {}
+}

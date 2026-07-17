@@ -1,0 +1,1336 @@
+{
+  "timestamp": 1784261835.491106,
+  "count": 95,
+  "scorecards": [
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/connectors/base.py",
+      "vdr_score": 0.0,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 0.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/core/reasoning_bootstrap.py",
+      "vdr_score": 0.0,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "unverified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 0.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/observability/tracing.py",
+      "vdr_score": 0.0,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "unverified",
+      "metrics": {
+        "complexity": 1.5,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 0.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/reasoning/adk_bridge.py",
+      "vdr_score": 0.0,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "unverified",
+      "metrics": {
+        "complexity": 3.2,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 0.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/tools.py",
+      "vdr_score": 0.0,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "unverified",
+      "metrics": {
+        "complexity": 3.0,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 0.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/__main__.py",
+      "vdr_score": 0.0,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "unverified",
+      "metrics": {
+        "complexity": 1.5,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 0.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/hive_node_executable.py",
+      "vdr_score": 0.0,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "unverified",
+      "metrics": {
+        "complexity": 1.33,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 0.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/observability_console.py",
+      "vdr_score": 0.0396,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 4.42,
+        "imports": 10,
+        "todos": 0,
+        "coverage": 21.4
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/counterfactual.py",
+      "vdr_score": 0.0419,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 8.5,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 38.1
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/observability_metrics.py",
+      "vdr_score": 0.0476,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 8.0,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 40.4
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/reasoning/counterfactual.py",
+      "vdr_score": 0.0556,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 4.0,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 25.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/orchestrator.py",
+      "vdr_score": 0.0645,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 14.0,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 92.9
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/deepseek.py",
+      "vdr_score": 0.065,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 10.0,
+        "imports": 9,
+        "todos": 0,
+        "coverage": 70.8
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/reasoning_drift.py",
+      "vdr_score": 0.0927,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 3.0,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 32.4
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/langgraph_bridge.py",
+      "vdr_score": 0.1033,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 5.75,
+        "imports": 8,
+        "todos": 0,
+        "coverage": 67.7
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/execution_policy.py",
+      "vdr_score": 0.1106,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 8.0,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 91.8
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/aura_core.py",
+      "vdr_score": 0.1181,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 6.0,
+        "imports": 10,
+        "todos": 0,
+        "coverage": 82.7
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/capabilities/runner.py",
+      "vdr_score": 0.121,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 5.14,
+        "imports": 8,
+        "todos": 0,
+        "coverage": 71.9
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/agents/repair.py",
+      "vdr_score": 0.122,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 8.0,
+        "imports": 2,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/reasoning/scorer.py",
+      "vdr_score": 0.1313,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 6.5,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 90.6
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/toolbelt.py",
+      "vdr_score": 0.1315,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 3.64,
+        "imports": 11,
+        "todos": 0,
+        "coverage": 62.3
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/demo.py",
+      "vdr_score": 0.139,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 3.25,
+        "imports": 14,
+        "todos": 0,
+        "coverage": 64.6
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/security/guardrails.py",
+      "vdr_score": 0.1478,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 6.0,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 93.1
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/alert_hooks.py",
+      "vdr_score": 0.1515,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 6.0,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/memory/store.py",
+      "vdr_score": 0.1575,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 3.67,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 65.6
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/eve_schedules.py",
+      "vdr_score": 0.1754,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 5.0,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/torsion.py",
+      "vdr_score": 0.1818,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 5.0,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/adk_bridge.py",
+      "vdr_score": 0.1834,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 3.0,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 67.9
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/calibration.py",
+      "vdr_score": 0.1857,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 2.5,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 53.8
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/moie_orchestrator.py",
+      "vdr_score": 0.187,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 4.0,
+        "imports": 10,
+        "todos": 0,
+        "coverage": 93.5
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/persistence.py",
+      "vdr_score": 0.1968,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 3.08,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 74.3
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/provider/deepseek.py",
+      "vdr_score": 0.2053,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 3.33,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 78.7
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/eve/discovery.py",
+      "vdr_score": 0.2129,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 3.5,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 89.4
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/moie_judge.py",
+      "vdr_score": 0.2154,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 3.75,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 95.8
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/clerk.py",
+      "vdr_score": 0.232,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 3.5,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 90.5
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/core/global_scheduler.py",
+      "vdr_score": 0.2326,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 3.5,
+        "imports": 8,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/cognitive.py",
+      "vdr_score": 0.2358,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.18,
+        "imports": 17,
+        "todos": 0,
+        "coverage": 91.5
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/agents/tool_agent.py",
+      "vdr_score": 0.2381,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 4.0,
+        "imports": 2,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/values/types.py",
+      "vdr_score": 0.2413,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 2.17,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 59.5
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/validator.py",
+      "vdr_score": 0.2416,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 3.0,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 82.1
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/moie_slug.py",
+      "vdr_score": 0.2496,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.75,
+        "imports": 8,
+        "todos": 0,
+        "coverage": 88.6
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/memory/vector_retriever.py",
+      "vdr_score": 0.2542,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 1.67,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 50.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/rcoh.py",
+      "vdr_score": 0.2619,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.74,
+        "imports": 9,
+        "todos": 0,
+        "coverage": 95.3
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/eve/manifest.py",
+      "vdr_score": 0.2828,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.75,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 94.7
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/core/noetic_sharding.py",
+      "vdr_score": 0.2885,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.62,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 89.9
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/rag.py",
+      "vdr_score": 0.2958,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.5,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 94.6
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/core/falsification_mirror.py",
+      "vdr_score": 0.3,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.83,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/core/evolution_memory.py",
+      "vdr_score": 0.305,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.64,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 98.7
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/failure_recovery.py",
+      "vdr_score": 0.3125,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 3.0,
+        "imports": 2,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/scheduler.py",
+      "vdr_score": 0.3173,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.5,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 98.4
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/grounding.py",
+      "vdr_score": 0.3193,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.67,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 94.7
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/moie_types.py",
+      "vdr_score": 0.3212,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 1.75,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 69.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/reasoning/calibration.py",
+      "vdr_score": 0.3216,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 1.4,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 57.9
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/knowledge.py",
+      "vdr_score": 0.323,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.67,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 95.8
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/moie.py",
+      "vdr_score": 0.3333,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.0,
+        "imports": 10,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/reasoning_integrity.py",
+      "vdr_score": 0.3453,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 1.4,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 62.2
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/hive_nodes.py",
+      "vdr_score": 0.3484,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.2,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 87.1
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/cognitive_verification.py",
+      "vdr_score": 0.3595,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.0,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 93.5
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/imagination.py",
+      "vdr_score": 0.3612,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.83,
+        "imports": 8,
+        "todos": 0,
+        "coverage": 95.1
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/evaluation/harness.py",
+      "vdr_score": 0.3673,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.6,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 77.1
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/reasoning.py",
+      "vdr_score": 0.368,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.0,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 92.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/eve.py",
+      "vdr_score": 0.3704,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.0,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/phase_tracing.py",
+      "vdr_score": 0.3774,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.25,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/orchestrator.py",
+      "vdr_score": 0.3846,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.0,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/rcoh_persistence.py",
+      "vdr_score": 0.3922,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.75,
+        "imports": 8,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/runtime.py",
+      "vdr_score": 0.4167,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.0,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/merkle_reasoning.py",
+      "vdr_score": 0.4211,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.67,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 95.5
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/memory.py",
+      "vdr_score": 0.4229,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.17,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 78.9
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/observability.py",
+      "vdr_score": 0.4334,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 73.7
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/models/registry.py",
+      "vdr_score": 0.4475,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.67,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 88.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/values/registry.py",
+      "vdr_score": 0.4545,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.8,
+        "imports": 2,
+        "todos": 0,
+        "coverage": 90.9
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/aura.py",
+      "vdr_score": 0.4545,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 12,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/memory/retriever.py",
+      "vdr_score": 0.4731,
+      "I_NSSI": 1,
+      "status": "FAIL",
+      "action": "RECURSIVE_SUBTRACTION_REQUIRED",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.67,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 97.8
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/security/identity.py",
+      "vdr_score": 0.5085,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.67,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/resources.py",
+      "vdr_score": 0.5085,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.67,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/causal_memory.py",
+      "vdr_score": 0.5128,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.75,
+        "imports": 2,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/crystallizer.py",
+      "vdr_score": 0.537,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.5,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 96.7
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/values.py",
+      "vdr_score": 0.5382,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 86.1
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/policies/engine.py",
+      "vdr_score": 0.543,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.4,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 92.3
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/learning_fingerprint.py",
+      "vdr_score": 0.5556,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.5,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/rcoh.py",
+      "vdr_score": 0.5714,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.25,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/goal_binding.py",
+      "vdr_score": 0.5769,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.33,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/tool_audit.py",
+      "vdr_score": 0.6452,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.25,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/eve_tools.py",
+      "vdr_score": 0.6667,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/memory/types.py",
+      "vdr_score": 0.7042,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 98.6
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/security/sovereign.py",
+      "vdr_score": 0.7692,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/inversion_engine.py",
+      "vdr_score": 0.7692,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/engine/priority_decay.py",
+      "vdr_score": 0.7692,
+      "I_NSSI": 1,
+      "status": "WARN",
+      "action": "MONITOR",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 3,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/main.py",
+      "vdr_score": 1.5556,
+      "I_NSSI": 1,
+      "status": "PASS",
+      "action": "NONE",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 0.0,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 77.8
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/aura/models.py",
+      "vdr_score": 1.6667,
+      "I_NSSI": 1,
+      "status": "PASS",
+      "action": "NONE",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 0.0,
+        "imports": 6,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/reasoning/types.py",
+      "vdr_score": 2.0,
+      "I_NSSI": 1,
+      "status": "PASS",
+      "action": "NONE",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 0.0,
+        "imports": 5,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/core/budget_manager.py",
+      "vdr_score": 9999.0,
+      "I_NSSI": 0,
+      "status": "SAFE",
+      "action": "VETO",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.94,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 87.4
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/reasoning/store.py",
+      "vdr_score": 9999.0,
+      "I_NSSI": 0,
+      "status": "SAFE",
+      "action": "VETO",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 2.38,
+        "imports": 4,
+        "todos": 0,
+        "coverage": 96.6
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/reasoning/integrity.py",
+      "vdr_score": 9999.0,
+      "I_NSSI": 0,
+      "status": "SAFE",
+      "action": "VETO",
+      "verification_state": "weak",
+      "metrics": {
+        "complexity": 2.2,
+        "imports": 7,
+        "todos": 0,
+        "coverage": 56.4
+      }
+    },
+    {
+      "module": "/Users/lordwilson/msb-v2/msb_v2/api/web.py",
+      "vdr_score": 9999.0,
+      "I_NSSI": 0,
+      "status": "SAFE",
+      "action": "VETO",
+      "verification_state": "verified",
+      "metrics": {
+        "complexity": 1.0,
+        "imports": 28,
+        "todos": 0,
+        "coverage": 100.0
+      }
+    }
+  ]
+}
