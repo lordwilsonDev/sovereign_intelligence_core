@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Optional
 
@@ -41,7 +41,7 @@ class ExecutionEvent:
     payload: dict[str, object] = field(default_factory=dict)
     trace_id: str | None = None
     decision_id: str | None = None
-    ts: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    ts: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
     previous_hash: str | None = None
     integrity_hash: str | None = None
 
@@ -57,7 +57,7 @@ class ConfidenceAssessment:
     entropy: float
     ground_truth_accepted: bool
     notes: str = ""
-    ts: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    ts: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
 
 
 def score_from_events(events: list[dict[str, Any]]) -> ConfidenceAssessment:

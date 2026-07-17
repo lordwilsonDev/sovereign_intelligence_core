@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
@@ -18,7 +18,7 @@ class Phase7State(str, Enum):
 class EnvironmentStatus:
     phase: str = "Phase 7"
     env_status: str = Phase7State.INITIALIZING.value
-    started_at: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    started_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
     components: Dict[str, str] = field(default_factory=dict)
     last_error: Optional[str] = None
     shutdown_reason: Optional[str] = None

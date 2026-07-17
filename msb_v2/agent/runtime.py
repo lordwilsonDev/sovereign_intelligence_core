@@ -4,7 +4,7 @@ import importlib
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
 
 
@@ -40,7 +40,7 @@ class AgentTask:
     status: str = "queued"
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
-    created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
 
 
 class AgentRuntime:

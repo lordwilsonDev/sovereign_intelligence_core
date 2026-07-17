@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 
@@ -16,7 +16,7 @@ class ConfidenceAssessment:
     entropy: float
     ground_truth_accepted: Optional[bool]
     notes: str = ""
-    ts: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    ts: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
 
     def payload(self) -> dict[str, object]:
         return {

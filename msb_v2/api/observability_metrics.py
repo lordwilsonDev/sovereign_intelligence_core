@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from msb_v2.reasoning.integrity import EventKind, EventStreamStore
@@ -24,7 +24,7 @@ class ReasoningMetrics:
     human_feedback_count: int = 0
     budget_breaches: int = 0
     budget_health: float = 1.0
-    ts: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    ts: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
 
     def payload(self) -> dict[str, object]:
         return {
@@ -54,7 +54,7 @@ class MemoryMetrics:
     archived_memories: int = 0
     avg_source_reliability: float = 0.0
     verification_rate: float = 0.0
-    ts: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    ts: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
 
     def payload(self) -> dict[str, object]:
         return {

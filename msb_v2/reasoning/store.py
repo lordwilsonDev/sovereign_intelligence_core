@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
 from msb_v2.reasoning.types import (
     ReasoningTrace,
@@ -32,7 +32,7 @@ class ReasoningStore:
     def add_trace(self, trace: ReasoningTrace) -> ReasoningTrace:
         if trace.trace_id in self._traces:
             raise KeyError(f"trace already exists: {trace.trace_id}")
-        now = datetime.utcnow().isoformat() + "Z"
+        now = datetime.now(timezone.utc).isoformat() + "Z"
         normalized = ReasoningTrace(
             trace_id=trace.trace_id,
             title=trace.title,
@@ -81,7 +81,7 @@ class ReasoningStore:
             memory_ids=trace.memory_ids,
             conclusion=trace.conclusion,
             created_at=trace.created_at,
-            updated_at=datetime.utcnow().isoformat() + "Z",
+            updated_at=datetime.now(timezone.utc).isoformat() + "Z",
             metadata=trace.metadata,
         )
         self._traces[trace_id] = updated
@@ -99,7 +99,7 @@ class ReasoningStore:
                 memory_ids=trace.memory_ids,
                 conclusion=trace.conclusion,
                 created_at=trace.created_at,
-                updated_at=datetime.utcnow().isoformat() + "Z",
+                updated_at=datetime.now(timezone.utc).isoformat() + "Z",
                 metadata=trace.metadata,
             )
             self._traces[trace_id] = updated

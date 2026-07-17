@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 
@@ -96,7 +96,7 @@ class EvolutionMemory:
         metric_delta: Dict[str, Any],
         decision: str,
     ) -> None:
-        event_id = f"{proposal_id}-{stage}-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
+        event_id = f"{proposal_id}-{stage}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
         with sqlite3.connect(self.db_path) as conn:
             conn.execute(
                 """

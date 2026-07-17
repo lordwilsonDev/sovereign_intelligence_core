@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -72,7 +72,7 @@ class EvolutionMemory:
                 )
                 conn.execute(
                     "INSERT INTO history (proposal_id, event, ts) VALUES (?, ?, ?)",
-                    (proposal.proposal_id, "recorded", datetime.utcnow().isoformat() + "Z"),
+                    (proposal.proposal_id, "recorded", datetime.now(timezone.utc).isoformat()),
                 )
                 conn.commit()
 

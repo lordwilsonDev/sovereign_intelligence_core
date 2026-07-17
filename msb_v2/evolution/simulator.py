@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import subprocess
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -16,7 +16,7 @@ class SimulationResult:
     regression_tests: int
     capability_parity: bool
     failure_reason: Optional[str]
-    ts: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    ts: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
 
 
 class EvolutionSimulator:

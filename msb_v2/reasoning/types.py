@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
 
@@ -48,7 +48,7 @@ class ReasoningTrace:
     decision_id: Optional[str] = None
     memory_ids: tuple[str, ...] = ()
     conclusion: str = ""
-    created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
-    updated_at: str = field(default_factory=lambda: datetime.utcnow().isoformat() + "Z")
+    created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
+    updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat() + "Z")
     metadata: dict[str, str | float | int | bool] = field(default_factory=dict)
 
