@@ -480,6 +480,9 @@ class PersistentMemoryStore:
             avg_decision_impact_score=influence_sum / max(1, total),
         )
 
+    def all(self, *, exclude_deleted: bool = True) -> List[MemoryRecord]:
+        return list(self.iter_all(exclude_deleted=exclude_deleted))
+
     def iter_all(self, *, exclude_deleted: bool = True) -> Iterator[MemoryRecord]:
         with self._lock, sqlite3.connect(self.path) as conn:
             query = "SELECT * FROM memory"
@@ -491,3 +494,4 @@ class PersistentMemoryStore:
             column_names = [description[0] for description in cursor.description]
         for row in cursor:
             yield _row_to_record(dict(zip(column_names, row)))
+    pass
