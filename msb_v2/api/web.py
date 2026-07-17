@@ -35,6 +35,7 @@ from msb_v2.api.agent import router as agent_router
 from msb_v2.api.visualizer import router as visualizer_router
 from msb_v2.api.studio import router as studio_router
 from msb_v2.api.environment import router as environment_router
+from msb_v2.api.brain import router as brain_router
 from msb_v2.engine.orchestrator import Task, orchestrate
 
 
@@ -89,4 +90,5 @@ def create_app() -> FastAPI:
     app.include_router(visualizer_router, prefix="/visualizer")
     app.include_router(studio_router, prefix="")
     app.include_router(environment_router, prefix="")
+    app.include_router(brain_router, prefix="/brain")
     return app
