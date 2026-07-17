@@ -9,6 +9,74 @@
       "name": "AutoMoneyMachine"
     }
   ],
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "MSB v2: Run Server",
+        "type": "python",
+        "request": "launch",
+        "module": "uvicorn",
+        "args": ["msb_v2.api.main:create_app", "--factory", "--host", "127.0.0.1", "--port", "8766"],
+        "console": "integratedTerminal",
+        "cwd": "/Users/lordwilson/msb-v2",
+        "env": {
+          "PYTHONPATH": "/Users/lordwilson/msb-v2",
+          "MSB_REASONING_SCORER": "1"
+        }
+      },
+      {
+        "name": "MSB v2: Tests",
+        "type": "python",
+        "request": "launch",
+        "module": "pytest",
+        "args": ["-q"],
+        "console": "integratedTerminal",
+        "cwd": "/Users/lordwilson/msb-v2",
+        "env": {
+          "PYTHONPATH": "/Users/lordwilson/msb-v2",
+          "MSB_REASONING_SCORER": "1"
+        }
+      }
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "MSB v2: pytest",
+        "type": "shell",
+        "command": "PYTHONPATH=/Users/lordwilson/msb-v2 MSB_REASONING_SCORER=1 /opt/homebrew/Caskroom/miniforge/base/bin/python -m pytest -q",
+        "options": {
+          "cwd": "/Users/lordwilson/msb-v2"
+        },
+        "group": {
+          "kind": "test",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "MSB v2: server",
+        "type": "shell",
+        "command": "PYTHONPATH=/Users/lordwilson/msb-v2 MSB_REASONING_SCORER=1 /opt/homebrew/Caskroom/miniforge/base/bin/python -m uvicorn msb_v2.api.main:create_app --factory --host 127.0.0.1 --port 8766",
+        "options": {
+          "cwd": "/Users/lordwilson/msb-v2"
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      {
+        "label": "AutoMoneyMachine: main",
+        "type": "shell",
+        "command": "/opt/homebrew/Caskroom/miniforge/base/bin/python main.py",
+        "options": {
+          "cwd": "/Users/lordwilson/AutoMoneyMachine"
+        }
+      }
+    ]
+  },
   "settings": {
     "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniforge/base/bin/python",
     "python.analysis.typeCheckingMode": "basic",
