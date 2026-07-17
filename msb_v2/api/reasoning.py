@@ -9,9 +9,13 @@ from msb_v2.reasoning.types import (
     ReasoningStep,
     ReasoningTrace,
 )
+from msb_v2.verification.capability_registry import CapabilityRegistry
+from msb_v2.verification.evidence import EvidenceEngine
 
 router = APIRouter(tags=["reasoning"])
 store = ReasoningStore(SEED)
+_registry = CapabilityRegistry()
+_evidence_engine = EvidenceEngine(registry=_registry, memory_client=None)
 
 
 def seed_store(traces: list[ReasoningTrace]) -> None:
@@ -54,9 +58,10 @@ class TraceOut(BaseModel):
     created_at: str
     updated_at: str
     metadata: dict[str, object]
+    evidence_report: dict[str, object] | None = None
 
 
-def _trace_out(trace: ReasoningTrace) -> TraceOut:
+def _trace_out(trace: ReasoningTrace, evidence_report: dict[str, object] | None = None) -> TraceOut:
     return TraceOut(
         trace_id=trace.trace_id,
         title=trace.title,
@@ -78,7 +83,37 @@ def _trace_out(trace: ReasoningTrace) -> TraceOut:
         created_at=trace.created_at,
         updated_at=trace.updated_at,
         metadata=trace.metadata,
+        evidence_report=evidence_report,
     )
+
+
+def _build_evidence_report(trace: ReasoningTrace) -> dict[str, object] | None:
+    try:
+        report = _evidence_engine.evaluate(
+            query=trace.title,
+            answer=trace.conclusion or " ".join(s.claim for s in trace.steps),
+            trace={
+                "confidence": float(trace.steps[-1].confidence) if trace.steps else 0.0,
+                "steps": [s.claim for s in trace.steps],
+                "tool_calls": trace.metadata.get("tool_calls", []),
+                "provenance": trace.metadata.get("provenance", []),
+            },
+        )
+        return {
+            "hash": report.compute_hash(),
+            "confidence": report.confidence,
+            "consistency": report.consistency,
+            "novelty": report.novelty,
+            "verification_score": report.verification_score,
+            "falsification_score": report.falsification_score,
+            "uncertainty": report.uncertainty,
+            "trace_depth": report.trace_depth,
+            "memory_support": report.memory_support,
+            "tool_support": report.tool_support,
+            "provenance": report.provenance,
+        }
+    except Exception:
+        return None
 
 
 @router.get("/traces", response_model=list[TraceOut])
@@ -89,7 +124,8 @@ def list_traces(status: ReasoningStatus | None = None) -> list[TraceOut]:
 @router.get("/traces/{trace_id}", response_model=TraceOut)
 def get_trace(trace_id: str) -> TraceOut:
     try:
-        return _trace_out(store.get_trace(trace_id))
+        trace = store.get_trace(trace_id)
+        return _trace_out(trace, _build_evidence_report(trace))
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -118,7 +154,8 @@ def create_trace(body: TraceCreate) -> TraceOut:
         metadata=body.metadata,
     )
     try:
-        return _trace_out(store.add_trace(trace))
+        saved = store.add_trace(trace)
+        return _trace_out(saved, _build_evidence_report(saved))
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except KeyError as exc:
@@ -128,7 +165,8 @@ def create_trace(body: TraceCreate) -> TraceOut:
 @router.patch("/traces/{trace_id}/status", response_model=TraceOut)
 def patch_status(trace_id: str, body: SetStatusBody) -> TraceOut:
     try:
-        return _trace_out(store.set_status(trace_id, body.status))
+        trace = store.set_status(trace_id, body.status)
+        return _trace_out(trace, _build_evidence_report(trace))
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -136,7 +174,8 @@ def patch_status(trace_id: str, body: SetStatusBody) -> TraceOut:
 @router.post("/traces/{trace_id}/decision", response_model=TraceOut)
 def backfill_decision(trace_id: str, decision_id: str = Body(...)) -> TraceOut:
     try:
-        return _trace_out(store.backfill_decision(trace_id, decision_id))
+        trace = store.backfill_decision(trace_id, decision_id)
+        return _trace_out(trace, _build_evidence_report(trace))
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
