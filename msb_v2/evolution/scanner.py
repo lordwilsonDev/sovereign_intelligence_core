@@ -1,108 +1,89 @@
 from __future__ import annotations
 
-import ast
-import hashlib
-import json
+import sqlite3
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List
-
-from msb_v2.evolution.proposal import EvolutionProposal
+from typing import Any, Dict, List, Optional
 
 
-class OuroborosScanner:
-    def __init__(self, root: Path) -> None:
-        self.root = root
+@dataclass(frozen=True)
+class DriftSignal:
+    proposal_id: str
+    source: str
+    event_kind: str
+    created_at: str
+    evidence: Dict[str, Any]
+    status: str = "pending"
 
-    def scan(self) -> Dict[str, Any]:
-        hotspots = self._complexity_hotspots()
-        duplication = self._duplication_signals()
-        dead = self._dead_symbols()
-        return {
-            "hotspots": hotspots,
-            "duplication": duplication,
-            "dead_symbols": dead,
-            "proposal_count": len(hotspots) + len(duplication) + len(dead),
-        }
 
-    def _complexity_hotspots(self) -> List[Dict[str, Any]]:
-        results: List[Dict[str, Any]] = []
-        for path in self.root.rglob("*.py"):
-            try:
-                text = path.read_text(encoding="utf-8")
-                tree = ast.parse(text)
-            except Exception:
-                continue
-            funcs = [n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)]
-            for func in funcs:
-                loc = self._func_loc(text, func)
-                complexity = self._cyclomatic(func)
-                if complexity >= 10 or loc >= 120:
-                    results.append(
-                        {
-                            "file": str(path.relative_to(self.root)),
-                            "function": func.name,
-                            "complexity": complexity,
-                            "loc": loc,
-                        }
-                    )
-        return results
+class EvolutionScanner:
+    def __init__(self, db_path: str = "/Users/lordwilson/msb-v2/.artifacts/evolution_store.sqlite", *, window_limit: int = 1000) -> None:
+        self.db_path = str(Path(db_path).expanduser())
+        self.window_limit = max(1, window_limit)
+        self._init_db()
 
-    def _duplication_signals(self) -> List[Dict[str, Any]]:
-        signals: List[Dict[str, Any]] = []
-        buckets: Dict[str, List[str]] = {}
-        for path in self.root.rglob("*.py"):
-            try:
-                text = path.read_text(encoding="utf-8")
-                lines = [line.strip() for line in text.splitlines() if line.strip()]
-            except Exception:
-                continue
-            for line in lines:
-                if len(line) < 40:
-                    continue
-                digest = hashlib.md5(line.encode("utf-8")).hexdigest()
-                buckets.setdefault(digest, []).append(str(path))
-        for digest, files in buckets.items():
-            if len(files) >= 2:
-                signals.append({"digest": digest, "count": len(files), "files": files})
-        return signals[:20]
+    def _init_db(self) -> None:
+        Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.db_path) as db:
+            db.execute(
+                """
+                CREATE TABLE IF NOT EXISTS drift_events (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  proposal_id TEXT UNIQUE NOT NULL,
+                  source TEXT NOT NULL,
+                  event_kind TEXT NOT NULL,
+                  evidence TEXT NOT NULL,
+                  status TEXT DEFAULT 'pending',
+                  created_at TEXT NOT NULL
+                )
+                """
+            )
+            db.commit()
 
-    def _dead_symbols(self) -> List[Dict[str, Any]]:
-        dead: List[Dict[str, Any]] = []
-        for path in self.root.rglob("*.py"):
-            try:
-                text = path.read_text(encoding="utf-8")
-            except Exception:
-                continue
-            for line in text.splitlines():
-                if line.strip().startswith("def ") or line.strip().startswith("class "):
-                    symbol = line.strip().split("(")[0].split(" ")[-1]
-                    if symbol.startswith("_"):
-                        continue
-                    usages = text.count(symbol)
-                    if usages == 1:
-                        dead.append({"file": str(path.relative_to(self.root)), "symbol": symbol})
-        return dead[:20]
+    def window(self, event_type: str, *, since: Optional[str] = None) -> List[Dict[str, Any]]:
+        with sqlite3.connect(self.db_path) as db:
+            db.row_factory = sqlite3.Row
+            clauses = ["event_type = ?"]
+            args: list[Any] = [event_type]
+            if since:
+                clauses.append("timestamp >= ?")
+                args.append(since)
+            cursor = db.execute(
+                f"SELECT * FROM events WHERE {' AND '.join(clauses)} ORDER BY timestamp DESC LIMIT ?",
+                (*args, self.window_limit),
+            )
+            return [dict(row) for row in cursor.fetchall()]
 
-    def propose(self, proposal_id: str, title: str, affected_modules: List[str], rationale: str, risk: str = "medium") -> EvolutionProposal:
-        scan = self.scan()
-        return EvolutionProposal(
-            proposal_id=proposal_id,
-            title=title,
-            affected_modules=affected_modules,
-            rationale=f"{rationale}\n\nScanner findings:\n{json.dumps(scan, indent=2)}",
-            risk=risk,
-        )
+    def save_drift(self, drift: DriftSignal) -> None:
+        with sqlite3.connect(self.db_path) as db:
+            db.execute(
+                """
+                INSERT OR IGNORE INTO drift_events (proposal_id, source, event_kind, evidence, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (drift.proposal_id, drift.source, drift.event_kind, __import__("json").dumps(drift.evidence), drift.status, drift.created_at),
+            )
+            db.commit()
 
-    @staticmethod
-    def _func_loc(text: str, node: ast.AST) -> int:
-        start = getattr(node, "lineno", 0)
-        end = getattr(node, "end_lineno", start)
-        return max(1, end - start + 1)
-
-    @staticmethod
-    def _cyclomatic(node: ast.AST) -> int:
-        branches = 1
-        for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler, ast.Assert, ast.BoolOp)):
-                branches += 1
-        return branches
+    def pending(self, *, limit: int = 100) -> List[DriftSignal]:
+        with sqlite3.connect(self.db_path) as db:
+            db.row_factory = sqlite3.Row
+            cursor = db.execute(
+                "SELECT * FROM drift_events WHERE status = 'pending' ORDER BY created_at DESC LIMIT ?",
+                (limit,),
+            )
+            rows = cursor.fetchall()
+        signals = []
+        for row in rows:
+            signals.append(
+                DriftSignal(
+                    proposal_id=row["proposal_id"],
+                    source=row["source"],
+                    event_kind=row["event_kind"],
+                    created_at=row["created_at"],
+                    evidence=__import__("json").loads(row["evidence"]),
+                    status=row["status"],
+                )
+            )
+        return signals
