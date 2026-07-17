@@ -169,8 +169,8 @@ class PersistentMemoryStore:
                     record.revision_id,
                     record.revision_of,
                     record.integrity_hash,
-                    record.provenance,
-                ),
+                    json.dumps(record.provenance),
+            ),
             )
             conn.commit()
             conn.close()
