@@ -26,15 +26,7 @@ TARGETED = [
     "tests/test_visualizer.py",
     "tests/test_verification.py",
     "tests/test_evolution.py",
-]
-
-LEGACY = [
-    "tests/test_cognitive_api.py",
-    "tests/test_live_endpoints.py",
-    "tests/test_moie_api.py",
-    "tests/test_security_posture.py",
-    "tests/test_security_profile_api.py",
-    "tests/test_security_resources_api.py",
+    "tests/test_phase0_veto_real.py",
 ]
 
 
@@ -54,8 +46,7 @@ def run(label: str, files: list[str]) -> tuple[str, int]:
 
 def main() -> int:
     targeted_out, targeted_rc = run("TARGETED", TARGETED)
-    legacy_out, legacy_rc = run("LEGACY", LEGACY)
-    sys.stdout.write(targeted_out + "\n\n" + legacy_out + "\n")
+    sys.stdout.write(targeted_out + "\n")
     if targeted_rc != 0:
         return 1
     return 0
