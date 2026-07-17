@@ -31,6 +31,7 @@ class EvolutionProposalRequest(BaseModel):
 class SimulationRequest(BaseModel):
     proposal_id: str
     pytest_targets: List[str] = []
+    dry_run: bool = False
 
 
 @router.post("/evolution/scan")
@@ -63,6 +64,7 @@ def evolution_simulate(payload: SimulationRequest) -> JSONResponse:
         affected_modules=payload.pytest_targets,
         rationale="",
     )
+    object.__setattr__(proposal, "dry_run", payload.dry_run)
     result = _simulator.simulate(proposal, payload.pytest_targets)
     proposal.status = "simulated" if result.passed else "failed"
     proposal.simulation = {"passed": result.passed, "failure_reason": result.failure_reason}

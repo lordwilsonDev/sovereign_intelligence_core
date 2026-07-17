@@ -45,15 +45,21 @@ class RuntimeContext:
         if not result.success:
             return result
         self.started_at = time.time()
-        self.lifecycle.start()
+        self.event_log.start()
+        self.background.register_thread(self.event_log._flush_remaining, interval=self.event_log.flush_interval, label="event-log-flush")
         self.health.record("running", detail="runtime started")
         return result
 
     def stop(self, *, wait: bool = True) -> LifecycleResult:
         self.health.record("stopped", detail="runtime stopped")
-        result = self.lifecycle.shutdown()
+        self.event_log.stop()
+        self.background.stop_all_threads(timeout=2.0)
         self.workers.stop(wait=wait)
-        return result
+        return self.lifecycle.shutdown()
+
+    def register_feedback_collector(self, collector: Any) -> None:
+        self.events.subscribe("user_correction", collector._on_correction)
+        self.background.register_thread(collector.summary, interval=5.0, label="feedback-summary")
 
     def record_capability(self, event: CapabilityEvent) -> CapabilityEvent:
         self.health.record(

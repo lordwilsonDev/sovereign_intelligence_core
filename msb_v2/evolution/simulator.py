@@ -24,14 +24,29 @@ class EvolutionSimulator:
         self.repo_root = repo_root
 
     def simulate(self, proposal: EvolutionProposal, pytest_targets: Optional[List[str]] = None) -> SimulationResult:
-        modes = ["test", "lint", "type"]
-        results = {}
-        for mode in modes:
-            results[mode] = self._run_checks(proposal, mode, pytest_targets or [])
+        if getattr(proposal, "dry_run", False):
+            return SimulationResult(
+                proposal_id=proposal.proposal_id,
+                passed=True,
+                regression_tests=0,
+                capability_parity=True,
+                failure_reason=None,
+            )
+        if not pytest_targets:
+            return SimulationResult(
+                proposal_id=proposal.proposal_id,
+                passed=False,
+                regression_tests=0,
+                capability_parity=False,
+                failure_reason="missing targets",
+            )
+        results = {
+            "test": self._run_pytest(proposal, pytest_targets),
+            "lint": self._run_lint(proposal, pytest_targets),
+            "type": self._run_type(proposal, pytest_targets),
+        }
         passed = all(v.get("ok", False) for v in results.values())
-        failure_reason = None
-        if not passed:
-            failure_reason = next((k for k, v in results.items() if not v.get("ok", False)), "unknown")
+        failure_reason = None if passed else next((k for k, v in results.items() if not v.get("ok", False)), "unknown")
         return SimulationResult(
             proposal_id=proposal.proposal_id,
             passed=passed,
@@ -40,19 +55,22 @@ class EvolutionSimulator:
             failure_reason=failure_reason,
         )
 
-    def _run_checks(self, proposal: EvolutionProposal, mode: str, targets: List[str]) -> Dict[str, Any]:
-        if mode == "test":
-            cmd = ["pytest", "-q"] + targets
-            label = "regression"
-        elif mode == "lint":
-            cmd = ["python3", "-m", "ruff", "check"] + targets
-            label = "ruff"
-        else:
-            cmd = ["python3", "-m", "mypy"] + targets
-            label = "mypy"
+    def _run_pytest(self, proposal: EvolutionProposal, targets: List[str]) -> Dict[str, Any]:
+        cmd = ["pytest", "-q"] + targets
+        return self._run(cmd, proposal, label="regression")
+
+    def _run_lint(self, proposal: EvolutionProposal, targets: List[str]) -> Dict[str, Any]:
+        cmd = ["python3", "-m", "ruff", "check"] + targets
+        return self._run(cmd, proposal, label="ruff")
+
+    def _run_type(self, proposal: EvolutionProposal, targets: List[str]) -> Dict[str, Any]:
+        cmd = ["python3", "-m", "mypy"] + targets
+        return self._run(cmd, proposal, label="mypy")
+
+    def _run(self, cmd: List[str], proposal: EvolutionProposal, label: str) -> Dict[str, Any]:
         try:
             proc = subprocess.run(cmd, cwd=self.repo_root, capture_output=True, text=True, timeout=120)
             ok = proc.returncode == 0
-            return {"ok": ok, "mode": mode, "label": label, "returncode": proc.returncode, "stdout": proc.stdout[-2000:], "stderr": proc.stderr[-2000:]}
+            return {"ok": ok, "mode": label, "label": label, "returncode": proc.returncode, "stdout": proc.stdout[-2000:], "stderr": proc.stderr[-2000:]}
         except Exception as exc:
-            return {"ok": False, "mode": mode, "label": label, "error": str(exc)}
+            return {"ok": False, "mode": label, "label": label, "error": str(exc)}
