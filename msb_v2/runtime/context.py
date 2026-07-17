@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import tempfile
 import time
-from typing import Optional
+from pathlib import Path
+from typing import Any, Optional
 
 from msb_v2.core.background_tasks import BackgroundTaskRegistry
+from msb_v2.core.snapshots import SnapshotManager
 from msb_v2.runtime.capabilities import CapabilityEvent
 from msb_v2.runtime.config import RuntimeConfig
 from msb_v2.runtime.event_log import PersistentEventLog
@@ -21,6 +24,8 @@ class RuntimeContext:
     def __init__(self, config: Optional[RuntimeConfig] = None) -> None:
         self.config = config or RuntimeConfig()
         self.lifecycle = LifecycleManager()
+        snapshot_root = Path(tempfile.mkdtemp(prefix="msb2-snapshots-"))
+        self.snapshots = SnapshotManager(snapshot_root)
         self.event_log = PersistentEventLog(
             self.config.event_log_path,
             flush_interval=self.config.event_log_flush_interval,
@@ -107,3 +112,17 @@ class RuntimeContext:
             "health": self.health.summary(),
             "resources": self.resources.snapshot(),
         }
+
+    def create_snapshot(self, tag: str, source: Any) -> str:
+        if isinstance(source, str):
+            path = source
+        else:
+            path = getattr(source, "path", None) or getattr(source, "db_path", None) or str(getattr(source, "root", "."))
+        return self.snapshots.snapshot(tag=tag, source=path)
+
+    def rollback_snapshot(self, tag: str, dest: Any) -> None:
+        if isinstance(dest, str):
+            path = dest
+        else:
+            path = getattr(dest, "path", None) or getattr(dest, "db_path", None) or str(getattr(dest, "root", "."))
+        self.snapshots.rollback(tag=tag, dest=path)

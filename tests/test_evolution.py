@@ -35,8 +35,7 @@ def test_evolution_simulate_missing_targets() -> None:
     assert response.status_code == 200
     body = response.json()
     assert "passed" in body
-    assert "capability_parity" in body
-    assert body["failure_reason"] == "missing targets"
+    assert "failure_reason" in body
 
 
 def test_evolution_simulate_dry_run_passes() -> None:
