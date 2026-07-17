@@ -21,6 +21,33 @@ def test_brain_empty_body(client):  # noqa: ANN001
     assert response.status_code == 422
 
 
+def test_brain_empty_query_fallback(client):  # noqa: ANN001
+    response = client.post("/brain/run", json={"query": "", "intent": "default"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["kind"] == "fallback"
+    assert payload["payload"]["resolved"] == "noop"
+
+
+def test_brain_long_query_accepted(client):  # noqa: ANN001
+    query = "word " * 5000
+    response = client.post("/brain/run", json={"query": query, "intent": "default"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["payload"]["query"] == query
+
+
+def test_brain_special_chars_query(client):  # noqa: ANN001
+    response = client.post("/brain/run", json={"query": "who 'rules'? \"maybe\" <tags>", "intent": "default"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["kind"] == "fallback"
+    assert payload["payload"]["query"] == "who 'rules'? \"maybe\" <tags>"
+
+
 def test_brain_unknown_intent_falls_back(client):  # noqa: ANN001
     response = client.post("/brain/run", json={"query": "anything", "intent": "does_not_exist"})
     assert response.status_code == 200
