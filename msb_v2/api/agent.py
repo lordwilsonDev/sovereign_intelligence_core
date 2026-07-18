@@ -109,7 +109,7 @@ def agent_queue_submit(goal: str, priority: int = 2) -> JSONResponse:
 
 @router.get("/agent/queue/{task_id}")
 def agent_queue_status(task_id: str) -> JSONResponse:
-    status = _queue().status(task_id)
+    status = _queue().get_status(task_id)
     if status is None:
         return JSONResponse({"error": "not_found"}, status_code=404)
     return JSONResponse(status)

@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import threading
 import time
+import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Callable, Any
+from typing import Any, Callable
 
 
-class TaskState(Enum):
+class TaskStatus(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -15,23 +16,24 @@ class TaskState(Enum):
     CANCELLED = "cancelled"
 
 
-class TaskPriority:
-    HIGH = 1
-    NORMAL = 2
-    LOW = 3
+class TaskPriority(str, Enum):
+    LOW = "low"
+    NORMAL = "normal"
+    HIGH = "high"
 
 
-@dataclass(order=True)
+@dataclass
 class Task:
-    priority: int
-    created_at: float = field(compare=False)
-    task_id: str = field(compare=False)
-    goal: str = field(compare=False)
-    status: TaskState = field(compare=False, default=TaskState.PENDING)
-    result: Any = field(compare=False, default=None)
-    error: str = field(compare=False, default="")
-    cancel_flag: threading.Event = field(compare=False, default_factory=threading.Event)
-    on_complete: Callable | None = field(compare=False, default=None)
+    task_id: str
+    goal: str
+    status: TaskStatus = TaskStatus.PENDING
+    result: Any = None
+    error: str = ""
+    priority: TaskPriority = TaskPriority.NORMAL
+    cancel_flag: threading.Event = field(default_factory=threading.Event)
+    created_at: float = field(default_factory=time.time)
+    started_at: float | None = None
+    finished_at: float | None = None
 
 
 class TaskQueue:
@@ -41,142 +43,147 @@ class TaskQueue:
         self._condition = threading.Condition(self._lock)
         self._tasks: dict[str, Task] = {}
         self._running = False
-        self._worker: threading.Thread | None = None
+        self._worker_thread: threading.Thread | None = None
         self._max_concurrent = max_concurrent
-        self._active = 0
-        self._resolve = self._default_resolve
+        self._active_count = 0
+        self._resolve: Callable[..., str] | None = None
 
     def start(self) -> None:
-        with self._lock:
-            if self._running:
-                return
-            self._running = True
-            self._worker = threading.Thread(target=self._loop, daemon=True, name="agent-task-queue")
-            self._worker.start()
+        if self._running:
+            return
+        self._running = True
+        self._worker_thread = threading.Thread(target=self._worker_loop, daemon=True, name="TaskQueue")
+        self._worker_thread.start()
 
     def stop(self) -> None:
+        self._running = False
         with self._condition:
-            self._running = False
             self._condition.notify_all()
 
-    def submit(self, goal: str, priority: int = TaskPriority.NORMAL, on_complete: Callable | None = None) -> str:
-        import uuid
-
-        task_id = uuid.uuid4().hex[:8]
+    def submit(self, goal: str, priority: TaskPriority = TaskPriority.NORMAL) -> str:
         task = Task(
+            task_id=str(uuid.uuid4())[:8],
+            goal=goal or "",
             priority=priority,
-            created_at=time.time(),
-            task_id=task_id,
-            goal=goal,
-            on_complete=on_complete,
         )
         with self._condition:
             self._queue.append(task)
-            self._queue.sort(key=lambda t: (t.priority, t.created_at))
-            self._tasks[task_id] = task
+            self._tasks[task.task_id] = task
+            self._queue.sort(key=lambda t: (t.priority.value, t.created_at))
             self._condition.notify()
-        return task_id
+        return task.task_id
 
     def cancel(self, task_id: str) -> bool:
         with self._lock:
             task = self._tasks.get(task_id)
-            if not task or task.status in {TaskState.COMPLETED, TaskState.FAILED, TaskState.CANCELLED}:
+            if not task or task.status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED):
                 return False
             task.cancel_flag.set()
-            task.status = TaskState.CANCELLED
+            task.status = TaskStatus.CANCELLED
             return True
 
     def status(self, task_id: str) -> dict | None:
+        return self.get_status(task_id)
+
+    def get_status(self, task_id: str) -> dict | None:
         with self._lock:
-            t = self._tasks.get(task_id)
-            if not t:
+            task = self._tasks.get(task_id)
+            if not task:
                 return None
-            return {"task_id": t.task_id, "goal": t.goal, "status": t.status.value, "error": t.error, "result": t.result}
+            return {
+                "task_id": task.task_id,
+                "goal": task.goal,
+                "status": task.status.value,
+                "result": task.result,
+                "error": task.error,
+                "priority": task.priority.value,
+            }
 
-    def pending_count(self) -> int:
-        with self._lock:
-            return sum(1 for t in self._queue if t.status == TaskState.PENDING)
-
-    def wait_running(self, task_id: str, timeout: float = 1.0) -> bool:
-        deadline = time.time() + timeout
+    def wait_completed(self, task_id: str, timeout: float = 5.0) -> dict | None:
+        deadline = time.time() + max(timeout, 0)
         while time.time() < deadline:
-            st = self.status(task_id)
-            if st and st["status"] == TaskState.RUNNING.value:
-                return True
+            with self._lock:
+                task = self._tasks.get(task_id)
+                if not task or task.status in (TaskStatus.COMPLETED, TaskStatus.FAILED, TaskStatus.CANCELLED):
+                    return self.get_status(task_id)
+            time.sleep(0.05)
+        return self.get_status(task_id)
+
+    def wait_running(self, task_id: str, timeout: float = 2.0) -> bool:
+        deadline = time.time() + max(timeout, 0)
+        while time.time() < deadline:
+            with self._lock:
+                task = self._tasks.get(task_id)
+                if task and task.status == TaskStatus.RUNNING:
+                    return True
             time.sleep(0.05)
         return False
 
-    def wait_completed(self, task_id: str, timeout: float = 2.0) -> dict | None:
-        deadline = time.time() + timeout
-        while time.time() < deadline:
-            st = self.status(task_id)
-            if st and st["status"] in {TaskState.COMPLETED.value, TaskState.FAILED.value, TaskState.CANCELLED.value}:
-                return st
-            time.sleep(0.05)
-        return None
+    def get_all_statuses(self) -> list[dict]:
+        with self._lock:
+            return [
+                {
+                    "task_id": t.task_id,
+                    "goal": t.goal[:50],
+                    "status": t.status.value,
+                    "priority": t.priority.value,
+                }
+                for t in self._tasks.values()
+            ]
 
-    def _default_resolve(self, goal: str, cancel_flag: threading.Event | None = None) -> str:
-        return "done"
-
-    def _next(self) -> Task | None:
-        if self._active >= self._max_concurrent:
-            return None
-        for t in self._queue:
-            if t.status == TaskState.PENDING and not t.cancel_flag.is_set():
-                return t
-        return None
-
-    def _loop(self) -> None:
-        while True:
+    def _worker_loop(self) -> None:
+        while self._running:
             with self._condition:
-                while self._running and not self._next():
+                while self._running and not self._next_task():
                     self._condition.wait(timeout=1.0)
-                if not self._running:
-                    break
-                task = self._next()
+                task = self._next_task()
                 if task:
-                    task.status = TaskState.RUNNING
-                    self._active += 1
+                    task.status = TaskStatus.RUNNING
+                    task.started_at = time.time()
+                    self._active_count += 1
                     try:
                         self._queue.remove(task)
                     except ValueError:
                         pass
 
             if task:
-                threading.Thread(target=self._run, args=(task,), daemon=True).start()
-
-    def _run(self, task: Task) -> None:
-        try:
-            result = self._resolve(task.goal, cancel_flag=task.cancel_flag)
-            with self._lock:
-                if task.cancel_flag.is_set():
-                    task.status = TaskState.CANCELLED
-                else:
-                    task.status = TaskState.COMPLETED
-                    task.result = result
-                self._active -= 1
-            if task.on_complete and not task.cancel_flag.is_set():
                 try:
-                    task.on_complete(task.task_id, result)
-                except Exception:
-                    pass
-        except Exception as exc:
-            with self._lock:
-                task.status = TaskState.FAILED
-                task.error = str(exc)
-                self._active -= 1
-        with self._condition:
-            self._condition.notify_all()
+                    task.result = self._run_resolve(task)
+                    if task.cancel_flag.is_set():
+                        task.status = TaskStatus.CANCELLED
+                    else:
+                        task.status = TaskStatus.COMPLETED
+                except Exception as e:
+                    task.status = TaskStatus.FAILED
+                    task.error = str(e)
+                with self._lock:
+                    task.finished_at = time.time()
+                    self._active_count -= 1
+                with self._condition:
+                    self._condition.notify()
+
+    def _run_resolve(self, task: Task) -> str:
+        if self._resolve is not None:
+            return self._resolve(task.goal, task.cancel_flag)
+        return f"executed: {task.goal}"
+
+    def _next_task(self) -> Task | None:
+        if self._active_count >= self._max_concurrent:
+            return None
+        for task in self._queue:
+            if task.status == TaskStatus.PENDING and not task.cancel_flag.is_set():
+                return task
+        return None
 
 
 _queue: TaskQueue | None = None
 _queue_lock = threading.Lock()
 
 
-def get_queue() -> TaskQueue:
+def get_queue(max_concurrent: int = 1) -> TaskQueue:
     global _queue
     with _queue_lock:
         if _queue is None:
-            _queue = TaskQueue()
+            _queue = TaskQueue(max_concurrent=max_concurrent)
             _queue.start()
-        return _queue
+    return _queue
