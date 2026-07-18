@@ -10,6 +10,11 @@ from msb_v2.v3.registry import get_registry as _get_registry
 router = APIRouter(tags=["v3"])
 
 
+@router.get("/v3/health")
+def v3_health() -> JSONResponse:
+    return JSONResponse({"status": "ok"})
+
+
 @router.get("/v3/capabilities")
 def v3_capabilities() -> JSONResponse:
     registry = _get_registry()
