@@ -8,7 +8,7 @@ help:
 	@echo "  make clean    - remove __pycache__ and .snapshots"
 
 test:
-	PYTHONPATH=/Users/lordwilson/msb-v2 MSB_REASONING_SCORER=1 /opt/homebrew/Caskroom/miniforge/base/bin/python -m pytest -q
+	PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=/Users/lordwilson/msb-v2 MSB_REASONING_SCORER=1 /opt/homebrew/Caskroom/miniforge/base/bin/python -m pytest -q
 
 server:
 	./start.sh
