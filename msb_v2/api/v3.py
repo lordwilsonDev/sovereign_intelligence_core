@@ -113,5 +113,6 @@ def plan_task(payload: dict) -> JSONResponse:
     planner = _get_planner()
     task = payload.get("task", "")
     context = payload.get("context")
-    result = planner.plan(task=task, context=context)
+    context_text = "" if context is None else (context if isinstance(context, str) else str(context))
+    result = planner.plan(task=task, context=context_text or None)
     return JSONResponse(result)
