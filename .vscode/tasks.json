@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "MSB v2: Run tests",
+      "type": "shell",
+      "command": "/opt/homebrew/Caskroom/miniforge/base/bin/python",
+      "args": ["-m", "pytest", "-q"],
+      "options": {
+        "cwd": "/Users/lordwilson/msb-v2",
+        "env": {
+          "PYTHONPATH": "/Users/lordwilson/msb-v2",
+          "MSB_REASONING_SCORER": "1"
+        }
+      },
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "MSB v2: Start server",
+      "type": "shell",
+      "command": "/Users/lordwilson/msb-v2/start.sh",
+      "options": {
+        "cwd": "/Users/lordwilson/msb-v2"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "showReuseMessage": false
+      },
+      "problemMatcher": []
+    }
+  ]
+}
