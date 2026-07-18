@@ -53,3 +53,10 @@ def test_brain_meta_run_complex_reasoning_intent():
     body = r.json()
     assert body["intent"] == "complex_reasoning"
     assert body["meta_routing"]["primary"] == "complex_reasoning"
+
+
+def test_meta_route_desktop_intent():
+    r = client.post("/brain/meta-run", json={"query": "Automate opening Finder and taking a screenshot", "intent": "desktop", "trace_id": "trace-desktop"})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["meta_routing"]["primary"] == "desktop"
