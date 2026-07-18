@@ -1,0 +1,22 @@
+{
+  "python.defaultInterpreterPath": "/opt/homebrew/Caskroom/miniforge/base/bin/python",
+  "python.analysis.typeCheckingMode": "basic",
+  "python.testing.pytestArgs": ["-q"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "files.exclude": {
+    "**/.snapshots": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true
+  },
+  "files.watcherExclude": {
+    "**/.snapshots/**": true,
+    "**/__pycache__/**": true,
+    "**/mutants/**": true
+  },
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "editor.formatOnSave": false,
+  "python.linting.pylintArgs": [
+    "--disable=C0103"
+  ]
+}
