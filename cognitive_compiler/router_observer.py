@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from cognitive_compiler.meta_router_v2 import MetaRoutingResult
 
@@ -31,17 +31,41 @@ class RouterObserver:
         self.log_path = log_path
         self.buffer: List[RoutingObservation] = []
 
-    def record(self, result: "MetaRoutingResult", query: str) -> None:
+    def record(self, result: Any, query: str) -> None:
+        routing = result.decision if hasattr(result, "decision") else result
+        if hasattr(routing, "primary"):
+            primary = routing.primary or "base_are"
+            secondary = routing.secondary
+            order = routing.order or "serial"
+            confidence = routing.confidence or 0.0
+            justification = routing.justification or ""
+            rerouted = bool(routing.rerouted)
+        elif isinstance(routing, dict):
+            primary = routing.get("primary") or "base_are"
+            secondary = routing.get("secondary")
+            order = routing.get("order") or "serial"
+            confidence = routing.get("confidence") or 0.0
+            justification = routing.get("justification") or ""
+            rerouted = bool(routing.get("rerouted"))
+        else:
+            return
+        if hasattr(result, "temperature") and hasattr(result.temperature, "score"):
+            temp_score = result.temperature.score
+        elif isinstance(result, dict):
+            temp_score = result.get("temperature", {}).get("score", 0.0)
+        else:
+            temp_score = 0.0
+        elapsed = getattr(result, "elapsed_s", result.get("elapsed_s", 0.0) if isinstance(result, dict) else 0.0)
         obs = RoutingObservation(
             query=query,
-            primary=result.decision.primary,
-            secondary=result.decision.secondary,
-            order=result.decision.order,
-            confidence=result.decision.confidence,
-            justification=result.decision.justification,
-            rerouted=result.rerouted,
-            temperature_score=result.temperature.score,
-            elapsed_s=result.elapsed_s,
+            primary=primary,
+            secondary=secondary,
+            order=order,
+            confidence=confidence,
+            justification=justification,
+            rerouted=rerouted,
+            temperature_score=temp_score,
+            elapsed_s=elapsed,
         )
         self.buffer.append(obs)
         self._flush(obs)
