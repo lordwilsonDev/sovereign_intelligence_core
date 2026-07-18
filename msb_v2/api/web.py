@@ -44,6 +44,7 @@ from msb_v2.api import v3_knowledge as v3_knowledge_router
 from msb_v2.api import v3_twin as v3_twin_router
 from msb_v2.api import v3_tools as v3_tools_router
 from msb_v2.api import v3_tasks as v3_tasks_router
+from msb_v2.api import v3_crew as v3_crew_router
 from msb_v2.engine.orchestrator import Task, orchestrate
 
 
@@ -107,4 +108,5 @@ def create_app() -> FastAPI:
     app.include_router(v3_twin_router.router)
     app.include_router(v3_tools_router.router)
     app.include_router(v3_tasks_router.router)
+    app.include_router(v3_crew_router.router)
     return app
