@@ -6,8 +6,26 @@ from fastapi.responses import JSONResponse
 from msb_v2.v3.constraints import ConstraintEngine
 from msb_v2.v3.memory_router import MemoryRouter
 from msb_v2.v3.registry import get_registry as _get_registry
+from msb_v2.v3.memory_pipeline import EventToMemoryPipeline, MemoryEnhancedPlanner, MemoryEntry
 
 router = APIRouter(tags=["v3"])
+
+_store = MemoryEntry.__dataclass_fields__  # unused; placeholder
+_pipeline = EventToMemoryPipeline(store=None)
+_planner = MemoryEnhancedPlanner(pipeline=_pipeline)
+
+
+def _get_store():
+    from msb_v2.v3.memory_pipeline import InMemoryStore
+    return InMemoryStore()
+
+
+def _get_pipeline():
+    return EventToMemoryPipeline(store=_get_store())
+
+
+def _get_planner():
+    return MemoryEnhancedPlanner(pipeline=_get_pipeline())
 
 
 @router.get("/v3/health")
@@ -53,3 +71,45 @@ def v3_summary() -> JSONResponse:
         "memory": memory.summary(),
         "constraints": engine.summary(),
     })
+
+
+@router.post("/v3/memory/ingest")
+def ingest_memory(payload: MemoryEntry) -> JSONResponse:
+    pipeline = _get_pipeline()
+    entry = pipeline.ingest(
+        source=payload.source,
+        content=payload.content,
+        memory_type=payload.memory_type,
+        importance=payload.importance,
+    )
+    return JSONResponse({"ingested": True, "memory_id": entry.memory_id})
+
+
+@router.post("/v3/memory/ingest/batch")
+def ingest_batch(payload: list[dict]) -> JSONResponse:
+    pipeline = _get_pipeline()
+    entries = pipeline.ingest_batch(payload or [])
+    return JSONResponse({"ingested": len(entries), "memory_ids": [e.memory_id for e in entries]})
+
+
+@router.get("/v3/memory/recent")
+def recent_memories(limit: int = 20) -> dict:
+    pipeline = _get_pipeline()
+    entries = pipeline.recent(limit=limit)
+    return {"entries": [e.__dict__ for e in entries], "count": len(entries)}
+
+
+@router.get("/v3/memory/search")
+def search_memories(q: str, limit: int = 20) -> dict:
+    pipeline = _get_pipeline()
+    entries = pipeline.recall(q, limit=limit)
+    return {"query": q, "entries": [e.__dict__ for e in entries], "count": len(entries)}
+
+
+@router.post("/v3/planner/plan")
+def plan_task(payload: dict) -> JSONResponse:
+    planner = _get_planner()
+    task = payload.get("task", "")
+    context = payload.get("context")
+    result = planner.plan(task=task, context=context)
+    return JSONResponse(result)
