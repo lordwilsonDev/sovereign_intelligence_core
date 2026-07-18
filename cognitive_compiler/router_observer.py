@@ -39,7 +39,7 @@ class RouterObserver:
             order = routing.order or "serial"
             confidence = routing.confidence or 0.0
             justification = routing.justification or ""
-            rerouted = bool(routing.rerouted)
+            rerouted = bool(getattr(routing, "rerouted", False))
         elif isinstance(routing, dict):
             primary = routing.get("primary") or "base_are"
             secondary = routing.get("secondary")

@@ -26,6 +26,7 @@ class HarnessDecision:
     confidence: float = 0.0
     justification: str = ""
     transition_predicate: Optional[str] = None
+    rerouted: bool = False
 
 
 @dataclass
