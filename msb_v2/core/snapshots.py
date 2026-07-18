@@ -1,12 +1,50 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import shutil
 import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+
+def _meta_path(snapshot: Path) -> Path:
+    return snapshot / ".snapshot_meta.json" if snapshot.is_dir() else snapshot.with_suffix(snapshot.suffix + ".snapshot_meta.json")
+
+
+def _read_meta(snapshot: Path) -> dict[str, str]:
+    meta = _meta_path(snapshot)
+    if not meta.exists():
+        return {}
+    try:
+        return json.loads(meta.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _write_meta(snapshot: Path, *, tag: str, source: str, created: str) -> None:
+    meta = _meta_path(snapshot)
+    meta.write_text(json.dumps({"tag": tag, "source": source, "created": created}), encoding="utf-8")
+
+
+def _strip_meta(snapshot: Path) -> None:
+    meta = _meta_path(snapshot)
+    if meta.exists():
+        meta.unlink()
+
+
+def _ignore_specials(dir_path: str, names: list[str]) -> set[str]:
+    skip: set[str] = set()
+    for name in names:
+        p = Path(dir_path) / name
+        try:
+            st = p.stat()
+        except OSError:
+            continue
+        mode = st.st_mode
+        if not (p.is_dir() or (mode & 0o170000) == 0o100000):
+            skip.add(name)
+    return skip
 
 
 class SnapshotManager:
@@ -29,16 +67,12 @@ class SnapshotManager:
             raise FileExistsError(f"snapshot already exists: {dest}")
         with self._lock:
             if src.is_dir():
-                shutil.copytree(src, dest, dirs_exist_ok=False)
+                shutil.copytree(src, dest, dirs_exist_ok=False, ignore=_ignore_specials)
             else:
                 dest.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dest)
             if dest.exists():
-                meta = _meta_path(dest)
-                meta.write_text(
-                    json.dumps({"tag": tag, "source": str(src), "created": ts}),
-                    encoding="utf-8",
-                )
+                _write_meta(dest, tag=tag, source=str(src), created=ts)
         return tag
 
     def rollback(self, tag: str, dest: Path | str) -> None:
@@ -66,28 +100,3 @@ class SnapshotManager:
             meta["path"] = str(path)
             out.append(meta)
         return out
-
-
-def _meta_path(snapshot: Path) -> Path:
-    return snapshot / ".snapshot_meta.json" if snapshot.is_dir() else snapshot.with_suffix(snapshot.suffix + ".snapshot_meta.json")
-
-
-def _write_meta(snapshot: Path, *, tag: str, source: str, created: str) -> None:
-    meta = _meta_path(snapshot)
-    meta.write_text(json.dumps({"tag": tag, "source": source, "created": created}), encoding="utf-8")
-
-
-def _read_meta(snapshot: Path) -> dict[str, str]:
-    meta = _meta_path(snapshot)
-    if not meta.exists():
-        return {}
-    try:
-        return json.loads(meta.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-
-
-def _strip_meta(snapshot: Path) -> None:
-    meta = _meta_path(snapshot)
-    if meta.exists():
-        meta.unlink()
