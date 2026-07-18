@@ -15,15 +15,22 @@ def test_v3_planner_plan_route() -> None:
 
 
 def test_v3_tasks_submit_route() -> None:
-    response = client.post("/v3/tasks/submit", json={"task": "demo"})
-    assert response.status_code in {200, 422}
+    response = client.post("/v3/tasks/submit", params={"goal": "demo", "priority": "normal"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body.get("status") == "queued"
+    assert "task_id" in body
 
 
 def test_agent_run_route() -> None:
-    response = client.post("/agent/run", json={"goal": "Say hello"})
-    assert response.status_code in {200, 422}
+    response = client.post("/agent/run", json={"run_id": "r1", "tasks": [{"goal": "Say hello"}]})
+    assert response.status_code == 200
+    body = response.json()
+    assert "run_id" in body or "status" in body
 
 
 def test_agent_execute_route() -> None:
-    response = client.post("/agent/execute", json={"plan": []})
-    assert response.status_code in {200, 422}
+    response = client.post("/agent/execute", params={"goal": "Say hello"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body.get("goal") == "Say hello"
