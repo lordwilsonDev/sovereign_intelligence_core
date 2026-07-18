@@ -12,7 +12,7 @@ from msb_v2.aura.models import State
 router = APIRouter(tags=["aura"])
 
 
-@router.post("/aura/run")
+@router.post("/run")
 def aura_run(payload: dict) -> JSONResponse:
     goal = str(payload.get("goal", "") or "")
     state = asyncio.run(AURACore().run(goal=goal))
