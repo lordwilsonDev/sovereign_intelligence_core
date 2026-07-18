@@ -28,6 +28,15 @@ class Experiment:
     created_at: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
+@dataclass(frozen=True)
+class Evidence:
+    evidence_id: str
+    experiment_id: str
+    supports: bool = True
+    score: float = 0.5
+    note: str = ""
+
+
 class InversionRegistry:
     def __init__(self, db_path: str = ":memory:") -> None:
         self._conn = sqlite3.connect(db_path, check_same_thread=False)
@@ -43,12 +52,16 @@ class InversionRegistry:
         )
         cur.execute(
             "CREATE TABLE IF NOT EXISTS experiments (experiment_id TEXT PRIMARY KEY, "
-            "hypothesis_id TEXT, procedure TEXT, expected_outcome TEXT, "
-            "observed_outcome TEXT, evidence_score REAL, created_at TEXT)"
+            "hypothesis_id TEXT, procedure TEXT, expected_outcome TEXT, observed_outcome TEXT, "
+            "evidence_score REAL, created_at TEXT)"
+        )
+        cur.execute(
+            "CREATE TABLE IF NOT EXISTS evidence (evidence_id TEXT PRIMARY KEY, "
+            "experiment_id TEXT, supports INTEGER, score REAL, note TEXT)"
         )
         self._conn.commit()
 
-    def add_hypothesis(self, hypothesis: Hypothesis) -> None:
+    def add_hypothesis(self, hypothesis: Hypothesis) -> Hypothesis:
         cur = self._conn.cursor()
         cur.execute(
             "INSERT OR REPLACE INTO hypotheses VALUES (?,?,?,?,?,?)",
@@ -62,8 +75,23 @@ class InversionRegistry:
             ),
         )
         self._conn.commit()
+        return hypothesis
 
-    def add_experiment(self, experiment: Experiment) -> None:
+    def register_hypothesis(self, title: str, description: str = "", assumptions: Optional[List[str]] = None) -> Hypothesis:
+        assumptions = assumptions or []
+        assumption = title
+        inversion = f"What if the opposite is true: {assumption}"
+        hypothesis = Hypothesis(
+            hypothesis_id=f"hyp-{datetime.now().strftime('%Y%m%d%H%M%S%f')}",
+            assumption=assumption,
+            inversion=inversion,
+            constraint_check=True,
+            confidence=0.5,
+            status="draft",
+        )
+        return self.add_hypothesis(hypothesis)
+
+    def add_experiment(self, experiment: Experiment) -> Experiment:
         cur = self._conn.cursor()
         cur.execute(
             "INSERT OR REPLACE INTO experiments VALUES (?,?,?,?,?,?,?)",
@@ -78,6 +106,33 @@ class InversionRegistry:
             ),
         )
         self._conn.commit()
+        return experiment
+
+    def register_experiment(self, hypothesis_id: str, description: str = "") -> Experiment:
+        experiment = Experiment(
+            experiment_id=f"exp-{datetime.now().strftime('%Y%m%d%H%M%S%f')}",
+            hypothesis_id=hypothesis_id,
+            procedure=description,
+            expected_outcome=description,
+            observed_outcome="",
+        )
+        return self.add_experiment(experiment)
+
+    def add_evidence(self, experiment_id: str, supports: bool = True, score: float = 0.5, note: str = "") -> Evidence:
+        evidence = Evidence(
+            evidence_id=f"ev-{datetime.now().strftime('%Y%m%d%H%M%S%f')}",
+            experiment_id=experiment_id,
+            supports=supports,
+            score=score,
+            note=note,
+        )
+        cur = self._conn.cursor()
+        cur.execute(
+            "INSERT OR REPLACE INTO evidence VALUES (?,?,?,?,?)",
+            (evidence.evidence_id, evidence.experiment_id, 1 if evidence.supports else 0, evidence.score, evidence.note),
+        )
+        self._conn.commit()
+        return evidence
 
     def get_hypothesis(self, hypothesis_id: str) -> Optional[Dict[str, Any]]:
         cur = self._conn.cursor()
@@ -89,6 +144,41 @@ class InversionRegistry:
         cur = self._conn.cursor()
         cur.execute("SELECT * FROM experiments WHERE hypothesis_id = ? ORDER BY created_at", (hypothesis_id,))
         return [dict(r) for r in cur.fetchall()]
+
+    def list_hypotheses(self) -> List[Hypothesis]:
+        cur = self._conn.cursor()
+        cur.execute("SELECT * FROM hypotheses ORDER BY rowid DESC")
+        out = []
+        for row in cur.fetchall():
+            out.append(
+                Hypothesis(
+                    hypothesis_id=row["hypothesis_id"],
+                    assumption=row["assumption"],
+                    inversion=row["inversion"],
+                    constraint_check=bool(row["constraint_check"]),
+                    confidence=float(row["confidence"] or 0.0),
+                    status=row["status"],
+                )
+            )
+        return out
+
+    def list_experiments(self) -> List[Experiment]:
+        cur = self._conn.cursor()
+        cur.execute("SELECT * FROM experiments ORDER BY rowid DESC")
+        out = []
+        for row in cur.fetchall():
+            out.append(
+                Experiment(
+                    experiment_id=row["experiment_id"],
+                    hypothesis_id=row["hypothesis_id"],
+                    procedure=row["procedure"],
+                    expected_outcome=row["expected_outcome"],
+                    observed_outcome=row["observed_outcome"],
+                    evidence_score=float(row["evidence_score"] or 0.0),
+                    created_at=row["created_at"],
+                )
+            )
+        return out
 
     def summary(self) -> Dict[str, Any]:
         cur = self._conn.cursor()
