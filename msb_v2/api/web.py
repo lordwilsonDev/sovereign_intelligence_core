@@ -40,6 +40,7 @@ from msb_v2.api.integrations import router as integrations_router
 from msb_v2.api import v3 as v3_router
 from msb_v2.api import v3_inversion as v3_inversion_router
 from msb_v2.api import v3_deliberation as v3_deliberation_router
+from msb_v2.api import v3_knowledge as v3_knowledge_router
 from msb_v2.engine.orchestrator import Task, orchestrate
 
 
@@ -99,4 +100,5 @@ def create_app() -> FastAPI:
     app.include_router(v3_router.router)
     app.include_router(v3_inversion_router.router)
     app.include_router(v3_deliberation_router.router)
+    app.include_router(v3_knowledge_router.router)
     return app
