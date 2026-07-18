@@ -167,3 +167,16 @@ class TaskQueue:
                 self._active -= 1
         with self._condition:
             self._condition.notify_all()
+
+
+_queue: TaskQueue | None = None
+_queue_lock = threading.Lock()
+
+
+def get_queue() -> TaskQueue:
+    global _queue
+    with _queue_lock:
+        if _queue is None:
+            _queue = TaskQueue()
+            _queue.start()
+        return _queue

@@ -58,3 +58,58 @@ def agent_run_loop(payload: AgentRunLoopRequest) -> JSONResponse:
     config.pop("run_id", None)
     result = _agent.run_loop(payload.run_id, config)
     return JSONResponse(result)
+
+
+def _queue() -> TaskQueue:
+    from msb_v2.agent.task_queue import get_queue
+    return get_queue()
+
+
+@router.post("/agent/plan")
+def agent_plan(goal: str) -> JSONResponse:
+    from msb_v2.agent.planner import Plan, fallback_plan, Step
+
+    plan = fallback_plan(goal) if not goal.strip() else Plan(
+        goal=goal,
+        steps=[Step(step=1, tool="noop_command", description=goal, critical=True)],
+    )
+    return JSONResponse({
+        "goal": plan.goal,
+        "steps": [
+            {
+                "step": s.step,
+                "tool": s.tool,
+                "description": s.description,
+                "parameters": s.parameters,
+                "critical": s.critical,
+            }
+            for s in plan.steps
+        ],
+    })
+
+
+@router.post("/agent/execute")
+def agent_execute(goal: str) -> JSONResponse:
+    from msb_v2.agent.planner import Plan, Step
+    from msb_v2.agent.executor import execute
+
+    plan = Plan(goal=goal, steps=[Step(step=1, tool="noop_command", description=goal, critical=True)])
+    result = execute(goal, plan=plan)
+    return JSONResponse({"goal": goal, "result": result, "steps_completed": 1})
+
+
+@router.post("/agent/queue")
+def agent_queue_submit(goal: str, priority: int = 2) -> JSONResponse:
+    from msb_v2.agent.task_queue import TaskPriority, get_queue
+
+    p = TaskPriority.HIGH if priority <= 1 else (TaskPriority.LOW if priority >= 3 else TaskPriority.NORMAL)
+    task_id = _queue().submit(goal, priority=p)
+    return JSONResponse({"task_id": task_id, "status": "queued"})
+
+
+@router.get("/agent/queue/{task_id}")
+def agent_queue_status(task_id: str) -> JSONResponse:
+    status = _queue().status(task_id)
+    if status is None:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    return JSONResponse(status)
