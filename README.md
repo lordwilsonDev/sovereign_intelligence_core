@@ -11,7 +11,7 @@ code /Users/lordwilson/msb-v2/workspace.code-workspace
 ```
 
 - **Run tests:** `python -m pytest -q`
-- **Start server:** `uvicorn msb_v2.api.main:create_app --factory --host 127.0.0.1 --port 8766`
+- **Start server:** `/opt/homebrew/Caskroom/miniforge/base/bin/python -m uvicorn msb_v2.api.main:create_app --factory --host 127.0.0.1 --port 8766`
 - **Env:** `MSB_REASONING_SCORER=1` recommended for local dev
 - **Workspace:** includes AutoMoneyMachine as secondary folder
 
