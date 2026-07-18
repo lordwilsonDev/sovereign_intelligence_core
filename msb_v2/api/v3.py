@@ -6,26 +6,25 @@ from fastapi.responses import JSONResponse
 from msb_v2.v3.constraints import ConstraintEngine
 from msb_v2.v3.memory_router import MemoryRouter
 from msb_v2.v3.registry import get_registry as _get_registry
-from msb_v2.v3.memory_pipeline import EventToMemoryPipeline, MemoryEnhancedPlanner, MemoryEntry
+from msb_v2.v3.memory_pipeline import EventToMemoryPipeline, MemoryEnhancedPlanner, MemoryEntry, InMemoryStore
 
 router = APIRouter(tags=["v3"])
 
-_store = MemoryEntry.__dataclass_fields__  # unused; placeholder
-_pipeline = EventToMemoryPipeline(store=None)
+_shared_store = InMemoryStore()
+_pipeline = EventToMemoryPipeline(store=_shared_store)
 _planner = MemoryEnhancedPlanner(pipeline=_pipeline)
 
 
-def _get_store():
-    from msb_v2.v3.memory_pipeline import InMemoryStore
-    return InMemoryStore()
+def _get_store() -> InMemoryStore:
+    return _shared_store
 
 
-def _get_pipeline():
-    return EventToMemoryPipeline(store=_get_store())
+def _get_pipeline() -> EventToMemoryPipeline:
+    return _pipeline
 
 
-def _get_planner():
-    return MemoryEnhancedPlanner(pipeline=_get_pipeline())
+def _get_planner() -> MemoryEnhancedPlanner:
+    return _planner
 
 
 @router.get("/v3/health")
