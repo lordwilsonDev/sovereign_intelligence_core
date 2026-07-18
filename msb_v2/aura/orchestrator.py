@@ -39,11 +39,17 @@ async def run_scheduler(persistence: Persistence, task_count: int = 50, failure_
 
 
 async def validate_output(task: Task, output: Dict[str, Any]) -> Dict[str, Any]:
-    validator = TaskValidator()
-    result = validator.validate(task, output)
-    return {
-        "ok": result.ok,
-        "layer": result.layer,
-        "message": result.message,
-        "details": result.details,
-    }
+    forbidden = ["rm -rf", "sudo rm", "drop table"]
+    text = " ".join(str(output.get(k, "")) for k in ["message", "status"]) if isinstance(output, dict) else str(output)
+    for token in forbidden:
+        if token in text.lower():
+            return {"ok": False, "layer": "deterministic", "message": "forbidden pattern"}
+    confidence = 0.0
+    if isinstance(output, dict) and "confidence" in output:
+        try:
+            confidence = float(output["confidence"])
+        except (TypeError, ValueError):
+            confidence = 0.0
+    if confidence < 0.6:
+        return {"ok": False, "layer": "rules", "message": "low confidence"}
+    return {"ok": True, "layer": "deterministic", "message": "ok"}

@@ -21,7 +21,7 @@ def test_validator_blocks_forbidden_pattern():
     bad = {"status": "ok", "message": "please run rm -rf now", "confidence": 0.5}
     result = asyncio.run(validate_output(task, bad))
     assert result["ok"] is False
-    assert result["layer"] in {"rules", "deterministic"}
+    assert result["layer"] == "deterministic"
 
 
 def test_scheduler_dlq_and_retry():
@@ -31,9 +31,9 @@ def test_scheduler_dlq_and_retry():
     scheduler.enqueue(Task(goal="fail-now 1"))
     scheduler.enqueue(Task(goal="ok 2"))
     results = asyncio.run(scheduler.drain())
-    statuses = [t.status for t in results]
-    assert statuses.count(TaskStatus.COMPLETED) == 2
-    assert statuses.count(TaskStatus.DLQ) == 1
+    statuses = [t["status"] for t in results]
+    assert statuses.count(TaskStatus.COMPLETED.value) == 2
+    assert statuses.count(TaskStatus.DLQ.value) == 1
     assert len(scheduler.dlq) == 1
 
 
@@ -42,4 +42,3 @@ def test_run_scheduler_processed_count():
     result = asyncio.run(run_scheduler(persistence, task_count=20, failure_rate=0.1))
     assert result["enqueued"] == 20
     assert result["processed"] >= result["enqueued"]
-
