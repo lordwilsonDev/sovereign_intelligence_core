@@ -4,11 +4,13 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from msb_v2.knowledge.graph import KnowledgeGraph, LearningEngine, GraphNode, GraphEdge
+from msb_v2.knowledge.ranker import GraphRanker
 
 router = APIRouter(tags=["v3-knowledge"])
 
 _graph = KnowledgeGraph()
 _learning = LearningEngine(graph=_graph)
+_ranker = GraphRanker(graph=_graph)
 
 
 @router.post("/v3/knowledge/nodes")
@@ -62,3 +64,9 @@ def update_outcome(payload: dict) -> JSONResponse:
 def recommend(node_id: str) -> JSONResponse:
     rec = _learning.recommend(node_id)
     return JSONResponse(rec)
+
+
+@router.get("/v3/knowledge/rank")
+def rank_targets(start: str, depth: int = 2, limit: int = 10) -> JSONResponse:
+    ranked = _ranker.top_targets(start, depth=depth, limit=limit)
+    return JSONResponse({"start": start, "depth": depth, "ranked": ranked, "count": len(ranked)})
