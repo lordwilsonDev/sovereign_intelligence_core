@@ -11,3 +11,4 @@ runtime_events.db
 
 # Local config/secrets
 .env
+.msb_metabolism.json
