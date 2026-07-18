@@ -50,3 +50,18 @@ def test_v3_memory_recent_endpoint():
     body = r.json()
     assert "entries" in body
     assert "count" in body
+
+
+def test_v3_planner_with_graph_next_step():
+    client.post("/v3/memory/ingest", json={
+        "memory_id": "it-3",
+        "source": "alpha",
+        "content": "observed alpha behavior",
+        "memory_type": "episodic",
+        "importance": 0.8,
+        "created_at": "2026-07-18T00:00:00Z",
+    })
+    r = client.post("/v3/planner/plan", json={"task": "explore alpha"})
+    assert r.status_code == 200
+    body = r.json()
+    assert "next_step" in body

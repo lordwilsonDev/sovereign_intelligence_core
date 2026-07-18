@@ -7,12 +7,15 @@ from msb_v2.v3.constraints import ConstraintEngine
 from msb_v2.v3.memory_router import MemoryRouter
 from msb_v2.v3.registry import get_registry as _get_registry
 from msb_v2.v3.memory_pipeline import EventToMemoryPipeline, MemoryEnhancedPlanner, MemoryEntry, InMemoryStore
+from msb_v2.knowledge.graph import KnowledgeGraph, LearningEngine
 
 router = APIRouter(tags=["v3"])
 
 _shared_store = InMemoryStore()
 _pipeline = EventToMemoryPipeline(store=_shared_store)
-_planner = MemoryEnhancedPlanner(pipeline=_pipeline)
+_graph = KnowledgeGraph()
+_learning = LearningEngine(graph=_graph)
+_planner = MemoryEnhancedPlanner(pipeline=_pipeline, learning_engine=_learning)
 
 
 def _get_store() -> InMemoryStore:

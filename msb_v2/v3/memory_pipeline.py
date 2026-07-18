@@ -81,8 +81,9 @@ class EventToMemoryPipeline:
 
 
 class MemoryEnhancedPlanner:
-    def __init__(self, pipeline: EventToMemoryPipeline) -> None:
+    def __init__(self, pipeline: Any, learning_engine: Any = None) -> None:
         self.pipeline = pipeline
+        self.learning_engine = learning_engine
 
     def plan(self, task: str, context: Optional[str] = None) -> dict:
         seen: List[MemoryEntry] = []
@@ -104,19 +105,30 @@ class MemoryEnhancedPlanner:
                         seen.append(mem)
         recent = self.pipeline.recent(limit=5)
         scored = sorted(seen, key=lambda m: m.importance, reverse=True)
+        next_step = None
+        if self.learning_engine and scored:
+            try:
+                rec = self.learning_engine.recommend(scored[0].source)
+                next_step = rec.get("next")
+            except Exception:
+                next_step = None
         return {
             "task": task,
             "context": context,
             "recalled_count": len(scored),
             "recalled_sources": [m.source for m in scored],
             "recent_sources": [m.source for m in recent],
-            "plan": self._synthesize(task, scored, recent),
+            "next_step": next_step,
+            "plan": self._synthesize(task, scored, recent, next_step),
         }
 
     @staticmethod
-    def _synthesize(task: str, memories: List[MemoryEntry], recent: List[MemoryEntry]) -> str:
+    def _synthesize(task: str, memories: List[MemoryEntry], recent: List[MemoryEntry], next_step: Optional[str]) -> str:
         if not memories and not recent:
             return f"Direct execution: {task}"
         if memories:
-            return f"Apply learned pattern from {memories[0].source} to {task}"
+            base = f"Apply learned pattern from {memories[0].source} to {task}"
+            if next_step:
+                return f"{base}; next recommended step: {next_step}"
+            return base
         return f"Continue recent trajectory on {task} using {recent[0].source}"
