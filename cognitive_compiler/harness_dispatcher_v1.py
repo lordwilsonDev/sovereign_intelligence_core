@@ -71,6 +71,9 @@ class HarnessDispatcher:
             result["primary_output"] = self.research.execute(query)
         elif primary == "building":
             result["primary_output"] = self.building.execute(query, constraints=context.get("constraints", []))
+        elif primary == "desktop":
+            from cognitive_compiler.desktop_harness_v1 import DesktopHarness
+            result["primary_output"] = DesktopHarness().execute(query, timeout_s=float(context.get("timeout_s", 600.0)))
         else:
             result["primary_output"] = self._base_are(query, context)
         scs.add_harness_output(primary, result["primary_output"])

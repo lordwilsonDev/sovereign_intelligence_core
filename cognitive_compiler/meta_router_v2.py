@@ -61,6 +61,7 @@ class MetaRoutingHarness:
             "research": ["research", "investigate", "study", "experiment", "hypothesis", "literature", "theory"],
             "building": ["design", "build", "architect", "plan", "implement", "create", "api", "system"],
             "complex_reasoning": ["ethics", "philosophy", "strategy", "concept", "paradox", "reconcile", "tension"],
+            "desktop": ["desktop", "automation", "click", "type", "launch", "open app", "screenshot", "mouse", "ui", "finder", "browser", "electron"],
             "base_are": [],
         }
         self.triviality_threshold_words = 10
@@ -123,7 +124,15 @@ class MetaRoutingHarness:
         return HarnessDecision(primary="base_are", confidence=confidence, justification="Low match; defaulting to base ARE")
 
     def _determine_order(self, primary: str, secondary: str, query: str) -> str:
-        if primary == "building" and secondary == "research":
+        if primary == "desktop" and secondary == "building":
+            return "serial"
+        if primary == "building" and secondary == "desktop":
+            return "serial"
+        if primary == "desktop" and secondary == "research":
+            return "serial"
+        if primary == "research" and secondary == "desktop":
+            return "serial"
+        if primary == "desktop" and secondary == "complex_reasoning":
             return "serial"
         if primary == "research" and secondary == "complex_reasoning":
             return "serial"
