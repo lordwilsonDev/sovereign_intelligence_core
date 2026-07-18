@@ -20,6 +20,8 @@ class ArticleStore(Protocol):
 
     def all(self) -> List[RSSArticle]: ...
 
+    def search(self, query: str, limit: int = 20) -> List[RSSArticle]: ...
+
 
 class InMemoryArticleStore:
     def __init__(self) -> None:
@@ -44,6 +46,18 @@ class InMemoryArticleStore:
         with self._lock:
             return list(self._items)
 
+    def search(self, query: str, limit: int = 20) -> List[RSSArticle]:
+        q = query.casefold().strip()
+        if not q:
+            return self.all()[:limit]
+        scored = []
+        for item in self._items:
+            text = f"{item.title} {item.link} {item.published}".casefold()
+            score = text.count(q)
+            scored.append((score, item))
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [item for score, item in scored[:limit] if score > 0]
+
 
 class SQLiteArticleStore:
     def __init__(self, db_path: str = "data/articles.db") -> None:
@@ -61,6 +75,23 @@ class SQLiteArticleStore:
             conn.execute(
                 "CREATE TABLE IF NOT EXISTS articles ("
                 "title TEXT NOT NULL, link TEXT NOT NULL PRIMARY KEY, published TEXT)"
+            )
+            conn.execute(
+                "CREATE VIRTUAL TABLE IF NOT EXISTS articles_fts USING fts5(title, link, published, "
+                "content='articles', content_rowid='rowid')"
+            )
+            conn.execute(
+                "CREATE TRIGGER IF NOT EXISTS articles_ai AFTER INSERT ON articles BEGIN "
+                "INSERT INTO articles_fts(rowid, title, link, published) VALUES (new.rowid, new.title, new.link, new.published); END"
+            )
+            conn.execute(
+                "CREATE TRIGGER IF NOT EXISTS articles_ad AFTER DELETE ON articles BEGIN "
+                "INSERT INTO articles_fts(articles_fts, rowid, title, link, published) VALUES ('delete', old.rowid, old.title, old.link, old.published); END"
+            )
+            conn.execute(
+                "CREATE TRIGGER IF NOT EXISTS articles_au AFTER UPDATE ON articles BEGIN "
+                "INSERT INTO articles_fts(articles_fts, rowid, title, link, published) VALUES ('delete', old.rowid, old.title, old.link, old.published); "
+                "INSERT INTO articles_fts(rowid, title, link, published) VALUES (new.rowid, new.title, new.link, new.published); END"
             )
             conn.commit()
 
@@ -88,3 +119,14 @@ class SQLiteArticleStore:
         with self._connect() as conn:
             rows = conn.execute("SELECT title, link, published FROM articles").fetchall()
             return [RSSArticle(title=title, link=link, published=published) for title, link, published in rows]
+
+    def search(self, query: str, limit: int = 20) -> List[RSSArticle]:
+        q = query.strip()
+        if not q:
+            return self.all()[:limit]
+        with self._connect() as conn:
+            rows = conn.execute(
+                "SELECT title, link, published, rank FROM articles_fts WHERE articles_fts MATCH ? ORDER BY rank LIMIT ?",
+                (q, limit),
+            ).fetchall()
+            return [RSSArticle(title=title, link=link, published=published) for title, link, published, _ in rows]
