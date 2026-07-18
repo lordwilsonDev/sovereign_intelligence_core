@@ -15,6 +15,7 @@ from cognitive_compiler.meta_router_v2 import MetaRoutingHarness, MetaRoutingRes
 from cognitive_compiler.research_harness_v1 import ResearchHarness
 from cognitive_compiler.building_harness_v1 import BuildingHarness
 from cognitive_compiler.meta_coordinator_v3_2 import MetaIntelligenceCoordinator, QueryType, IntelligenceLayer
+from cognitive_compiler.cognitive_compiler_verifier_v1 import CognitiveCompilerVerifier
 
 
 class HarnessDispatcher:
@@ -27,6 +28,7 @@ class HarnessDispatcher:
         self.research = ResearchHarness()
         self.building = BuildingHarness()
         self.coordinator = coordinator or MetaIntelligenceCoordinator(worker_count=2)
+        self.verifier = CognitiveCompilerVerifier()
 
     def dispatch(self, query: str, context: Dict[str, Any] = None, scs: Optional[SharedCognitiveState] = None) -> Dict[str, Any]:
         context = context or {}
@@ -83,7 +85,12 @@ class HarnessDispatcher:
         result["primary_output"] = primary_payload
         scs.add_harness_output(primary, primary_payload)
 
-        if secondary:
+        verification = self.verifier.verify(result, context)
+        if verification is not None and not verification.ok:
+            result["primary_output"] = {"verification": "blocked", "issues": verification.issues, "risk": verification.risk}
+            result.setdefault("telemetry", {})["primary"]["error_class"] = "verification"
+            result.setdefault("telemetry", {})["primary"]["fallback_reason"] = f"axiom_risk={verification.risk:.2f}"
+            return self._post_process(result, meta)
             handoff_prompt = (
                 "You are continuing a hybrid reasoning session.\n" + scs.to_prompt_context() +
                 "\nIntegrate the prior reasoning and complete the secondary protocol."
