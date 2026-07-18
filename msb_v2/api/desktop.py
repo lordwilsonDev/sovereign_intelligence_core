@@ -37,7 +37,7 @@ def execute_desktop(payload: DesktopExecutePayload):
     harness = DesktopHarness()
     result = harness.execute(payload.goal, timeout_s=payload.timeout_s)
     try:
-        RouterObserver().record(_fake_routing_result(payload.intent), payload.goal)
+        RouterObserver(log_path="runtime/desktop_routing_observations.jsonl").record(_fake_routing_result(payload.intent), payload.goal)
     except Exception:
         pass
     return result

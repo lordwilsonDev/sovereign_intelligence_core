@@ -4,7 +4,11 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from cognitive_compiler.router_observer import RouterObserver
+
 router = APIRouter(tags=["meta"])
+
+_observer = RouterObserver(log_path="runtime/meta_routing_observations.jsonl")
 
 
 class RoutePayload(BaseModel):
@@ -15,11 +19,10 @@ class RoutePayload(BaseModel):
 @router.post("/meta/route")
 def meta_route_endpoint(payload: RoutePayload) -> JSONResponse:
     from cognitive_compiler.harness_dispatcher_v1 import HarnessDispatcher
-    from cognitive_compiler.router_observer import RouterObserver
 
     dispatcher = HarnessDispatcher()
     result = dispatcher.dispatch(payload.query, context=payload.context or {})
-    RouterObserver().record(result, payload.query)
+    _observer.record(result, payload.query)
     return JSONResponse(result)
 
 
@@ -37,7 +40,6 @@ class BrainMetaPayload(BaseModel):
 @router.post("/brain/meta-run")
 def brain_meta_run(payload: BrainMetaPayload) -> JSONResponse:
     from cognitive_compiler.harness_dispatcher_v1 import HarnessDispatcher
-    from cognitive_compiler.router_observer import RouterObserver
 
     dispatcher = HarnessDispatcher()
     context = {
@@ -46,7 +48,7 @@ def brain_meta_run(payload: BrainMetaPayload) -> JSONResponse:
         "preferred_harness": payload.intent if payload.intent != "default" else None,
     }
     result = dispatcher.dispatch(payload.query, context=context)
-    RouterObserver().record(result, payload.query)
+    _observer.record(result, payload.query)
     return JSONResponse({
         "intent": payload.intent,
         "meta_routing": result.get("routing", {}),
