@@ -62,6 +62,7 @@ class MetaRoutingHarness:
             "building": ["design", "build", "architect", "plan", "implement", "create", "api", "system"],
             "complex_reasoning": ["ethics", "philosophy", "strategy", "concept", "paradox", "reconcile", "tension"],
             "desktop": ["desktop", "automation", "click", "type", "launch", "open app", "screenshot", "mouse", "ui", "finder", "browser", "electron"],
+            "career": ["career", "job", "cv", "resume", "cover letter", "evaluate", "offer", "salary", "scan job", "portal", "ATS", "tracker"],
             "base_are": [],
         }
         self.triviality_threshold_words = 10
@@ -137,6 +138,8 @@ class MetaRoutingHarness:
         if primary == "research" and secondary == "complex_reasoning":
             return "serial"
         if primary == "building" and secondary == "complex_reasoning":
+            return "serial"
+        if "career" in (primary, secondary):
             return "serial"
         return "parallel"
 

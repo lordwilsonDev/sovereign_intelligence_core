@@ -5,8 +5,24 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from cognitive_compiler.router_observer import RouterObserver
+from msb_v2.transport.compression import compress_content
 
 router = APIRouter(tags=["meta"])
+
+_COMPRESS_THRESHOLD = 2000
+
+
+def _maybe_compress(value):
+    try:
+        raw = str(value).encode("utf-8")
+    except Exception:
+        return value
+    if len(raw) <= _COMPRESS_THRESHOLD:
+        return value
+    compressed = compress_content("transport", raw)
+    if compressed is None or len(compressed) >= len(raw):
+        return value
+    return compressed.decode("utf-8", errors="replace")
 
 _observer = RouterObserver(log_path="runtime/meta_routing_observations.jsonl")
 
@@ -23,7 +39,8 @@ def meta_route_endpoint(payload: RoutePayload) -> JSONResponse:
     dispatcher = HarnessDispatcher()
     result = dispatcher.dispatch(payload.query, context=payload.context or {})
     _observer.record(result, payload.query)
-    return JSONResponse(result)
+    compressed = _maybe_compress(result)
+    return JSONResponse(compressed)
 
 
 @router.get("/meta/health")

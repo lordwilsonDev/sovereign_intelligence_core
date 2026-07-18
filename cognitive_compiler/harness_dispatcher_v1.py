@@ -71,9 +71,18 @@ class HarnessDispatcher:
             result["primary_output"] = self.research.execute(query)
         elif primary == "building":
             result["primary_output"] = self.building.execute(query, constraints=context.get("constraints", []))
-        elif primary == "desktop":
+        if primary == "desktop":
             from cognitive_compiler.desktop_harness_v1 import DesktopHarness
             result["primary_output"] = DesktopHarness().execute(query, timeout_s=float(context.get("timeout_s", 600.0)))
+        elif primary == "career":
+            from cognitive_compiler.career_harness_v1 import CareerHarness
+            project_root = context.get("career_project_root")
+            result["primary_output"] = CareerHarness(project_root=Path(project_root) if project_root else None).evaluate_jd_text(
+                context.get("career_company", "Unknown"),
+                context.get("career_role", "Unknown"),
+                context.get("career_jd", query),
+                score=context.get("career_score"),
+            ).payload
         else:
             result["primary_output"] = self._base_are(query, context)
         scs.add_harness_output(primary, result["primary_output"])
@@ -87,8 +96,19 @@ class HarnessDispatcher:
                 result["secondary_output"] = self.research.execute(query + "\n\nContext: " + scs.problem_statement)
             elif secondary == "building":
                 result["secondary_output"] = self.building.execute(query, constraints=context.get("constraints", []))
-            elif secondary == "complex_reasoning":
-                result["secondary_output"] = self._base_are(handoff_prompt, context)
+            elif secondary == "desktop":
+                from cognitive_compiler.desktop_harness_v1 import DesktopHarness
+                result["secondary_output"] = DesktopHarness().execute(query, timeout_s=float(context.get("timeout_s", 600.0)))
+            elif secondary == "career":
+                from cognitive_compiler.career_harness_v1 import CareerHarness
+                from pathlib import Path
+                project_root = context.get("career_project_root")
+                result["secondary_output"] = CareerHarness(project_root=Path(project_root) if project_root else None).evaluate_jd_text(
+                    context.get("career_company", "Unknown"),
+                    context.get("career_role", "Unknown"),
+                    context.get("career_jd", query),
+                    score=context.get("career_score"),
+                ).payload
             else:
                 result["secondary_output"] = self._base_are(handoff_prompt, context)
             scs.add_harness_output(secondary, result["secondary_output"])
