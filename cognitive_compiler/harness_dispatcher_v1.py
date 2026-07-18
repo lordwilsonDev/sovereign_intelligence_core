@@ -7,7 +7,8 @@ Now accepts Shared Cognitive State (SCS) for hybrid handoff continuity.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+import time
+from typing import Any, Dict, List, Optional
 
 from cognitive_compiler.shared_cognitive_state import SharedCognitiveState
 from cognitive_compiler.meta_router_v2 import MetaRoutingHarness, MetaRoutingResult
@@ -59,6 +60,12 @@ class HarnessDispatcher:
                 "logic_loop_failures": meta.temperature.logic_loop_failures,
                 "uncertainty_spike": meta.temperature.uncertainty_spike,
             },
+            "telemetry": {
+                "primary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": None, "error_class": None, "tags": [primary]},
+                "secondary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": None, "error_class": None, "tags": [secondary]},
+                "routing_confidence": meta.decision.confidence,
+                "elapsed_s": meta.elapsed_s,
+            },
             "elapsed_s": meta.elapsed_s,
         }
 
@@ -67,53 +74,28 @@ class HarnessDispatcher:
             scs.add_harness_output("base_are", result["primary_output"])
             return result
 
-        if primary == "research":
-            result["primary_output"] = self.research.execute(query)
-        elif primary == "building":
-            result["primary_output"] = self.building.execute(query, constraints=context.get("constraints", []))
-        if primary == "desktop":
-            from cognitive_compiler.desktop_harness_v1 import DesktopHarness
-            result["primary_output"] = DesktopHarness().execute(query, timeout_s=float(context.get("timeout_s", 600.0)))
-        elif primary == "career":
-            from cognitive_compiler.career_harness_v1 import CareerHarness
-            project_root = context.get("career_project_root")
-            result["primary_output"] = CareerHarness(project_root=Path(project_root) if project_root else None).evaluate_jd_text(
-                context.get("career_company", "Unknown"),
-                context.get("career_role", "Unknown"),
-                context.get("career_jd", query),
-                score=context.get("career_score"),
-            ).payload
-        else:
-            result["primary_output"] = self._base_are(query, context)
-        scs.add_harness_output(primary, result["primary_output"])
+        start = time.time()
+        primary_payload = self._run_primary(primary, query, context)
+        elapsed = round(time.time() - start, 4)
+        result["telemetry"]["primary"]["execution_time_s"] = elapsed
+        result["telemetry"]["primary"]["tags"] = self._tags_for(primary)
+        result["elapsed_s"] = elapsed + meta.elapsed_s
+        result["primary_output"] = primary_payload
+        scs.add_harness_output(primary, primary_payload)
 
         if secondary:
             handoff_prompt = (
                 "You are continuing a hybrid reasoning session.\n" + scs.to_prompt_context() +
                 "\nIntegrate the prior reasoning and complete the secondary protocol."
             )
-            if secondary == "research":
-                result["secondary_output"] = self.research.execute(query + "\n\nContext: " + scs.problem_statement)
-            elif secondary == "building":
-                result["secondary_output"] = self.building.execute(query, constraints=context.get("constraints", []))
-            elif secondary == "desktop":
-                from cognitive_compiler.desktop_harness_v1 import DesktopHarness
-                result["secondary_output"] = DesktopHarness().execute(query, timeout_s=float(context.get("timeout_s", 600.0)))
-            elif secondary == "career":
-                from cognitive_compiler.career_harness_v1 import CareerHarness
-                from pathlib import Path
-                project_root = context.get("career_project_root")
-                result["secondary_output"] = CareerHarness(project_root=Path(project_root) if project_root else None).evaluate_jd_text(
-                    context.get("career_company", "Unknown"),
-                    context.get("career_role", "Unknown"),
-                    context.get("career_jd", query),
-                    score=context.get("career_score"),
-                ).payload
-            else:
-                result["secondary_output"] = self._base_are(handoff_prompt, context)
-            scs.add_harness_output(secondary, result["secondary_output"])
+            secondary_start = time.time()
+            secondary_payload = self._run_secondary(secondary, query, context, handoff_prompt)
+            result["telemetry"]["secondary"]["execution_time_s"] = round(time.time() - secondary_start, 4)
+            result["telemetry"]["secondary"]["tags"] = self._tags_for(secondary)
+            result["secondary_output"] = secondary_payload
+            scs.add_harness_output(secondary, secondary_payload)
 
-        return result
+        return self._post_process(result, meta)
 
     def _base_are(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
         try:
@@ -129,8 +111,75 @@ class HarnessDispatcher:
                 layers=layers,
                 parameters={"query": query, **context},
                 priority=context.get("priority", 5),
-                timeout=context.get("timeout", 10.0)
+                timeout=context.get("timeout", 10.0),
             )
             return res.to_dict()
         except Exception as e:
             return {"error": str(e), "query": query}
+
+    def _tags_for(self, harness: Optional[str]) -> List[str]:
+        if not harness:
+            return []
+        mapping = {
+            "research": ["research", "evidence-first"],
+            "building": ["building", "implementation-first"],
+            "desktop": ["desktop", "automation"],
+            "career": ["career", "evaluation"],
+            "base_are": ["base-are", "reasoning"],
+        }
+        return mapping.get(harness, [harness])
+
+    def _run_primary(self, primary: Optional[str], query: str, context: Dict[str, Any]) -> Any:
+        if primary == "research":
+            return self.research.execute(query)
+        if primary == "building":
+            return self.building.execute(query, constraints=context.get("constraints", []))
+        if primary == "desktop":
+            from cognitive_compiler.desktop_harness_v1 import DesktopHarness
+            return DesktopHarness().execute(query, timeout_s=float(context.get("timeout_s", 600.0)))
+        if primary == "career":
+            from cognitive_compiler.career_harness_v1 import CareerHarness
+            project_root = context.get("career_project_root")
+            return CareerHarness(project_root=project_root).execute(
+                query,
+                context={
+                    "career_company": context.get("career_company", "Unknown"),
+                    "career_role": context.get("career_role", "Unknown"),
+                    "career_jd": context.get("career_jd", query),
+                    "career_score": context.get("career_score"),
+                    "confidence": context.get("confidence", 0.0),
+                },
+            ).payload
+        return self._base_are(query, context)
+
+    def _run_secondary(self, secondary: Optional[str], query: str, context: Dict[str, Any], handoff_prompt: str) -> Any:
+        if secondary == "research":
+            return self.research.execute(query + "\n\nContext: " + context.get("problem_statement", query))
+        if secondary == "building":
+            return self.building.execute(query, constraints=context.get("constraints", []))
+        if secondary == "desktop":
+            from cognitive_compiler.desktop_harness_v1 import DesktopHarness
+            return DesktopHarness().execute(query, timeout_s=float(context.get("timeout_s", 600.0)))
+        if secondary == "career":
+            from cognitive_compiler.career_harness_v1 import CareerHarness
+            project_root = context.get("career_project_root")
+            return CareerHarness(project_root=project_root).execute(
+                query,
+                context={
+                    "career_company": context.get("career_company", "Unknown"),
+                    "career_role": context.get("career_role", "Unknown"),
+                    "career_jd": context.get("career_jd", query),
+                    "career_score": context.get("career_score"),
+                    "confidence": context.get("confidence", 0.0),
+                },
+            ).payload
+        return self._base_are(handoff_prompt, context)
+
+    def _post_process(self, result: Dict[str, Any], meta: MetaRoutingResult) -> Dict[str, Any]:
+        if "memory_bytes" not in result["telemetry"]["primary"]:
+            try:
+                import sys as _sys
+                result["telemetry"]["primary"]["memory_bytes"] = _sys.getsizeof(result)
+            except Exception:
+                pass
+        return result
