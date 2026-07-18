@@ -1,0 +1,4 @@
+{"query": "Design a fault-tolerant event bus with retry budgets", "primary": "base_are", "secondary": null, "order": "serial", "confidence": 0.0, "justification": "", "rerouted": false, "temperature_score": 0.0, "elapsed_s": 0.0}
+{"query": "Investigate why collaborative filtering degrades at scale", "primary": "base_are", "secondary": null, "order": "serial", "confidence": 0.0, "justification": "", "rerouted": false, "temperature_score": 0.0, "elapsed_s": 0.0}
+{"query": "Resolve the tension between safety constraints and deployment speed", "primary": "base_are", "secondary": null, "order": "serial", "confidence": 0.0, "justification": "", "rerouted": false, "temperature_score": 0.0, "elapsed_s": 0.0}
+{"query": "hello there", "primary": "base_are", "secondary": null, "order": "serial", "confidence": 0.0, "justification": "", "rerouted": false, "temperature_score": 0.0, "elapsed_s": 0.0}
