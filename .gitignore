@@ -12,3 +12,4 @@ runtime_events.db
 # Local config/secrets
 .env
 .msb_metabolism.json
+runtime/meta_routing_observations.jsonl
