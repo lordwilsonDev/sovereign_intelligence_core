@@ -12,7 +12,11 @@ def test_aura_run_returns_200_with_goal() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body.get("status") == "ok"
-    assert "result" in body
+    result = body.get("result")
+    assert isinstance(result, dict)
+    assert "session_id" in result
+    assert "step" in result
+    assert "status" in result
 
 
 def test_aura_run_handles_empty_goal() -> None:
