@@ -38,6 +38,7 @@ from msb_v2.api.studio import router as studio_router
 from msb_v2.api.environment import router as environment_router
 from msb_v2.api.brain import router as brain_router
 from msb_v2.api.integrations import router as integrations_router
+from msb_v2.api.meta import router as meta_router
 from msb_v2.api import v3 as v3_router
 from msb_v2.api import v3_inversion as v3_inversion_router
 from msb_v2.api import v3_deliberation as v3_deliberation_router
@@ -103,6 +104,7 @@ def create_app() -> FastAPI:
     app.include_router(environment_router, prefix="")
     app.include_router(brain_router, prefix="/brain")
     app.include_router(integrations_router, prefix="")
+    app.include_router(meta_router, prefix="")
     app.include_router(v3_router.router)
     app.include_router(v3_inversion_router.router)
     app.include_router(v3_deliberation_router.router)
