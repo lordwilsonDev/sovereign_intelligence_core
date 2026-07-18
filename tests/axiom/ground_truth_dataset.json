@@ -1,0 +1,336 @@
+[
+  {
+    "id": "gt-01",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [
+        "URLSession.shared.dataTask(with: URL(string:\"https://example.com\")!).resume()"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-02",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [
+        "FileManager.default.contents(atPath: \"/tmp/x\")"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-03",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [
+        "UserDefaults.standard.set(true, forKey: \"flag\")"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-04",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [
+        "UNUserNotificationCenter.current().getNotificationSettings()"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-05",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [
+        "ProcessInfo.processInfo.environment[\"MODE\"]"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-06",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [
+        "FileManager.default.removeItem(atPath:\"/tmp/c\")"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-07",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [
+        "UserDefaults.standard.register(defaults:[\"k\":1])"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-08",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [
+        "let val = abs(-1)"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-09",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [
+        "URLSession.shared.dataTask(with: NSURL(string:\"https://a.example\")!)"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-10",
+    "axiom": "IDEMPOTENCY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [
+        "FileManager.default.createFile(atPath:\"/tmp/b\", contents:Data())"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-11",
+    "axiom": "SYMBOLIC_STABILITY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [
+        "customSymbol"
+      ],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-12",
+    "axiom": "SYMBOLIC_STABILITY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [
+        "publicSym1"
+      ],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-13",
+    "axiom": "SYMBOLIC_STABILITY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [
+        "straight_name"
+      ],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-14",
+    "axiom": "SYMBOLIC_STABILITY",
+    "expected_severity": "CRITICAL",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [
+        "anotherSym"
+      ],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-15",
+    "axiom": "SYMBOLIC_STABILITY",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [
+        "_$s7AppCore7StorageC"
+      ],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-16",
+    "axiom": "SYMBOLIC_STABILITY",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [
+        "_$s13Module4FuncQz"
+      ],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-17",
+    "axiom": "OBSERVABILITY",
+    "expected_severity": "HIGH",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [],
+      "state_wrappers": [
+        {
+          "type": "@State",
+          "base": "Foo"
+        }
+      ],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-18",
+    "axiom": "OBSERVABILITY",
+    "expected_severity": "HIGH",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [],
+      "state_wrappers": [
+        {
+          "type": "@State",
+          "base": "Bar"
+        }
+      ],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-19",
+    "axiom": "OBSERVABILITY",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [],
+      "state_wrappers": [
+        {
+          "type": "@StateObject",
+          "base": "StateObject"
+        }
+      ],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-20",
+    "axiom": "OBSERVABILITY",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [],
+      "state_wrappers": [
+        {
+          "type": "@ObservedObject",
+          "base": "ObservedObject"
+        }
+      ],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-21",
+    "axiom": "CONFIG_INTEGRITY",
+    "expected_severity": "HIGH",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": ""
+    }
+  },
+  {
+    "id": "gt-22",
+    "axiom": "CONFIG_INTEGRITY",
+    "expected_severity": "HIGH",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "$(inherited)"
+    }
+  },
+  {
+    "id": "gt-23",
+    "axiom": "CONFIG_INTEGRITY",
+    "expected_severity": "HIGH",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -other"
+    }
+  },
+  {
+    "id": "gt-24",
+    "axiom": "CONFIG_INTEGRITY",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [],
+      "dlsyms": [],
+      "state_wrappers": [],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  },
+  {
+    "id": "gt-25",
+    "axiom": "COMPOUND",
+    "expected_severity": "PASS",
+    "asg": {
+      "init_bodies": [
+        "let x = 1"
+      ],
+      "dlsyms": [],
+      "state_wrappers": [
+        {
+          "type": "@StateObject",
+          "base": "StateObject"
+        }
+      ],
+      "ld_flags": "-Xlinker -interposable"
+    }
+  }
+]

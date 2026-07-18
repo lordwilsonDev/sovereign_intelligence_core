@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "axiom_schema.nano",
+  "description": "Machine-readable axioms for the Axiom Inversion Engine (AIE). Each axiom maps formal FOL predicates to executable violation checks with context-aware weights.",
+  "type": "object",
+  "properties": {
+    "axioms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "fol_predicate", "repair_hint"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "fol_predicate": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+          },
+          "trigger_patterns": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "context_weights": {
+            "type": "object",
+            "properties": {
+              "production": { "type": "number" },
+              "hot_reload": { "type": "number" },
+              "test": { "type": "number" }
+            }
+          },
+          "repair_hint": { "type": "string" },
+          "ltl_constraint": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "version": { "type": "string" },
+        "generated_at": { "type": "string" },
+        "phase": { "type": "string" }
+      }
+    }
+  },
+  "axioms": [
+    {
+      "id": "IDEMPOTENCY",
+      "name": "Init Idempotency",
+      "fol_predicate": "∀(v: View) → (init(v) ⇒ ¬(SideEffect(v)))",
+      "severity": "CRITICAL",
+      "trigger_patterns": ["NetworkRequest", "FileIO", "UserDefaults"],
+      "context_weights": {"production": 0.4, "hot_reload": 0.8, "test": 0.2},
+      "repair_hint": "Move side-effectful work to .onAppear() or .task()",
+      "ltl_constraint": null
+    },
+    {
+      "id": "SYMBOLIC_STABILITY",
+      "name": "Symbolic Stability",
+      "fol_predicate": "∀(s: dlsym) → SymbolMangled(s)",
+      "severity": "CRITICAL",
+      "trigger_patterns": ["dlsym"],
+      "context_weights": {"production": 0.3, "hot_reload": 0.7, "test": 0.1},
+      "repair_hint": "Use Swift mangled symbol or defined exposed Swift symbol",
+      "ltl_constraint": null
+    },
+    {
+      "id": "OBSERVABILITY",
+      "name": "Observability",
+      "fol_predicate": "∀(state) → (RawState ⇒ Violation)",
+      "severity": "HIGH",
+      "trigger_patterns": ["@State"],
+      "context_weights": {"production": 0.6, "hot_reload": 0.9, "test": 0.3},
+      "repair_hint": "Wrap type in ObservableObject or use @StateObject/@ObservedObject",
+      "ltl_constraint": null
+    },
+    {
+      "id": "CONFIG_INTEGRITY",
+      "name": "Config Integrity",
+      "fol_predicate": "∀(buildConfig) → InterposableFlagPresent(buildConfig.OTHER_LDFLAGS)",
+      "severity": "HIGH",
+      "trigger_patterns": ["OTHER_LDFLAGS"],
+      "context_weights": {"production": 0.5, "hot_reload": 0.5, "test": 0.2},
+      "repair_hint": "Add -Xlinker -interposable to OTHER_LDFLAGS",
+      "ltl_constraint": null
+    }
+  ],
+  "meta": {
+    "version": "0.1.0",
+    "generated_at": "2026-07-18",
+    "phase": "Phase 0-2"
+  }
+}
