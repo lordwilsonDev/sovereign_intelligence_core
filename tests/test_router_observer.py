@@ -33,6 +33,11 @@ def test_summarize_empty():
         "rerouted_rate": 0.0,
         "hybrid_rate": 0.0,
         "avg_confidence": 0.0,
+        "avg_primary_execution_time_s": 0.0,
+        "avg_secondary_execution_time_s": 0.0,
+        "primary_error_rate": 0.0,
+        "secondary_error_rate": 0.0,
+        "fallback_rate": 0.0,
     }
 
 
