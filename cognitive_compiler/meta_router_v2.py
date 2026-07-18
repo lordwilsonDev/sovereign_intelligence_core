@@ -65,6 +65,7 @@ class MetaRoutingHarness:
             "career": ["career", "job", "cv", "resume", "cover letter", "evaluate", "offer", "salary", "scan job", "portal", "ATS", "tracker"],
             "telegram": ["telegram", "artifact", "chart", "recipe", "shopping list", "miniapp", "webapp", "web app", "html", "widget"],
             "agentic-dev": ["agentic", "software development", "feature", "bug fix", "system design", "code review", "inversion", "MoIE", "developer"],
+            "empirical-grounding": ["grounding", "empirical", "assumption", "falsif", "integrity", "reality test", "FTS", "debt"],
             "base_are": [],
         }
         self.triviality_threshold_words = 10

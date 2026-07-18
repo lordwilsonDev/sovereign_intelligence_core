@@ -165,6 +165,9 @@ class HarnessDispatcher:
         if primary == "agentic-dev":
             from cognitive_compiler.agentic_software_development_harness_v1 import AgenticSoftwareDevelopmentHarness
             return AgenticSoftwareDevelopmentHarness().execute(query, context=context).payload
+        if primary == "empirical-grounding":
+            from cognitive_compiler.empirical_grounding_harness_v1 import EmpiricalGroundingHarness
+            return EmpiricalGroundingHarness().execute(query, context=context).payload
         return self._base_are(query, context)
 
     def _run_secondary(self, secondary: Optional[str], query: str, context: Dict[str, Any], handoff_prompt: str) -> Any:
@@ -194,6 +197,9 @@ class HarnessDispatcher:
         if secondary == "agentic-dev":
             from cognitive_compiler.agentic_software_development_harness_v1 import AgenticSoftwareDevelopmentHarness
             return AgenticSoftwareDevelopmentHarness().execute(query, context=context).payload
+        if secondary == "empirical-grounding":
+            from cognitive_compiler.empirical_grounding_harness_v1 import EmpiricalGroundingHarness
+            return EmpiricalGroundingHarness().execute(query, context=context).payload
         return self._base_are(handoff_prompt, context)
 
     def _post_process(self, result: Dict[str, Any], meta: MetaRoutingResult) -> Dict[str, Any]:

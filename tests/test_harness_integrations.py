@@ -51,7 +51,7 @@ class TestDispatcher:
         dispatcher = HarnessDispatcher()
         scs = SharedCognitiveState(problem_statement="Build a causal model and research prior work")
         follow = dispatcher.dispatch("Now test this empirically", context={}, scs=scs)
-        assert follow["routing"]["primary"] in {"research", "building", "complex_reasoning", "base_are"}
+        assert follow["routing"]["primary"] in {"research", "building", "complex_reasoning", "base_are", "empirical-grounding"}
 
     def test_trivial_query(self):
         d = HarnessDispatcher()
