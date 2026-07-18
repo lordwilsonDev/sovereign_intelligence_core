@@ -23,8 +23,8 @@ def v3_capabilities() -> JSONResponse:
 
 @router.get("/v3/memory/routes")
 def v3_memory_routes() -> JSONResponse:
-    router = MemoryRouter()
-    return JSONResponse(router.summary())
+    router_mem = MemoryRouter()
+    return JSONResponse(router_mem.summary())
 
 
 @router.post("/v3/capabilities/{capability_id}/validate")
