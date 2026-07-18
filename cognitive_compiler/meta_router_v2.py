@@ -64,6 +64,7 @@ class MetaRoutingHarness:
             "desktop": ["desktop", "automation", "click", "type", "launch", "open app", "screenshot", "mouse", "ui", "finder", "browser", "electron"],
             "career": ["career", "job", "cv", "resume", "cover letter", "evaluate", "offer", "salary", "scan job", "portal", "ATS", "tracker"],
             "telegram": ["telegram", "artifact", "chart", "recipe", "shopping list", "miniapp", "webapp", "web app", "html", "widget"],
+            "agentic-dev": ["agentic", "software development", "feature", "bug fix", "system design", "code review", "inversion", "MoIE", "developer"],
             "base_are": [],
         }
         self.triviality_threshold_words = 10
