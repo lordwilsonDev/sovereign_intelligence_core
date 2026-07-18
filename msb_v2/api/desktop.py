@@ -3,7 +3,8 @@ from __future__ import annotations
 import os
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from cognitive_compiler.desktop_harness_v1 import DesktopHarness
@@ -11,8 +12,9 @@ from cognitive_compiler.router_observer import RouterObserver
 from cognitive_compiler.meta_router_v2 import MetaRoutingResult, HarnessDecision, CognitiveTemperature
 from cognitive_compiler.shared_cognitive_state import SharedCognitiveState
 
-
 router = APIRouter(prefix="/desktop", tags=["desktop"])
+
+_harness = DesktopHarness()
 
 
 class DesktopExecutePayload(BaseModel):
@@ -32,10 +34,24 @@ def _fake_routing_result(intent: Optional[str]) -> MetaRoutingResult:
     )
 
 
+@router.get("/health")
+def desktop_health():
+    return {"status": "ok", "module": "desktop"}
+
+
+@router.get("/status")
+def desktop_status():
+    return _harness.status
+
+
+@router.post("/stop")
+def stop_desktop():
+    return _harness.stop()
+
+
 @router.post("/execute")
 def execute_desktop(payload: DesktopExecutePayload):
-    harness = DesktopHarness()
-    result = harness.execute(payload.goal, timeout_s=payload.timeout_s)
+    result = _harness.execute(payload.goal, timeout_s=payload.timeout_s)
     try:
         RouterObserver(log_path="runtime/desktop_routing_observations.jsonl").record(_fake_routing_result(payload.intent), payload.goal)
     except Exception:
@@ -43,18 +59,10 @@ def execute_desktop(payload: DesktopExecutePayload):
     return result
 
 
-@router.post("/stop")
-def stop_desktop():
-    harness = DesktopHarness()
-    return harness.stop()
-
-
-@router.get("/status")
-def desktop_status():
-    harness = DesktopHarness()
-    return harness.status
-
-
-@router.get("/health")
-def desktop_health():
-    return {"status": "ok", "module": "desktop"}
+@router.post("/approve")
+def approve_desktop(confirm_token: str, approved: bool = True):
+    if not confirm_token:
+        raise HTTPException(status_code=400, detail="confirm_token is required")
+    result = _harness.approve_run(confirm_token=confirm_token, approved=approved)
+    status = 200 if result.get("state") != "rejected" else 409
+    return JSONResponse(result, status_code=status)
