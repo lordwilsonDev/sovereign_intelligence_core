@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import threading
-from collections import OrderedDict
-from dataclasses import dataclass
+import time
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Callable, Any
-import time
 
 
 class TaskState(Enum):
@@ -45,6 +44,7 @@ class TaskQueue:
         self._worker: threading.Thread | None = None
         self._max_concurrent = max_concurrent
         self._active = 0
+        self._resolve = self._default_resolve
 
     def start(self) -> None:
         with self._lock:
@@ -97,6 +97,27 @@ class TaskQueue:
         with self._lock:
             return sum(1 for t in self._queue if t.status == TaskState.PENDING)
 
+    def wait_running(self, task_id: str, timeout: float = 1.0) -> bool:
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            st = self.status(task_id)
+            if st and st["status"] == TaskState.RUNNING.value:
+                return True
+            time.sleep(0.05)
+        return False
+
+    def wait_completed(self, task_id: str, timeout: float = 2.0) -> dict | None:
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            st = self.status(task_id)
+            if st and st["status"] in {TaskState.COMPLETED.value, TaskState.FAILED.value, TaskState.CANCELLED.value}:
+                return st
+            time.sleep(0.05)
+        return None
+
+    def _default_resolve(self, goal: str, cancel_flag: threading.Event | None = None) -> str:
+        return "done"
+
     def _next(self) -> Task | None:
         if self._active >= self._max_concurrent:
             return None
@@ -126,8 +147,7 @@ class TaskQueue:
 
     def _run(self, task: Task) -> None:
         try:
-            from msb_v2.agent.executor import execute
-            result = execute(task.goal, cancel_flag=task.cancel_flag)
+            result = self._resolve(task.goal, cancel_flag=task.cancel_flag)
             with self._lock:
                 if task.cancel_flag.is_set():
                     task.status = TaskState.CANCELLED
@@ -147,16 +167,3 @@ class TaskQueue:
                 self._active -= 1
         with self._condition:
             self._condition.notify_all()
-
-
-_queue: TaskQueue | None = None
-_queue_lock = threading.Lock()
-
-
-def get_queue() -> TaskQueue:
-    global _queue
-    with _queue_lock:
-        if _queue is None:
-            _queue = TaskQueue()
-            _queue.start()
-        return _queue

@@ -81,6 +81,9 @@ def _call_tool(tool: str, parameters: dict) -> str:
     if tool == "noop":
         return "noop"
 
+    if tool == "noop_command":
+        return f"done:{goal}"
+
     if tool == "web_search":
         from msb_v2.integrations.rss import fetch_rss_articles
         query = parameters.get("query") or ""
