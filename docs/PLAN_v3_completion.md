@@ -22,14 +22,17 @@
 5. **Phase 8 seed**: `run.sh` + `Dockerfile` + deployment checklist
 
 ## Execution Plan
-- Step 1: Add `msb_v2/v3/memory_pipeline.py` without touching `memory/types.py`
-- Step 2: Wire pipeline into `msb_v2/api/v3.py` with `/v3/memory/*` and `/v3/planner/plan`
-- Step 3: Add `msb_v2/bootstrap.py` with `bootstrap_v3()`
-- Step 4: Add `msb_v2/planning/axiom_inversion.py` with `PlanningState` + `AxiomInversionEngine`
-- Step 5: Add `msb_v2/knowledge/graph.py` with SQLite graph schema + `LearningEngine`
-- Step 6: Add `run.sh`, `Dockerfile`, `DEPLOYMENT.md`
-- Step 7: Targeted tests for each new module
-- Step 8: Full pytest green + commit
+- [x] Step 1: Add `msb_v2/v3/memory_pipeline.py` without touching `memory/types.py`
+- [x] Step 2: Wire pipeline into `msb_v2/api/v3.py` with `/v3/memory/*` and `/v3/planner/plan`
+- [x] Step 3: Add `msb_v2/v3/bootstrap.py` with `bootstrap_v3()`
+- [x] Step 4: Add `msb_v2/planning/axiom_inversion.py` with `PlanningState` + `AxiomInversionEngine`
+- [x] Step 5: Add `msb_v2/knowledge/graph.py` with SQLite graph schema + `LearningEngine`
+- [x] Step 6: Add `run.sh`, `Dockerfile`, `DEPLOYMENT.md`
+- [x] Step 7: Targeted tests for each new module + deployment contracts
+- [x] Step 8: Full pytest green + commit
+- [x] Digital twin hooks: `msb_v2/v3/digital_twin.py`, `/v3/twin/*`
+- [x] Graph ranker: `msb_v2/knowledge/ranker.py`, `/v3/knowledge/rank`
+- [x] Live smoke: `/brain`, `/runtime`, `/evolution`, `/integrations`, `/v3/*`
 
 ## Commands
 ```bash
@@ -38,7 +41,8 @@ PYTHONPATH=/Users/lordwilson/msb-v2 MSB_REASONING_SCORER=1 python -m pytest -q
 ```
 
 ## Definition of Done
-- 333+ tests green
-- No `msb_v2/memory/types.py` overwrites
-- Every new module has tests
-- Clean tree, single coherent commit per phase
+- 333+ tests green ✅ Currently 366
+- No `msb_v2/memory/types.py` overwrites ✅
+- Every new module has tests ✅
+- Clean tree, single coherent commit per phase ✅
+- Digital twin hooks + graph ranker + deployment docs verified ✅
