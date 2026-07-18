@@ -7,6 +7,7 @@ from msb_v2.api.cognitive import router as cognitive_router
 from msb_v2.api.imagination import router as imagination_router
 from msb_v2.api.moie import router as moie_router
 from msb_v2.api.aura import router as aura_router
+from msb_v2.api.aura_validate import router as aura_validate_router
 from msb_v2.api.rcoh import router as rcoh_router
 from msb_v2.api.deepseek import router as deepseek_router
 from msb_v2.api.eve import router as eve_router
@@ -73,6 +74,7 @@ def create_app() -> FastAPI:
     app.include_router(moie_router, prefix="/moie")
     app.include_router(moie_slug_router, prefix="/moie/slug")
     app.include_router(aura_router, prefix="/aura")
+    app.include_router(aura_validate_router, prefix="/aura")
     app.include_router(rcoh_router, prefix="/rcoh")
     app.include_router(deepseek_router, prefix="/deepseek")
     app.include_router(eve_router, prefix="/eve")
