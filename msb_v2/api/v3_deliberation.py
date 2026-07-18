@@ -11,6 +11,12 @@ from msb_v2.v3.registry import get_registry as _get_capability_registry
 router = APIRouter(tags=["v3-deliberation"])
 
 
+def _mean(values: list[float]) -> float:
+    if not values:
+        return 0.0
+    return sum(values) / len(values)
+
+
 @router.post("/v3/deliberate")
 def deliberate(payload: dict) -> JSONResponse:
     query = payload.get("query", "")
@@ -19,20 +25,17 @@ def deliberate(payload: dict) -> JSONResponse:
         max_rounds = 1
     if max_rounds > 3:
         max_rounds = 3
-    registry = _get_capability_registry()
     inversion = _get_inversion_registry()
-    memory = MemoryRouter()
-    engine = ConstraintEngine()
-    rounds = []
     hypotheses = inversion.list_hypotheses()[:max_rounds]
+    rounds = []
     for hypothesis in hypotheses:
-        score = 0.5
-        if hypothesis.assumption:
-            score = min(1.0, max(0.0, score + 0.1 * len(hypothesis.assumption)))
+        experiments = inversion.experiments_for(hypothesis.hypothesis_id)
+        evidence_scores = [float(e.get("evidence_score", 0.0) or 0.0) for e in experiments]
+        base = _mean(evidence_scores) if evidence_scores else 0.5
         rounds.append({
             "hypothesis_id": hypothesis.hypothesis_id,
             "title": hypothesis.assumption,
-            "score": round(score, 2),
+            "score": round(min(1.0, max(0.0, base)), 2),
         })
     return JSONResponse({
         "query": query,
