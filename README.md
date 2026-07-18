@@ -18,3 +18,25 @@ code /Users/lordwilson/msb-v2/workspace.code-workspace
 ## Ports
 
 Default server: `127.0.0.1:8766`
+
+## Deploy
+
+Build:
+```bash
+cd /Users/lordwilson/msb-v2
+docker build -t msb-v2 .
+```
+
+Run:
+```bash
+docker run --rm -p 8766:8766 -e MSB_REASONING_SCORER=1 msb-v2
+```
+
+Health check:
+```bash
+curl http://127.0.0.1:8766/v3/health
+```
+
+## Workspace
+
+Open: `code /Users/lordwilson/msb-v2/workspace.code-workspace`

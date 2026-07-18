@@ -1,36 +1,22 @@
-"""
-swarmish: fast, lightweight Python service image.
-
-Build:
-  docker build -t msb-v2-aura:latest .
-
-Run:
-  docker compose up --build
-"""
-
-from python:3.12-slim as base
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends build-essential curl \
-    && rm -rf /var/lib/apt/lists/*
+    MSB_REASONING_SCORER=1 \
+    MSB_HOST=0.0.0.0 \
+    MSB_PORT=8766
 
 WORKDIR /app
 
-COPY pyproject.toml README.md ./
-COPY msb_v2 ./msb_v2
-COPY tests ./tests
-COPY evals ./evals
-COPY proposals ./proposals
-COPY clients ./clients
-COPY config.yaml ./config.yaml
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip install -e /app \
-    && if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-EXPOSE 8765
+COPY . /app
 
-CMD ["python", "-m", "msb_v2.api.main"]
+EXPOSE 8766
+
+CMD ["python", "-m", "uvicorn", "msb_v2.api.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8766"]
