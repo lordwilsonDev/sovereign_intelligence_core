@@ -7,12 +7,11 @@ cognitive temperature for dynamic re-routing.
 
 from __future__ import annotations
 
-import math
 import time
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
 
-from cognitive_compiler.shared_cognitive_state import SharedCognitiveState, MoIEPanelState
+from cognitive_compiler.shared_cognitive_state import SharedCognitiveState
 
 
 # ===========================================================================
