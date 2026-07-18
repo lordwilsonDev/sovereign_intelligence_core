@@ -76,13 +76,13 @@ def v3_summary() -> JSONResponse:
 
 
 @router.post("/v3/memory/ingest")
-def ingest_memory(payload: MemoryEntry) -> JSONResponse:
+def ingest_memory(payload: dict) -> JSONResponse:
     pipeline = _get_pipeline()
     entry = pipeline.ingest(
-        source=payload.source,
-        content=payload.content,
-        memory_type=payload.memory_type,
-        importance=payload.importance,
+        source=str(payload.get("source", "unknown")),
+        content=str(payload.get("content", "")),
+        memory_type=str(payload.get("memory_type", "episodic")),
+        importance=float(payload.get("importance", 0.5)),
     )
     return JSONResponse({"ingested": True, "memory_id": entry.memory_id})
 
