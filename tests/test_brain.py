@@ -141,3 +141,24 @@ def test_brain_response_schema(client):  # noqa: ANN001
     assert "overall_score" in metrics
     for section in ["reasoning", "coding", "autonomy", "efficiency"]:
         assert section in metrics
+
+
+def test_brain_execute_intent(client):  # noqa: ANN001
+    response = client.post("/brain/run", json={"query": "search Bitcoin price", "intent": "execute"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["kind"] == "executor"
+    body = payload["payload"]
+    assert body["goal"] == "search Bitcoin price"
+    assert body["result"] == "Completed 1 step(s) for: search Bitcoin price"
+    assert body["steps"][0]["tool"] == "web_search"
+
+
+def test_brain_plan_intent_returns_plan(client):  # noqa: ANN001
+    response = client.post("/brain/run", json={"query": "open Spotify", "intent": "plan"})
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert payload["kind"] == "rcoh"
+    assert "cycle_id" in payload["payload"]
