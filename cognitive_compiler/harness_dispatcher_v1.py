@@ -125,6 +125,7 @@ class HarnessDispatcher:
             "building": ["building", "implementation-first"],
             "desktop": ["desktop", "automation"],
             "career": ["career", "evaluation"],
+            "telegram": ["telegram", "artifact", "miniapp", "visualization"],
             "base_are": ["base-are", "reasoning"],
         }
         return mapping.get(harness, [harness])
@@ -150,6 +151,9 @@ class HarnessDispatcher:
                     "confidence": context.get("confidence", 0.0),
                 },
             ).payload
+        if primary == "telegram":
+            from cognitive_compiler.telegram_artifact_harness_v1 import TelegramArtifactHarness
+            return TelegramArtifactHarness().execute(query, context=context).payload
         return self._base_are(query, context)
 
     def _run_secondary(self, secondary: Optional[str], query: str, context: Dict[str, Any], handoff_prompt: str) -> Any:
@@ -173,6 +177,9 @@ class HarnessDispatcher:
                     "confidence": context.get("confidence", 0.0),
                 },
             ).payload
+        if secondary == "telegram":
+            from cognitive_compiler.telegram_artifact_harness_v1 import TelegramArtifactHarness
+            return TelegramArtifactHarness().execute(query, context=context).payload
         return self._base_are(handoff_prompt, context)
 
     def _post_process(self, result: Dict[str, Any], meta: MetaRoutingResult) -> Dict[str, Any]:

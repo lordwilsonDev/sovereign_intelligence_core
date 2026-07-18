@@ -63,6 +63,7 @@ class MetaRoutingHarness:
             "complex_reasoning": ["ethics", "philosophy", "strategy", "concept", "paradox", "reconcile", "tension"],
             "desktop": ["desktop", "automation", "click", "type", "launch", "open app", "screenshot", "mouse", "ui", "finder", "browser", "electron"],
             "career": ["career", "job", "cv", "resume", "cover letter", "evaluate", "offer", "salary", "scan job", "portal", "ATS", "tracker"],
+            "telegram": ["telegram", "artifact", "chart", "recipe", "shopping list", "miniapp", "webapp", "web app", "html", "widget"],
             "base_are": [],
         }
         self.triviality_threshold_words = 10
@@ -139,7 +140,21 @@ class MetaRoutingHarness:
             return "serial"
         if primary == "building" and secondary == "complex_reasoning":
             return "serial"
+        if primary == "desktop" and secondary == "telegram":
+            return "serial"
+        if primary == "telegram" and secondary == "desktop":
+            return "serial"
+        if primary == "telegram" and secondary == "research":
+            return "serial"
+        if primary == "research" and secondary == "telegram":
+            return "serial"
+        if primary == "telegram" and secondary == "building":
+            return "serial"
+        if primary == "building" and secondary == "telegram":
+            return "serial"
         if "career" in (primary, secondary):
+            return "serial"
+        if "telegram" in (primary, secondary):
             return "serial"
         return "parallel"
 
