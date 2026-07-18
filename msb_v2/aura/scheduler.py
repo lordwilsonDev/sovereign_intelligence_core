@@ -1,71 +1,78 @@
 from __future__ import annotations
 
-import asyncio
-from typing import List, Optional, Tuple
+import threading
+import time
+import uuid
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Callable, List
 
-from msb_v2.aura.models import Task, TaskStatus
-from msb_v2.aura.persistence import Persistence
-from msb_v2.aura.aura_core import AURACore
+
+class TaskStatus(str, Enum):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    RETRYING = "RETRYING"
+    DLQ = "DLQ"
 
 
-class Worker:
-    def __init__(self, worker_id: str, core: "AURACore", persistence: Persistence, fail_substring: str | None = None) -> None:
-        self.worker_id = worker_id
-        self.core = core
-        self.persistence = persistence
-        self.fail_substring = fail_substring
+class Priority(int, Enum):
+    CRITICAL = 0
+    HIGH = 1
+    MEDIUM = 2
+    LOW = 3
 
-    async def handle(self, task: Task) -> Task:
-        task.status = TaskStatus.RUNNING
-        self.persistence.save_task(task.__dict__)
-        session_id = f"worker-{self.worker_id}-{task.task_id}"
-        try:
-            if self.fail_substring and self.fail_substring in task.goal:
-                raise RuntimeError("simulated worker failure")
-            state = await self.core.run(goal=task.goal, session_id=session_id)
-            task.status = TaskStatus.COMPLETED
-            task.metadata["session_id"] = state.session_id
-            task.metadata["step_count"] = state.step
-            task.metadata["last_tool_status"] = state.context.get("last_tool_status", "SUCCESS")
-        except Exception as exc:
-            task.status = TaskStatus.FAILED
-            task.retry_count += 1
-            task.metadata["last_error"] = str(exc)
-        self.persistence.save_task(task.__dict__)
-        return task
+
+@dataclass
+class AURATask:
+    task_id: str = field(default_factory=lambda: uuid.uuid4().hex[:8])
+    goal: str = ""
+    client_id: str = "default"
+    priority: int = Priority.MEDIUM.value
+    status: str = TaskStatus.PENDING.value
+    created_at: float = field(default_factory=time.time)
+    retry_count: int = 0
+    max_retries: int = 3
+    metadata: dict = field(default_factory=dict)
 
 
 class Scheduler:
-    def __init__(self, persistence: Persistence | None = None, max_retries: int = 3, worker_count: int = 4, fail_substring: str | None = None) -> None:
-        self.persistence = persistence or Persistence()
-        self.max_retries = max_retries
-        self.worker_count = worker_count
-        self.fail_substring = fail_substring
-        self.queue: asyncio.PriorityQueue[Tuple[int, float, Task]] = asyncio.PriorityQueue()
-        self.dlq: List[Task] = []
-        self.core = AURACore(persistence=self.persistence)
+    def __init__(self) -> None:
+        self._queue: List[tuple[int, float, AURATask]] = []
+        self._lock = threading.Lock()
+        self._dlq: List[AURATask] = []
 
-    def enqueue(self, task: Task) -> None:
-        self.queue.put_nowait((int(task.priority.value), float(task.created_at), task))
+    def submit(self, task: AURATask) -> AURATask:
+        with self._lock:
+            self._queue.append((int(task.priority), task.created_at, task))
+            self._queue.sort(key=lambda x: (x[0], x[1]))
+            task.status = TaskStatus.PENDING.value
+        return task
 
-    async def run_once(self) -> Optional[Task]:
-        if self.queue.empty():
-            return None
-        priority, created_at, task = await self.queue.get()
-        worker = Worker(worker_id=f"{priority}-{created_at:.6f}", core=self.core, persistence=self.persistence, fail_substring=self.fail_substring)
-        result = await worker.handle(task)
-        if result.status == TaskStatus.FAILED and result.retry_count < self.max_retries:
-            result.status = TaskStatus.RETRYING
-            self.persistence.save_task(result.__dict__)
-            self.enqueue(result)
-        elif result.status == TaskStatus.FAILED:
-            result.status = TaskStatus.DLQ
-            self.persistence.save_task(result.__dict__)
-            self.dlq.append(result)
-        return result
+    def next(self) -> AURATask | None:
+        with self._lock:
+            if not self._queue:
+                return None
+            _, _, task = self._queue.pop(0)
+            task.status = TaskStatus.RUNNING.value
+            return task
 
-    async def drain(self) -> List[Task]:
-        results: List[Task] = []
-        while not self.queue.empty():
-            results.append(await self.run_once())
-        return results
+    def complete(self, task_id: str) -> None:
+        with self._lock:
+            self._queue = [item for item in self._queue if item[2].task_id != task_id]
+
+    def retry(self, task: AURATask) -> None:
+        with self._lock:
+            if task.retry_count >= task.max_retries:
+                task.status = TaskStatus.DLQ.value
+                self._dlq.append(task)
+            else:
+                task.retry_count += 1
+                task.status = TaskStatus.RETRYING.value
+                self._queue.append((int(task.priority), task.created_at, task))
+                self._queue.sort(key=lambda x: (x[0], x[1]))
+
+    def dlq(self) -> List[AURATask]:
+        with self._lock:
+            return list(self._dlq)
