@@ -8,3 +8,6 @@ __pycache__/
 .snapshots/
 evolution_memory.db
 runtime_events.db
+
+# Local config/secrets
+.env
