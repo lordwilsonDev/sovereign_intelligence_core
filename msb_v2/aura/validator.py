@@ -107,5 +107,5 @@ class TaskValidator:
         self._cascade = ValidatorCascade()
         self._schema = schema or {"required": ["goal"]}
 
-    def validate(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def validate(self, payload: Dict[str, Any], output: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         return self._cascade.validate(payload, self._schema)
