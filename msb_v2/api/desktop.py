@@ -43,6 +43,18 @@ def execute_desktop(payload: DesktopExecutePayload):
     return result
 
 
+@router.post("/stop")
+def stop_desktop():
+    harness = DesktopHarness()
+    return harness.stop()
+
+
+@router.get("/status")
+def desktop_status():
+    harness = DesktopHarness()
+    return harness.status
+
+
 @router.get("/health")
 def desktop_health():
     return {"status": "ok", "module": "desktop"}

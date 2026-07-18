@@ -60,3 +60,10 @@ def test_meta_route_desktop_intent():
     assert r.status_code == 200
     body = r.json()
     assert body["meta_routing"]["primary"] == "desktop"
+
+
+def test_meta_route_desktop_keyword_classification():
+    r = client.post("/meta/route", json={"query": "Design and automate a desktop workflow that clicks types and launches apps", "context": {}})
+    assert r.status_code == 200
+    body = r.json()
+    assert body["routing"]["primary"] == "desktop"
