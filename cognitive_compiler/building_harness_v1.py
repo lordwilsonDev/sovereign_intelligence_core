@@ -20,6 +20,7 @@ from cognitive_compiler.meta_coordinator_v3_2 import (
     IntelligenceLayer,
     QueryType,
 )
+from cognitive_compiler.codebrain_artifact import ArtifactNormalizer, CodeBrainArtifact
 
 
 # ===========================================================================
@@ -159,6 +160,7 @@ class BuildingHarness:
         self.ail = ail or AxiomInversionEngine()
         self.panel = MoIEBuilderPanel()
         self.aie = AxiomEvaluator()
+        self.normalizer = ArtifactNormalizer()
 
     # ------------------------------------------------------------------
     # Step 1 – Requirement Extraction & Assumption Mapping
@@ -376,5 +378,6 @@ class BuildingHarness:
                 "falsifications": plan.falsification_conditions,
                 "next_action": plan.immediate_next_action
             },
-            "elapsed_s": round(time.time() - start, 4)
+            "elapsed_s": round(time.time() - start, 4),
+            "artifact": self.normalizer.normalize({"goal": goal, "requirements": requirements, "assumptions": assumptions}, kind="build").to_dict(),
         }
