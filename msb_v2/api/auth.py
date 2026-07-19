@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
 from auth.authz_controller import issue_token, verify_token
@@ -42,11 +42,16 @@ def security_approve(body: ApproveRequest) -> Dict[str, Any]:
 
 
 @router.post("/auth/token/issue")
-def auth_token_issue(body: ApproveRequest) -> Dict[str, Any]:
-    token = issue_token(body.subject, roles=body.roles or [], scopes=body.scopes or [])
-    decision = permission_engine.check(Identity(subject=body.subject, roles=body.roles or [], scopes=body.scopes or []), "issue_token", "msb")
-    event = audit_log.record(identity=Identity(subject=body.subject, roles=body.roles or [], scopes=body.scopes or []), action="issue_token", resource="msb", decision=decision)
-    return {"subject": body.subject, "token": token, "allowed": decision.allowed, "event": event}
+def auth_token_issue(body: Dict[str, Any]) -> Dict[str, Any]:
+    subject = str(body.get("subject", "")).strip()
+    roles = list(body.get("roles") or [])
+    scopes = list(body.get("scopes") or [])
+    if not subject:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="subject is required")
+    token = issue_token(subject, roles=roles, scopes=scopes)
+    decision = permission_engine.check(Identity(subject=subject, roles=roles, scopes=scopes), "issue_token", "msb")
+    event = audit_log.record(identity=Identity(subject=subject, roles=roles, scopes=scopes), action="issue_token", resource="msb", decision=decision)
+    return {"subject": subject, "token": token, "allowed": decision.allowed, "event": event}
 
 
 @router.post("/auth/token/verify")
