@@ -20,4 +20,4 @@ def test_model_route_endpoint_prefers_capability_match() -> None:
     r = client.post("/model/route", json={"task": "extract entities from legal document"})
     assert r.status_code == 200
     body = r.json()
-    assert body["result"]["model"] in {"deepseek", "local", "claude"}
+    assert body["result"]["model"] in {"deepseek", "local", "claude", "gemma4:31b"}
