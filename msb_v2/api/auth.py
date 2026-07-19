@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
 from auth.authz_controller import issue_token, verify_token
+from msb_v2.api.middleware import require_bearer_token
 from security.identity import Identity, PermissionEngine, AuditLog
 
 
