@@ -182,21 +182,23 @@ class HarnessDispatcher:
         if primary == "sovereign-finetune":
             action = context.get("finetune_action", "scan")
             repo = context.get("repo_path", "/tmp")
-            if hasattr(self, "finetune"):
-                setattr(self.finetune, "repo_path", repo)
+            handler = getattr(self, "finetune", None)
+            if handler is None:
+                raise RuntimeError("Sovereign fine-tune harness is not initialized on dispatcher")
+            setattr(handler, "repo_path", repo)
             if action == "scan":
-                return self.finetune.scan_documents()
+                return handler.scan_documents()
             if action == "distill":
-                pairs = self.finetune.synthesize_pairs(max_pairs=int(context.get("max_pairs", 64)))
-                validation = self.finetune.validate_pairs()
-                return {"action": "distill", "pairs": len(pairs), "validation": validation, "privacy_boundary": self.finetune.privacy_boundary}
+                pairs = handler.synthesize_pairs(max_pairs=int(context.get("max_pairs", 64)))
+                validation = handler.validate_pairs()
+                return {"action": "distill", "pairs": len(pairs), "validation": validation, "privacy_boundary": handler.privacy_boundary}
             if action == "train":
-                self.finetune.repo_path = repo
-                self.finetune.scan_documents()
-                self.finetune.synthesize_pairs()
-                job = self.finetune.create_training_job(base_model=context.get("base_model", "local-base"))
-                baseline = self.finetune.validate_baseline_coherence()
-                report = self.finetune.run_post_training_validation(job_id=job.job_id)
+                handler.repo_path = repo
+                handler.scan_documents()
+                handler.synthesize_pairs()
+                job = handler.create_training_job(base_model=context.get("base_model", "local-base"))
+                baseline = handler.validate_baseline_coherence()
+                report = handler.run_post_training_validation(job_id=job.job_id)
                 return {
                     "action": "train",
                     "job_id": job.job_id,
@@ -212,7 +214,7 @@ class HarnessDispatcher:
                         "falsification_condition": report.falsification_condition,
                     },
                 }
-            return self.finetune.scan_documents()
+            return handler.scan_documents()
         return self._base_are(query, context)
 
     def _run_secondary(self, secondary: Optional[str], query: str, context: Dict[str, Any], handoff_prompt: str) -> Any:

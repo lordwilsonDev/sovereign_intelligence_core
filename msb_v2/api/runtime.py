@@ -33,7 +33,7 @@ def runtime_replay(limit: int = 100) -> JSONResponse:
 
 
 @router.post("/runtime/snapshots")
-def runtime_create_snapshot(tag: str = Body(...), source: str = Body(...)) -> JSONResponse:
+def runtime_create_snapshot(tag: str = Body(...), source: str = Body(...), auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     context = RuntimeContext()
     context.start()
     try:
