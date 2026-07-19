@@ -1,0 +1,38 @@
+groups:
+  - name: msb_sac_alerts
+    rules:
+      - alert: SACMirageDetected
+        expr: msb_sac_cma_mirage_flag == 1
+        for: 0m
+        labels:
+          severity: page
+        annotations:
+          summary: "SAC dashboard reports a Cognitive Mirage"
+          description: "The SAC envelope indicates the system may be optimizing appearance over truth."
+
+      - alert: QuarantineHighRisk
+        expr: msb_sac_quarantine_high_risk_count > 0
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "SAC quarantine high-risk events detected"
+          description: "The QuarantineInversionAgent required justification on {{ $value }} event(s)."
+
+      - alert: OuroborosVDRBelowThreshold
+        expr: msb_ouroboros_vdr_min < 0.5
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "Lowest module VDR dropped below 0.5 for 5m"
+          description: "Module {{ $labels.module }} has VDR {{ $value }}. Recursive Subtraction should run."
+
+      - alert: SACStatusLatencyHigh
+        expr: http_request_duration_seconds{path="/sac/status"} > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "/sac/status latency is high"
+          description: "p99 latency on /sac/status exceeded 500ms for 2m."
