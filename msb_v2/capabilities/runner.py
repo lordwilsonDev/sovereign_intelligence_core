@@ -41,6 +41,7 @@ def _run_capability_test(test: Dict[str, Any]) -> Dict[str, Any]:
 
     expected_last_call_status = test.get("expected_last_call_status")
     last_call_bonus = 0.0
+    last_call_flag = None
     if expected_last_call_status is not None:
         try:
             if int(last_status) == int(expected_last_call_status):
@@ -48,8 +49,6 @@ def _run_capability_test(test: Dict[str, Any]) -> Dict[str, Any]:
                 last_call_flag = "expected_last_call_status"
         except (TypeError, ValueError):
             last_call_flag = None
-    else:
-        last_call_flag = None
 
     score = last_call_bonus
     found: List[str] = []

@@ -70,6 +70,10 @@ def brain_meta_run(payload: BrainMetaPayload) -> JSONResponse:
         "intent": payload.intent,
         "meta_routing": result.get("routing", {}),
         "primary_output": result.get("primary_output"),
+        "secondary_output": result.get("secondary_output"),
         "temperature": result.get("temperature", {}),
         "scs_snapshot": result.get("scs_snapshot"),
+        "artifact_summary": result.get("artifact_summary"),
+        "telemetry": result.get("telemetry"),
+        "elapsed_s": result.get("elapsed_s"),
     })

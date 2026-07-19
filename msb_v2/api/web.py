@@ -42,6 +42,7 @@ from msb_v2.api.meta import router as meta_router
 from msb_v2.api.desktop import router as desktop_router
 from msb_v2.api.career import router as career_router
 from msb_v2.api.system import router as system_router
+from msb_v2.api.auth import router as auth_router
 from msb_v2.api import v3 as v3_router
 from msb_v2.api import v3_inversion as v3_inversion_router
 from msb_v2.api import v3_deliberation as v3_deliberation_router
@@ -50,6 +51,7 @@ from msb_v2.api import v3_twin as v3_twin_router
 from msb_v2.api import v3_tools as v3_tools_router
 from msb_v2.api import v3_tasks as v3_tasks_router
 from msb_v2.api import v3_crew as v3_crew_router
+
 from msb_v2.engine.orchestrator import Task, orchestrate
 
 from msb_v2.transport.compression import compress_content
@@ -113,6 +115,7 @@ def create_app() -> FastAPI:
     app.include_router(desktop_router, prefix="")
     app.include_router(career_router, prefix="")
     app.include_router(system_router, prefix="")
+    app.include_router(auth_router)
     try:
         from msb_v2.transport.compression_middleware import ResponseCompressionMiddleware
         app.add_middleware(ResponseCompressionMiddleware, threshold=2000)
