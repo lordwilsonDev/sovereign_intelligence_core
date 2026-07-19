@@ -295,7 +295,7 @@ def console() -> HTMLResponse:
     return HTMLResponse(_build_html(reasoning, memory, signals, trace_rows, by_trace, proposal, last_cycle))
 
 
-@router.post("/console/propose")
+@router.post("/console/propose", dependencies=[Depends(require_bearer_token)])
 def console_propose(proposal: Dict[str, Any]) -> JSONResponse:
     proposal.setdefault("proposal_id", "console-" + str(hash(str(proposal)))[-6:])
     _PENDING["latest"] = proposal

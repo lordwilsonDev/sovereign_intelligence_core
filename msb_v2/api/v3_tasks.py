@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.agent.task_queue import TaskPriority, get_queue
 
 router = APIRouter()
 
 
 @router.post("/v3/tasks/submit")
-def submit_task(goal: str, priority: str = "normal") -> dict:
+def submit_task(goal: str, priority: str = "normal", auth: Dict[str, Any] = Depends(require_bearer_token)) -> dict:
     pq = TaskPriority.NORMAL
     if priority.lower() == "high":
         pq = TaskPriority.HIGH

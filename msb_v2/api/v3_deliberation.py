@@ -1,7 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from typing import Any, Dict
+
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+
+from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.v3.constraints import ConstraintEngine
 from msb_v2.v3.inversion_registry import get_registry as _get_inversion_registry
@@ -18,7 +22,7 @@ def _mean(values: list[float]) -> float:
 
 
 @router.post("/v3/deliberate")
-def deliberate(payload: dict) -> JSONResponse:
+def deliberate(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     query = payload.get("query", "")
     max_rounds = int(payload.get("max_rounds", 2))
     if max_rounds < 1:

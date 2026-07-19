@@ -1,7 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from typing import Any, Dict
+
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+
+from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.v3.inversion_registry import get_registry as _get_inversion_registry
 
@@ -29,7 +33,7 @@ def list_experiments() -> JSONResponse:
 
 
 @router.post("/v3/inversion/hypotheses")
-def add_hypothesis(payload: dict) -> JSONResponse:
+def add_hypothesis(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     registry = _get_inversion_registry()
     hypothesis = registry.register_hypothesis(
         title=payload.get("title", ""),
@@ -40,7 +44,7 @@ def add_hypothesis(payload: dict) -> JSONResponse:
 
 
 @router.post("/v3/inversion/experiments")
-def add_experiment(payload: dict) -> JSONResponse:
+def add_experiment(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     registry = _get_inversion_registry()
     experiment = registry.register_experiment(
         hypothesis_id=payload.get("hypothesis_id", ""),
@@ -50,7 +54,7 @@ def add_experiment(payload: dict) -> JSONResponse:
 
 
 @router.post("/v3/inversion/experiments/{experiment_id}/evidence")
-def add_evidence(experiment_id: str, payload: dict) -> JSONResponse:
+def add_evidence(experiment_id: str, payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     registry = _get_inversion_registry()
     evidence = registry.add_evidence(
         experiment_id=experiment_id,

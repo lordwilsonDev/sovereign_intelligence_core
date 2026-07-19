@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import threading
-from typing import Any, Optional
+from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
 from pydantic import BaseModel
+
+from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.v3.crew_state import AgentStatus, Crew, CrewSupervisor, Agent
 
@@ -29,7 +31,7 @@ class RouteMessageRequest(BaseModel):
 
 
 @router.post("/v3/crew")
-def create_crew(payload: CreateCrewRequest) -> dict[str, Any]:
+def create_crew(payload: CreateCrewRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> dict[str, Any]:
     with _lock:
         crew = _supervisor.create_crew(name=payload.name or "unnamed", state=payload.state)
     return {"crew_id": crew.crew_id, "name": crew.name}
@@ -44,7 +46,7 @@ def get_crew(crew_id: str) -> dict[str, Any]:
 
 
 @router.post("/v3/crew/{crew_id}/agent")
-def add_agent(crew_id: str, payload: AddAgentRequest) -> dict[str, Any]:
+def add_agent(crew_id: str, payload: AddAgentRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> dict[str, Any]:
     crew = _supervisor.get_crew(crew_id)
     if crew is None:
         return {"error": "crew_not_found"}
@@ -55,7 +57,7 @@ def add_agent(crew_id: str, payload: AddAgentRequest) -> dict[str, Any]:
 
 
 @router.post("/v3/crew/{crew_id}/agent/{agent_id}/route")
-def route_agent_message(crew_id: str, agent_id: str, payload: RouteMessageRequest) -> dict[str, Any]:
+def route_agent_message(crew_id: str, agent_id: str, payload: RouteMessageRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> dict[str, Any]:
     result = _supervisor.route(crew_id=crew_id, from_agent=agent_id, to_agent=payload.to, message=payload.message)
     return result
 

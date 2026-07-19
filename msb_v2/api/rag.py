@@ -5,8 +5,10 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+
+from msb_v2.api.middleware import require_bearer_token
 
 router = APIRouter()
 _ARTIFACT_ROOT = Path("/Users/lordwilson/msb-v2/.artifacts/rag")
@@ -40,7 +42,7 @@ def _bm25_match(query: str, documents: List[Dict[str, Any]], top_k: int) -> List
 
 
 @router.post("/ingest")
-def rag_ingest(payload: IngestRequest) -> Dict[str, Any]:
+def rag_ingest(payload: IngestRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     _ensure_dirs()
     source = payload.source or "inline"
     stored: List[Dict[str, Any]] = []
@@ -54,7 +56,7 @@ def rag_ingest(payload: IngestRequest) -> Dict[str, Any]:
 
 
 @router.post("/converse")
-def rag_converse(payload: ConverseRequest) -> Dict[str, Any]:
+def rag_converse(payload: ConverseRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     _ensure_dirs()
     documents: List[Dict[str, Any]] = []
     for path in sorted(_ARTIFACT_ROOT.glob("*.json")):

@@ -3,8 +3,10 @@ from __future__ import annotations
 import time
 from typing import Any, Dict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+
+from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.api.cognitive import _engine as cognitive_engine
 from msb_v2.api.counterfactual import branch_trace, _stream as counterfactual_stream
@@ -54,7 +56,7 @@ def _next_task_id() -> str:
 
 
 @router.post("/run")
-def brain_run(req: ManifestRequest) -> Dict[str, Any]:
+def brain_run(req: ManifestRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     kind = req.intent.lower()
     task_id = _next_task_id()
     trace_id = req.trace_id

@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from typing import Any, Dict
+
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.v3.digital_twin import DigitalTwinHook
 
 router = APIRouter(tags=["v3-twin"])
@@ -11,7 +14,7 @@ _hooks = DigitalTwinHook()
 
 
 @router.post("/v3/twin")
-def create_twin(payload: dict) -> JSONResponse:
+def create_twin(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     name = payload.get("name", "")
     state = payload.get("state", {})
     fork_of = payload.get("fork_of")
@@ -20,7 +23,7 @@ def create_twin(payload: dict) -> JSONResponse:
 
 
 @router.post("/v3/twin/{twin_id}/snapshot")
-def snapshot_twin(twin_id: str) -> JSONResponse:
+def snapshot_twin(twin_id: str, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     snap = _hooks.snapshot(twin_id)
     if snap is None:
         return JSONResponse({"error": "twin_not_found", "twin_id": twin_id}, status_code=404)
@@ -28,7 +31,7 @@ def snapshot_twin(twin_id: str) -> JSONResponse:
 
 
 @router.post("/v3/twin/{twin_id}/evolve")
-def evolve_twin(twin_id: str, payload: dict) -> JSONResponse:
+def evolve_twin(twin_id: str, payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     evolved = _hooks.evolve(twin_id, payload.get("delta", {}))
     if evolved is None:
         return JSONResponse({"error": "twin_not_found", "twin_id": twin_id}, status_code=404)

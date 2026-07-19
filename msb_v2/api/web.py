@@ -1,7 +1,11 @@
 from __future__ import annotations
 
-from fastapi import FastAPI
+from typing import Any, Dict
+
+from fastapi import FastAPI, Depends
 from pydantic import BaseModel
+
+from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.api.cognitive import router as cognitive_router
 from msb_v2.api.imagination import router as imagination_router
@@ -82,7 +86,7 @@ def create_app() -> FastAPI:
         return {"status": "ok", "module": "runtime"}
 
     @app.post("/orchestrate")
-    def orchestrate_endpoint(payload: OrchestrateRequest) -> list:
+    def orchestrate_endpoint(payload: OrchestrateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> list:
         return [{"id": t.id, "status": t.status} for t in orchestrate(payload.tasks)]
 
     app.include_router(cognitive_router, prefix="/cognitive")

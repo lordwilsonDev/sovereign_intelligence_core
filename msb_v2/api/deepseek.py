@@ -3,9 +3,10 @@ from __future__ import annotations
 import os
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.provider import DeepSeekProvider
 from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.reasoning.scorer import score_from_events
@@ -23,7 +24,7 @@ class DeepSeekChatRequest(BaseModel):
 
 
 @router.post("/chat")
-def deepseek_chat(payload: DeepSeekChatRequest) -> Dict[str, Any]:
+def deepseek_chat(payload: DeepSeekChatRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     response: Dict[str, Any] = {}
 
     if SCORER_ENABLED:

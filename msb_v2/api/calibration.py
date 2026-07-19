@@ -29,7 +29,7 @@ def record_calibration(body: Dict[str, Any]) -> Dict[str, Any]:
     return record.payload()
 
 
-@router.post("/calibration/record-assessment")
+@router.post("/calibration/record-assessment", dependencies=[Depends(require_bearer_token)])
 def record_assessment(assessment: Dict[str, Any]) -> Dict[str, Any]:
     confidence = float(assessment.get("confidence") or assessment.get("score") or 0.0)
     actual = bool(assessment.get("actual", False))

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
+
+from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.v3.constraints import ConstraintEngine
 from msb_v2.v3.memory_router import MemoryRouter
@@ -76,7 +78,7 @@ def v3_summary() -> JSONResponse:
 
 
 @router.post("/v3/memory/ingest")
-def ingest_memory(payload: dict) -> JSONResponse:
+def ingest_memory(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     pipeline = _get_pipeline()
     entry = pipeline.ingest(
         source=str(payload.get("source", "unknown")),
@@ -88,7 +90,7 @@ def ingest_memory(payload: dict) -> JSONResponse:
 
 
 @router.post("/v3/memory/ingest/batch")
-def ingest_batch(payload: list[dict]) -> JSONResponse:
+def ingest_batch(payload: list[dict], auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     pipeline = _get_pipeline()
     entries = pipeline.ingest_batch(payload or [])
     return JSONResponse({"ingested": len(entries), "memory_ids": [e.memory_id for e in entries]})
@@ -109,7 +111,7 @@ def search_memories(q: str, limit: int = 20) -> dict:
 
 
 @router.post("/v3/planner/plan")
-def plan_task(payload: dict) -> JSONResponse:
+def plan_task(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     planner = _get_planner()
     task = payload.get("task", "")
     context = payload.get("context")
