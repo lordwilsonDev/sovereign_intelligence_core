@@ -4,6 +4,7 @@ from typing import List
 
 from msb_v2.engine.inversion_engine import InversionEngine
 from msb_v2.engine.moie_types import Claim
+from msb_v2.engine.observability import span
 
 
 class Clerk:
@@ -12,6 +13,7 @@ class Clerk:
     def __init__(self, engine: InversionEngine | None = None) -> None:
         self.engine = engine or InversionEngine()
 
+    @span("clerks.decompose")
     def decompose(self, query: str, max_claims: int = 7) -> List[Claim]:
         inversions = self.engine.invert_many(query)
         claims: List[Claim] = []

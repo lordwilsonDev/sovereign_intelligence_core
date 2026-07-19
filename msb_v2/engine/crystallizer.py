@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Sequence
 
 from msb_v2.engine.rcoh_persistence import RCOHPersistence
+from msb_v2.engine.observability import span
 
 
 class Crystallizer:
@@ -11,6 +12,7 @@ class Crystallizer:
     def __init__(self, persistence: RCOHPersistence | None = None) -> None:
         self._persistence = persistence
 
+    @span("crystallizer.crystallize")
     def crystallize(self, judgment: Dict[str, Any]) -> Dict[str, Any]:
         validated = judgment.get("validated", [])
         potential = judgment.get("breakthrough_potential", "low")
