@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
 
+from msb_v2.runtime.replay import replay_store
+
 
 def _split_callable_path(dotted: str) -> tuple[str, str]:
     """Return (`module_path`, `func_name`) from a dotted path.
@@ -71,6 +73,19 @@ class AgentRuntime:
                 task.error = f"{exc.__class__.__name__}: {exc}"
             records.append(task)
         self._runs[run_id] = records
+        replay_store.record_run(
+            run_id,
+            [
+                {
+                    "task_id": t.task_id,
+                    "name": t.name,
+                    "status": t.status,
+                    "error": t.error,
+                    "result": t.result,
+                }
+                for t in records
+            ],
+        )
         return {
             "run_id": run_id,
             "count": len(records),
