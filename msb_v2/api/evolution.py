@@ -1,19 +1,19 @@
 from __future__ import annotations
 
-from typing import List
+from typing import Any, Dict, List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pathlib import Path
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.evolution.memory import EvolutionMemory
 from msb_v2.evolution.proposal import EvolutionProposal
 from msb_v2.evolution.scanner import OuroborosScanner
 from msb_v2.evolution.simulator import EvolutionSimulator
 
 router = APIRouter(tags=["evolution"])
-
 _REPO_ROOT = Path("/Users/lordwilson/msb-v2")
 _scanner = OuroborosScanner(root=_REPO_ROOT)
 _simulator = EvolutionSimulator(repo_root=_REPO_ROOT)
@@ -35,12 +35,12 @@ class SimulationRequest(BaseModel):
 
 
 @router.post("/evolution/scan")
-def evolution_scan() -> JSONResponse:
+def evolution_scan(auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     return JSONResponse(_scanner.scan())
 
 
 @router.post("/evolution/propose")
-def evolution_propose(payload: EvolutionProposalRequest) -> JSONResponse:
+def evolution_propose(payload: EvolutionProposalRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     proposal = EvolutionProposal(
         proposal_id=payload.proposal_id,
         title=payload.title,
@@ -57,7 +57,7 @@ def evolution_propose(payload: EvolutionProposalRequest) -> JSONResponse:
 
 
 @router.post("/evolution/simulate")
-def evolution_simulate(payload: SimulationRequest) -> JSONResponse:
+def evolution_simulate(payload: SimulationRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     proposal = _memory.get(payload.proposal_id) or EvolutionProposal(
         proposal_id=payload.proposal_id,
         title=payload.proposal_id,
@@ -79,12 +79,12 @@ def evolution_simulate(payload: SimulationRequest) -> JSONResponse:
 
 
 @router.get("/evolution/proposals")
-def evolution_proposals() -> JSONResponse:
+def evolution_proposals(auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     return JSONResponse({"proposals": _memory.all()})
 
 
 @router.get("/evolution/proposal/{proposal_id}")
-def evolution_proposal(proposal_id: str) -> JSONResponse:
+def evolution_proposal(proposal_id: str, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     proposal = _memory.get(proposal_id)
     if not proposal:
         return JSONResponse({"detail": "not found"}, status_code=404)

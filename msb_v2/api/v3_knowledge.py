@@ -64,7 +64,7 @@ def shortest_path(start: str, end: str) -> JSONResponse:
 
 
 @router.post("/v3/knowledge/update-outcome")
-def update_outcome(payload: dict) -> JSONResponse:
+def update_outcome(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     node_id = payload.get("node_id", "")
     outcome = payload.get("outcome", "")
     delta = float(payload.get("delta", 0.05))

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.environment.sovereign_environment import SovereignEnvironment
 
 router = APIRouter(tags=["environment"])
@@ -23,18 +24,18 @@ def environment_status() -> JSONResponse:
 
 
 @router.post("/environment/startup")
-def environment_startup() -> JSONResponse:
+def environment_startup(auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     return JSONResponse(_environment.startup())
 
 
 @router.post("/environment/shutdown")
-def environment_shutdown(payload: Optional[Dict[str, Any]] = Body(default=None)) -> JSONResponse:
+def environment_shutdown(payload: Optional[Dict[str, Any]] = Body(default=None), auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     reason = (payload or {}).get("reason")
     return JSONResponse(_environment.shutdown(reason=reason))
 
 
 @router.post("/environment/degraded")
-def environment_degraded(payload: Dict[str, Any] = Body(...)) -> JSONResponse:
+def environment_degraded(payload: Dict[str, Any] = Body(...), auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     error = payload.get("error", "")
     if not error:
         return JSONResponse({"detail": "error is required"}, status_code=422)

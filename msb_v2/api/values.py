@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.values.types import ValuePreference
 from msb_v2.values.registry import ValueRegistry
 
@@ -42,12 +43,12 @@ def list_values() -> List[Dict[str, Any]]:
 
 
 @router.post("/values/register")
-def register_value(payload: ValueRegisterRequest) -> Dict[str, Any]:
+def register_value(payload: ValueRegisterRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     _VALUE_REGISTRY.register(ValuePreference(name=payload.name, weight=payload.weight, priority=payload.priority, immutable=payload.immutable))
     return {"status": "registered", "name": payload.name}
 
 
 @router.post("/values/arbitrate", response_model=ArbitrateResponse)
-def arbitrate(payload: ArbitrateRequest) -> ArbitrateResponse:
+def arbitrate(payload: ArbitrateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> ArbitrateResponse:
     result = _VALUE_REGISTRY.resolve(payload.candidates)
     return ArbitrateResponse(outcome=result.outcome, resolution=result.resolution, chosen=result.chosen, rejected=result.rejected)
