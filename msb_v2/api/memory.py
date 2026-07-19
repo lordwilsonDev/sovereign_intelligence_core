@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
 from msb_v2.api.middleware import require_bearer_token
+from memory.honcho_router import HonchoMemoryRouter
 from msb_v2.memory.persistence import PersistentMemoryStore
 from msb_v2.memory.types import MemoryConfidence, MemoryHealth, MemoryRecord, MemoryStatus
 
@@ -14,6 +15,7 @@ from msb_v2.v3.contracts import HarnessContract
 from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _memory_store: PersistentMemoryStore | None = None
+_honcho_router: HonchoMemoryRouter | None = None
 
 
 def _get_store() -> PersistentMemoryStore:
@@ -21,6 +23,17 @@ def _get_store() -> PersistentMemoryStore:
     if _memory_store is None:
         _memory_store = PersistentMemoryStore(path="./memory_store.db")
     return _memory_store
+
+
+def _get_honcho_router() -> HonchoMemoryRouter:
+    global _honcho_router
+    if _honcho_router is None:
+        _honcho_router = HonchoMemoryRouter(
+            msb_backend=_get_store(),
+            hermes_backend=None,
+            sovereign_longterm_path=".sovereign/memory/long_term",
+        )
+    return _honcho_router
 
 
 class MemoryAddRequest(BaseModel):
