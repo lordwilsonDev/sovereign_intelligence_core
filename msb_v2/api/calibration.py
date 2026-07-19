@@ -1,15 +1,20 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Body, Depends
 from pydantic import BaseModel
 
 from msb_v2.api.middleware import require_bearer_token
+from msb_v2.v3.contracts import HarnessContract, register as _register_contract
 from msb_v2.reasoning.calibration import CalibrationStore
 
 router = APIRouter(tags=["calibration"])
 _calibration_store = CalibrationStore()
+_register_contract(HarnessContract(route="/reasoning/calibration/record", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/reasoning/calibration/record-assessment", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/reasoning/calibration/summary", method="get", allow_anonymous=True))
+_register_contract(HarnessContract(route="/reasoning/calibration/records", method="get", allow_anonymous=True))
 
 
 @router.post("/calibration/record", dependencies=[Depends(require_bearer_token)])

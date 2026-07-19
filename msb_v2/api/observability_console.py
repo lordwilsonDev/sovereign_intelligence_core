@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 
 from msb_v2.api.middleware import require_bearer_token
+from msb_v2.v3.contracts import HarnessContract, register as _register_contract
 from msb_v2.api.observability_metrics import MetricsStore
 from msb_v2.api.reasoning_integrity import _stream as reasoning_stream
 from msb_v2.api.memory import _get_store as _memory_store_getter
@@ -14,6 +15,9 @@ from msb_v2.api.memory import _get_store as _memory_store_getter
 router = APIRouter(tags=["observability"])
 _metrics = MetricsStore()
 _PENDING: Dict[str, Dict[str, Any]] = {}
+_register_contract(HarnessContract(route="/observability/console/replay/{trace_id}", method="get", allow_anonymous=True))
+_register_contract(HarnessContract(route="/observability/console/propose", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/observability/console/seed", method="get", allow_anonymous=True))
 
 
 @router.get("/console/replay/{trace_id}")

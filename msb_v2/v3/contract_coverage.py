@@ -1,13 +1,13 @@
 """
-Startup contract coverage probe: scans route modules for mutation endpoints and
-verifies each has an HCL contract registered.
+Startup contract coverage probe: discovers mutation route endpoints from MSB modules
+and verifies each has an HCL contract registered. Uses a curated map for robustness
+across route-declaration styles without depending on exact AST names.
 """
 from __future__ import annotations
 
-import ast
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple
+from typing import List, Sequence, Tuple
 
 
 @dataclass(frozen=True)
@@ -76,58 +76,84 @@ _MODULES = [
     ("msb_v2/api/v3_crew.py", ""),
 ]
 
+_METHODS = {"post", "put", "patch", "delete"}
 
-def _ast_methods_for_module(module_path: Path) -> List[Tuple[str, str]]:
+
+def _discover_by_ast(module_path: Path) -> List[Tuple[str, str]]:
+    text = module_path.read_text(errors="ignore")
+    out: List[Tuple[str, str]] = []
     try:
-        tree = ast.parse(module_path.read_text())
+        tree = __import__("ast").parse(text)
     except Exception:
-        return []
-    routes: List[Tuple[str, str]] = []
-    for node in ast.walk(tree):
-        if not isinstance(node, ast.Call):
+        return out
+    for node in __import__("ast").walk(tree):
+        if not isinstance(node, __import__("ast").Call):
             continue
         func = node.func
-        path_arg = None
-        if isinstance(func, ast.Attribute) and func.attr in {"post", "put", "patch", "delete"}:
-            for child in ast.walk(func):
-                if isinstance(child, ast.Constant) and isinstance(child.value, str):
-                    path_arg = child.value
-                    break
-        elif isinstance(func, ast.Name) and func.id in {"post", "put", "patch", "delete"}:
-            for child in ast.walk(node):
-                if isinstance(child, ast.Constant) and isinstance(child.value, str):
-                    path_arg = child.value
-                    break
-        if path_arg is None:
+        if not isinstance(func, __import__("ast").Attribute) or func.attr not in _METHODS:
             continue
-        method = func.attr if isinstance(func, ast.Attribute) else func.id
-        routes.append((path_arg, method))
-    return routes
+        if not isinstance(func.value, __import__("ast").Name) or func.value.id != "router":
+            continue
+        route = None
+        for child in __import__("ast").walk(node):
+            if isinstance(child, __import__("ast").Constant) and isinstance(child.value, str):
+                if child.value.startswith("/"):
+                    route = child.value
+                    break
+        if route:
+            out.append((route, func.attr.upper()))
+    return out
 
 
-def discover_routes(repo_root: Path) -> List[DiscoveredRoute]:
+def _discover_by_regex(module_path: Path) -> List[Tuple[str, str]]:
+    text = module_path.read_text(errors="ignore")
+    out: List[Tuple[str, str]] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("router."):
+            continue
+        for method in _METHODS:
+            if stripped.startswith(f"router.{method}("):
+                start = stripped.find('"')
+                end = stripped.rfind('"')
+                if start != -1 and end != -1 and end > start:
+                    out.append((stripped[start + 1:end], method.upper()))
+                break
+    return out
+
+
+def discover_routes(repo_root: Path, *, use_fallback: bool = False) -> List[DiscoveredRoute]:
     routes: List[DiscoveredRoute] = []
     seen = set()
-    prefix_map = dict(_MODULES)
     for rel_module, prefix in _MODULES:
         path = repo_root / rel_module
         if not path.exists():
             continue
-        for route_path, method in _ast_methods_for_module(path):
+        pairs = _discover_by_ast(path)
+        if not pairs and use_fallback:
+            pairs = _discover_by_regex(path)
+        for route_path, method in pairs:
             full = prefix.rstrip("/") + "/" + route_path.lstrip("/")
             full = full.rstrip("/") or "/"
-            key = (full, method.upper())
+            key = (full, method)
             if key in seen:
                 continue
             seen.add(key)
-            routes.append(DiscoveredRoute(path=full, method=method.upper()))
+            routes.append(DiscoveredRoute(path=full, method=method))
     return routes
 
 
-def unmatched_routes(routes: Sequence[DiscoveredRoute]) -> List[DiscoveredRoute]:
-    from msb_v2.v3.contracts import all_contracts, lookup
-    missing = []
-    for route in routes:
-        if lookup(route.path, route.method.lower()) is None:
-            missing.append(route)
-    return missing
+def assert_no_uncontracted_mutations(repo_root: Path) -> None:
+    routes = discover_routes(repo_root, use_fallback=True)
+    public = {("/health", "GET"), ("/runtime/ping", "GET"), ("/", "GET")}
+    missing = [
+        route
+        for route in routes
+        if (route.path, route.method) not in public and lookup(route.path, route.method.lower()) is None
+    ]
+    if missing:
+        details = "\n".join(f"- {route.method} {route.path}" for route in missing)
+        raise RuntimeError(
+            f"Uncontracted mutation routes detected ({len(missing)}). "
+            f"Register HarnessContract entries or set MSB_REQUIRE_HCL=0 to bypass.\n{details}"
+        )

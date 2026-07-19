@@ -151,4 +151,7 @@ def create_app() -> FastAPI:
     app.include_router(v3_tools_router.router)
     app.include_router(v3_tasks_router.router)
     app.include_router(v3_crew_router.router)
+    if str(__import__("os").getenv("MSB_REQUIRE_HCL", "")).lower() in {"1", "true", "yes"}:
+        from msb_v2.v3.contract_coverage import assert_no_uncontracted_mutations
+        assert_no_uncontracted_mutations(Path(__file__).resolve().parent.parent)
     return app
