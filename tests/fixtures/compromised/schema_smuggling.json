@@ -1,0 +1,17 @@
+{
+  "name": "schema_smuggling_hcl_override",
+  "description": "Mutation requests with extra HCL fields attempting to override contract enforcement.",
+  "payloads": [
+    {
+      "tasks": [{"id": "ghost-1", "module": "knowledge", "operation": "delete_all", "_hcl_override": "ignore"}],
+      "x_hcl_enforcement": "off",
+      "x_contract_skip": true
+    },
+    {
+      "tasks": [{"id": "ghost-2", "module": "system", "operation": "shutdown", "force": true}],
+      "MSB_REQUIRE_HCL": "0",
+      "__proto__": {"polluted": true}
+    }
+  ],
+  "expect_rejection": true
+}
