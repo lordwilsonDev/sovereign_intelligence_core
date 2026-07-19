@@ -174,7 +174,15 @@ def create_app() -> FastAPI:
 
     @app.get("/sac/self-audit")
     def sac_self_audit() -> dict:
-        return get_auditor().run_audit()
+        report = get_auditor().run_audit()
+        return {
+            "mirage_detected": report.mirage_detected,
+            "sas_confidence_weight": report.sas_confidence_weight,
+            "adversarial_finding": report.adversarial_finding,
+            "cma_verdict": report.cma_verdict,
+            "cma_details": report.cma_details,
+            "timestamp": report.timestamp,
+        }
 
     try:
         from prometheus_client import generate_latest, REGISTRY
@@ -209,8 +217,10 @@ def create_app() -> FastAPI:
                     _sac_bg_logger.error("SAC self-audit failed: %s", exc)
                 time.sleep(3600)
 
-        t = threading.Thread(target=_background_audit_loop, daemon=True)
-        t.start()
+        if not getattr(create_app, "_sac_audit_started", False):
+            t = threading.Thread(target=_background_audit_loop, daemon=True)
+            t.start()
+            create_app._sac_audit_started = True  # type: ignore[attr-defined]
     except Exception:
         pass
     return app
