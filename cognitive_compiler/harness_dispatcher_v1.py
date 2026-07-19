@@ -85,7 +85,7 @@ class HarnessDispatcher:
         result["primary_output"] = primary_payload
         scs.add_harness_output(primary, primary_payload)
 
-        if isinstance(primary_payload, dict) and primary == "building":
+        if isinstance(primary_payload, dict) and primary in {"building", "agentic-dev"} and "artifact" in primary_payload:
             result.setdefault("artifact_summary", {
                 "normalizer_backend": primary_payload.get("artifact", {}).get("metrics", {}).get("normalizer_backend"),
                 "artifact_id": primary_payload.get("artifact", {}).get("artifact_id"),

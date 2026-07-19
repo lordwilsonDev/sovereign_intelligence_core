@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from Cognitive_compiler.multi_model_moie import LLMBackend, MoIEExpertConfig, MultiModelMoIEOrchestrator
+from cognitive_compiler.multi_model_moie import LLMBackend, MoIEExpertConfig, MultiModelMoIEOrchestrator
 
 
 class MultiModelMoIEAdapter:
