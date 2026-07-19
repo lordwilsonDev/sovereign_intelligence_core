@@ -23,6 +23,8 @@ class ModelMetrics:
     total_latency_ms: float = 0.0
     total_cost: float = 0.0
     updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    last_error: str = ""
+    inference_failed: bool = False
 
     @property
     def average_latency_ms(self) -> float:
