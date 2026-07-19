@@ -63,7 +63,7 @@ def _simulate_events(trace_id: str, query: str, answer: str) -> list[dict[str, A
   ]
 
 
-@router.post("/query-adk")
+@router.post("/query-adk", dependencies=[Depends(require_bearer_token)])
 def demo_query_adk(payload: AdkQueryRequest) -> Dict[str, Any]:
   trace_id = payload.trace_id or f"adk-{hash(payload.query) % 100000}"
   answer = payload.answer or "adk simulated response"
