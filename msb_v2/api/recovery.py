@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from runtime.rollback import rollback_store
 
 
@@ -23,7 +24,7 @@ def recovery_snapshot(body: SnapshotRequest) -> Dict[str, Any]:
 
 
 @router.get("/recovery/rollback/{key}")
-def recovery_rollback(key: str) -> Dict[str, Any]:
+def recovery_rollback(key: str, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     result = rollback_store.rollback(key)
     return {"key": key, **result}
 

@@ -3,14 +3,15 @@ from __future__ import annotations
 import os
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from cognitive_compiler.desktop_harness_v1 import DesktopHarness
+from cognitive_compiler.meta_router_v2 import HarnessDecision, MetaRoutingResult, CognitiveTemperature
 from cognitive_compiler.router_observer import RouterObserver
-from cognitive_compiler.meta_router_v2 import MetaRoutingResult, HarnessDecision, CognitiveTemperature
 from cognitive_compiler.shared_cognitive_state import SharedCognitiveState
+from msb_v2.api.middleware import require_bearer_token
 
 router = APIRouter(prefix="/desktop", tags=["desktop"])
 
@@ -45,12 +46,12 @@ def desktop_status():
 
 
 @router.post("/stop")
-def stop_desktop():
+def stop_desktop(auth: Dict[str, Any] = Depends(require_bearer_token)):
     return _harness.stop()
 
 
 @router.post("/execute")
-def execute_desktop(payload: DesktopExecutePayload):
+def execute_desktop(payload: DesktopExecutePayload, auth: Dict[str, Any] = Depends(require_bearer_token)):
     result = _harness.execute(payload.goal, timeout_s=payload.timeout_s)
     try:
         RouterObserver(log_path="runtime/desktop_routing_observations.jsonl").record(_fake_routing_result(payload.intent), payload.goal)

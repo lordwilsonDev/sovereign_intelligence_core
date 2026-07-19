@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Body, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
+from typing import Any, Dict
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.runtime.context import RuntimeContext
 
 router = APIRouter(tags=["runtime"])
@@ -53,7 +55,7 @@ def runtime_list_snapshots(tag: str) -> JSONResponse:
 
 
 @router.post("/runtime/snapshots/rollback")
-def runtime_rollback_snapshot(tag: str = Body(...), dest: str = Body(...)) -> JSONResponse:
+def runtime_rollback_snapshot(tag: str = Body(...), dest: str = Body(...), auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     context = RuntimeContext()
     context.start()
     try:

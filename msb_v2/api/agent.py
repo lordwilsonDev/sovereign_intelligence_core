@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from msb_v2.agent.prompt_contract import build_hermes_phase5_contract
 from msb_v2.agent.runtime import AgentRuntime
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.runtime.context import RuntimeContext
 
 router = APIRouter(tags=["agent"])
@@ -38,7 +39,7 @@ class AgentRunLoopRequest(BaseModel):
 
 
 @router.post("/agent/run")
-def agent_run(payload: AgentRunRequest) -> JSONResponse:
+def agent_run(payload: AgentRunRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     result = _agent.run(payload.run_id, list(payload.tasks))
     result["contract"] = {
         "citation": "msb_v2.agent.prompt_contract:build_hermes_phase5_contract",
@@ -53,7 +54,7 @@ def agent_run_status(run_id: str) -> JSONResponse:
 
 
 @router.post("/agent/run/loop")
-def agent_run_loop(payload: AgentRunLoopRequest) -> JSONResponse:
+def agent_run_loop(payload: AgentRunLoopRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     config = dict(payload.model_dump())
     config.pop("run_id", None)
     result = _agent.run_loop(payload.run_id, config)
