@@ -18,7 +18,7 @@ class SnapshotRequest(BaseModel):
 
 
 @router.post("/recovery/snapshot")
-def recovery_snapshot(body: SnapshotRequest) -> Dict[str, Any]:
+def recovery_snapshot(body: SnapshotRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     rollback_store.save(body.key, body.snapshot)
     return {"ok": True, "key": body.key}
 

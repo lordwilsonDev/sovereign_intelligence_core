@@ -30,11 +30,13 @@ def test_knowledge_graph_endpoints() -> None:
     assert neighbors.json()["node_id"] == "n1"
 
 
-def test_security_rotate_and_secret_store_are_stubs() -> None:
+def test_security_rotate_and_secret_store_are_scaffolded() -> None:
     client = TestClient(create_app())
     rotate = client.post("/security/rotate", json={})
     assert rotate.status_code == 200
-    assert rotate.json()["rotated"] is False
-    secret = client.post("/security/secret/store", json={})
+    assert rotate.json()["rotated"] is True
+    assert rotate.json()["rotation_count"] == 1
+    secret = client.post("/security/secret/store", json={"secret": "1234567890123456"})
     assert secret.status_code == 200
-    assert secret.json()["stored"] is False
+    assert secret.json()["stored"] is True
+    assert secret.json()["metadata"]["length"] >= 16
