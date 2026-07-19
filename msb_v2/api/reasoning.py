@@ -185,7 +185,7 @@ def patch_status(trace_id: str, body: SetStatusBody, auth: Dict[str, Any] = Depe
 
 
 @router.post("/traces/{trace_id}/decision", response_model=TraceOut)
-def backfill_decision(trace_id: str, decision_id: str = Body(...)) -> TraceOut:
+def backfill_decision(trace_id: str, decision_id: str = Body(...), auth: Dict[str, Any] = Depends(require_bearer_token)) -> TraceOut:
     try:
         trace = store.backfill_decision(trace_id, decision_id)
         return _trace_out(trace, _build_evidence_report(trace))

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models.registry import default_registry
 from models.router import ModelRouter
 
+from msb_v2.api.middleware import require_bearer_token
 
 router = APIRouter(tags=["models"])
 model_router = ModelRouter()
@@ -31,7 +32,7 @@ def model_status() -> Dict[str, Any]:
 
 
 @router.post("/model/route")
-def model_route(body: Dict[str, Any]) -> Dict[str, Any]:
+def model_route(body: Dict[str, Any], auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     task = str(body.get("task", ""))
     context = body or {}
     result = model_router.route(task, context)
