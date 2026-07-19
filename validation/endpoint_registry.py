@@ -27,4 +27,7 @@ endpoint_registry = [
     EndpointProbe("/recovery/snapshot", "POST", body={"key": "probe", "snapshot": {}}, expect_keys=[]),
     EndpointProbe("/model/status", "GET", expect_keys=["models"]),
     EndpointProbe("/security/audit", "GET", expect_keys=["event_count"]),
+    EndpointProbe("/scheduler/submit", "POST", body={"goal": "probe", "priority": 2}, expect_keys=["task_id"]),
+    EndpointProbe("/knowledge/nodes", "POST", body={"id": "n1"}, expect_keys=["id"]),
+    EndpointProbe("/security/rotate", "POST", body={}, expect_keys=["rotated"]),
 ]
