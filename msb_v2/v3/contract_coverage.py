@@ -9,6 +9,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Sequence, Tuple
 
+from msb_v2.v3.contracts import lookup as _contract_lookup
+
 
 @dataclass(frozen=True)
 class DiscoveredRoute:
@@ -155,7 +157,7 @@ def assert_no_uncontracted_mutations(repo_root: Path) -> None:
     missing = [
         route
         for route in routes
-        if (route.path, route.method) not in public and lookup(route.path, route.method.lower()) is None
+        if (route.path, route.method) not in public and _contract_lookup(route.path, route.method.lower()) is None
     ]
     if missing:
         details = "\n".join(f"- {route.method} {route.path}" for route in missing)
