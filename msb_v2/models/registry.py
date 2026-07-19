@@ -76,7 +76,6 @@ class ModelRegistry:
 
 
 default_registry = ModelRegistry()
-default_registry.register(ModelRecord("gemma4:31b", "latest", "ollama", "local", input_cost_per_1k=0.0, output_cost_per_1k=0.0))
 default_registry.register(ModelRecord("deepseek-v4-flash", "latest", "deepseek", "chat", input_cost_per_1k=0.0, output_cost_per_1k=0.0))
 default_registry.register(ModelRecord("claude", "latest", "anthropic", "chat", input_cost_per_1k=0.003, output_cost_per_1k=0.003))
 default_registry.register(ModelRecord("local", "latest", "local", "local", input_cost_per_1k=0.0, output_cost_per_1k=0.0))
