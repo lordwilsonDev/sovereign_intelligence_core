@@ -1,0 +1,52 @@
+{
+  "_comment": "Golden Test manifest for knowledge shadow buffer. Authored externally; do not regenerate from current module outputs.",
+  "contract_version": "1.0",
+  "scenario": "seed_contract",
+  "operations": [
+    {
+      "op": "upsert_node",
+      "id": "node-a"
+    },
+    {
+      "op": "upsert_node",
+      "id": "node-b"
+    },
+    {
+      "op": "upsert_node",
+      "id": "node-c"
+    },
+    {
+      "op": "add_edge",
+      "source": "node-a",
+      "target": "node-b",
+      "relation": "links"
+    },
+    {
+      "op": "add_edge",
+      "source": "node-b",
+      "target": "node-c",
+      "relation": "links"
+    }
+  ],
+  "expected": {
+    "node_count": 3,
+    "edge_count": 2,
+    "neighbors": {
+      "node-a": ["node-b"],
+      "node-b": ["node-a", "node-c"],
+      "node-c": ["node-b"]
+    },
+    "exact_edges": [
+      {
+        "source": "node-a",
+        "target": "node-b",
+        "relation": "links"
+      },
+      {
+        "source": "node-b",
+        "target": "node-c",
+        "relation": "links"
+      }
+    ]
+  }
+}
