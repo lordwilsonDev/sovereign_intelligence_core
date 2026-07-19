@@ -17,12 +17,22 @@ def _refresh() -> tuple[Dict[str, Any], Dict[str, Any]]:
     return _metrics.recompute(reasoning_stream, _memory_store_getter())
 
 
+FallbackDict = Dict[str, Any]
+
+
+def _fallback(reasoning_key: str, memory_key: str) -> tuple[FallbackDict, FallbackDict]:
+    return {"error": reasoning_key}, {"error": memory_key}
+
+
 @router.get("/metrics")
 def metrics() -> Dict[str, Any]:
-    reasoning, memory = _refresh()
+    try:
+        reasoning, memory = _refresh()
+    except Exception:
+        reasoning, memory = _fallback("reasoning unavailable", "memory unavailable")
     return {
-        "reasoning": reasoning.payload(),
-        "memory": memory.payload(),
+        "reasoning": reasoning.payload() if hasattr(reasoning, "payload") else reasoning,
+        "memory": memory.payload() if hasattr(memory, "payload") else memory,
     }
 
 
