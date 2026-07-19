@@ -44,7 +44,7 @@ def test_security_rotate_and_secret_store_are_scaffolded() -> None:
 
 def test_public_auth_token_issue_returns_token() -> None:
     client = TestClient(create_app())
-    response = client.post("/auth/token/issue", json={"subject": "user-1", "roles": ["ops"], "scopes": ["system:read"]})
+    response = client.post("/auth/token/issue", json={"subject": "user-1", "roles": ["ops"], "scopes": ["system:read", "token:issue"]})
     assert response.status_code == 200
     body = response.json()
     assert body.get("token")
