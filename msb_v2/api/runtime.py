@@ -60,4 +60,16 @@ def runtime_rollback_snapshot(tag: str = Body(...), dest: str = Body(...)) -> JS
         context.rollback_snapshot(tag=tag, dest=dest)
     finally:
         context.stop(wait=False)
-    return JSONResponse({"tag": tag, "dest": dest})
+    return JSONResponse({"ok": True, "tag": tag, "dest": dest})
+
+
+@router.get("/runtime/replay/run/{run_id}")
+def runtime_replay_run(run_id: str) -> JSONResponse:
+    from msb_v2.runtime.replay import replay_store
+    return JSONResponse({"run_id": run_id, "tasks": replay_store.get_run(run_id)})
+
+
+@router.get("/runtime/replay/runs")
+def runtime_replay_runs() -> JSONResponse:
+    from msb_v2.runtime.replay import replay_store
+    return JSONResponse({"runs": replay_store.list_runs()})
