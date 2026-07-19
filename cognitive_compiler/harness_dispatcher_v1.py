@@ -17,6 +17,15 @@ from cognitive_compiler.building_harness_v1 import BuildingHarness
 from cognitive_compiler.meta_coordinator_v3_2 import MetaIntelligenceCoordinator, QueryType, IntelligenceLayer
 from cognitive_compiler.cognitive_compiler_verifier_v1 import CognitiveCompilerVerifier
 from cognitive_compiler.sovereign_finetune_harness_v1 import SovereignFineTuningHarness
+from cognitive_compiler.sovereign_autonomy_core import (
+    CognitiveMirageAuditor,
+    EpistemicIndependenceGauge,
+    PhysicalSovereigntyAssertion,
+    QuarantineInversionAgent,
+    ReasoningToNoiseMeter,
+    SovereignAutonomyCore,
+    SovereignAutonomyScore,
+)
 
 
 class HarnessDispatcher:
@@ -36,6 +45,11 @@ class HarnessDispatcher:
         context = context or {}
         meta = self.meta.execute(query, context)
         scs = scs or SharedCognitiveState(problem_statement=query)
+        
+        # SAC gate: mandatory pre-processing before routing/handoff
+        core = SovereignAutonomyCore()
+        envelope = core.run_dispatch_gate(query=query, context=context, model_source="local")
+        scs.sac = SovereignAutonomyCore.to_dict(envelope)
         scs.routing_decision = {
             "primary": meta.decision.primary,
             "secondary": meta.decision.secondary,

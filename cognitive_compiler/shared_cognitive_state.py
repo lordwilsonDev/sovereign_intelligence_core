@@ -38,6 +38,7 @@ class SharedCognitiveState:
     synthesis_artifacts: Dict[str, Any] = field(default_factory=dict)
     open_assumptions: List[str] = field(default_factory=list)
     context: Dict[str, Any] = field(default_factory=dict)
+    sac: Dict[str, Any] = field(default_factory=dict)
 
     def add_harness_output(self, harness: str, output: Dict[str, Any]) -> None:
         findings = self._extract_findings(output)
