@@ -32,7 +32,7 @@ cases = [
 
 
 def main() -> int:
-    models = ["gemma4:31b", "deepseek-v4-flash", "claude"] if len(sys.argv) < 2 else sys.argv[1:]
+    models = ["qwen3:latest", "qwen2.5:7b-instruct"] if len(sys.argv) < 2 else sys.argv[1:]
     harness = BenchmarkHarness(cases, provider="ollama")
     for model in models:
         print(f"--- {model} ---")
