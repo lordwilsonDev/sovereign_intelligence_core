@@ -12,6 +12,7 @@ runtime_events.db
 knowledge_graph.db
 knowledge_graph_api.db
 memory_store.db
+msb_v2/evaluation_memory.db
 *.db-wal
 *.db-shm
 *.db-journal
