@@ -16,6 +16,7 @@ from cognitive_compiler.research_harness_v1 import ResearchHarness
 from cognitive_compiler.building_harness_v1 import BuildingHarness
 from cognitive_compiler.meta_coordinator_v3_2 import MetaIntelligenceCoordinator, QueryType, IntelligenceLayer
 from cognitive_compiler.cognitive_compiler_verifier_v1 import CognitiveCompilerVerifier
+from cognitive_compiler.sovereign_finetune_harness_v1 import SovereignFineTuningHarness
 
 
 class HarnessDispatcher:
@@ -23,10 +24,11 @@ class HarnessDispatcher:
     v1.0 dispatcher with SCS-aware hybrid execution.
     """
 
-    def __init__(self, coordinator: Optional[MetaIntelligenceCoordinator] = None):
+    def __init__(self, coordinator: Optional[MetaIntelligenceCoordinator] = None) -> None:
         self.meta = MetaRoutingHarness()
         self.research = ResearchHarness()
         self.building = BuildingHarness()
+        self.finetune = SovereignFineTuningHarness(repo_path="", privacy_boundary="local-only")
         self.coordinator = coordinator or MetaIntelligenceCoordinator(worker_count=2)
         self.verifier = CognitiveCompilerVerifier()
 
@@ -177,6 +179,37 @@ class HarnessDispatcher:
         if primary == "empirical-grounding":
             from cognitive_compiler.empirical_grounding_harness_v1 import EmpiricalGroundingHarness
             return EmpiricalGroundingHarness().execute(query, context=context).payload
+        if primary == "sovereign-finetune":
+            action = context.get("finetune_action", "scan")
+            repo = context.get("repo_path", "/tmp")
+            if action == "distill":
+                self.finetune.repo_path = repo
+                pairs = self.finetune.synthesize_pairs(max_pairs=int(context.get("max_pairs", 64)))
+                validation = self.finetune.validate_pairs()
+                return {"action": "distill", "pairs": len(pairs), "validation": validation, "privacy_boundary": self.finetune.privacy_boundary}
+            if action == "train":
+                self.finetune.repo_path = repo
+                self.finetune.scan_documents()
+                self.finetune.synthesize_pairs()
+                job = self.finetune.create_training_job(base_model=context.get("base_model", "local-base"))
+                baseline = self.finetune.validate_baseline_coherence()
+                report = self.finetune.run_post_training_validation(job_id=job.job_id)
+                return {
+                    "action": "train",
+                    "job_id": job.job_id,
+                    "status": job.status,
+                    "dataset_size": job.dataset_size,
+                    "baseline_coherence": baseline,
+                    "integration_report": {
+                        "model_name": report.model_name,
+                        "validation_passed": report.validation_passed,
+                        "coherence_score": report.coherence_score,
+                        "confidence_score": report.confidence_score,
+                        "recommendation": report.recommendation,
+                        "falsification_condition": report.falsification_condition,
+                    },
+                }
+            return self.finetune.scan_documents()
         return self._base_are(query, context)
 
     def _run_secondary(self, secondary: Optional[str], query: str, context: Dict[str, Any], handoff_prompt: str) -> Any:

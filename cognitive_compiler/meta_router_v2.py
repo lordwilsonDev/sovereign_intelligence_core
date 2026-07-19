@@ -66,6 +66,7 @@ class MetaRoutingHarness:
             "telegram": ["telegram", "artifact", "chart", "recipe", "shopping list", "miniapp", "webapp", "web app", "html", "widget"],
             "agentic-dev": ["agentic", "software development", "feature", "bug fix", "system design", "code review", "inversion", "MoIE", "developer"],
             "empirical-grounding": ["grounding", "empirical", "assumption", "falsif", "integrity", "reality test", "FTS", "debt", "startup viability", "cost model", "falsifiable prediction", "ethical risk"],
+            "sovereign-finetune": ["fine-tune", "finetune", "model build", "dataset distillation", "train model", "unsloth", "SFT"],
             "base_are": [],
         }
         self.blocked_secondary_requires = {"NEURALAGENT_USER_ACCESS_TOKEN", "NEURALAGENT_THREAD_ID"}
