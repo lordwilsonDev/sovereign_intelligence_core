@@ -85,6 +85,13 @@ class HarnessDispatcher:
         result["primary_output"] = primary_payload
         scs.add_harness_output(primary, primary_payload)
 
+        if isinstance(primary_payload, dict) and primary == "building":
+            result.setdefault("artifact_summary", {
+                "normalizer_backend": primary_payload.get("artifact", {}).get("metrics", {}).get("normalizer_backend"),
+                "artifact_id": primary_payload.get("artifact", {}).get("artifact_id"),
+                "kind": primary_payload.get("artifact", {}).get("kind"),
+            })
+
         verification = self.verifier.verify(result, context)
         if verification is not None and not verification.ok:
             result["primary_output"] = {"verification": "blocked", "issues": verification.issues, "risk": verification.risk}

@@ -69,7 +69,12 @@ class ArtifactNormalizer:
         return "generic"
 
     def normalize(self, payload: dict[str, Any], kind: str = "design") -> CodeBrainArtifact:
-        raw = payload.get("body") or payload.get("raw") or json.dumps(payload, default=str)
+        raw = payload.get("body") or payload.get("raw") or ""
+        try:
+            raw = json.dumps(payload, default=str)
+        except Exception:
+            pass
+
         title = payload.get("title") or payload.get("goal") or "Untitled artifact"
         tags = list(payload.get("tags") or [])
         metrics = dict(payload.get("metrics") or {})
