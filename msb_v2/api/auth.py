@@ -44,12 +44,27 @@ def security_approve(body: ApproveRequest) -> Dict[str, Any]:
 @router.post("/auth/token/issue")
 def auth_token_issue(body: Dict[str, Any]) -> Dict[str, Any]:
     subject = str(body.get("subject", "")).strip()
-    roles = list(body.get("roles") or [])
-    scopes = list(body.get("scopes") or [])
-    if not subject:
+    raw_roles = body.get("roles") or []
+    raw_scopes = body.get("scopes") or []
+    if not subject or len(subject) < 2:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="subject is required")
+    roles: list[str] = []
+    scopes: list[str] = []
+    for value in raw_roles:
+        token = str(value).strip()
+        if not token:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="roles must be non-empty strings")
+        roles.append(token.lower())
+    for value in raw_scopes:
+        token = str(value).strip()
+        if not token:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="scopes must be non-empty strings")
+        scopes.append(token.lower())
+    allowed_roles = {"user", "power_user", "admin", "system", "operator"}
+    if roles and not set(roles).issubset(allowed_roles):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="roles must be from allowed set")
     token = issue_token(subject, roles=roles, scopes=scopes)
-    return {"subject": subject, "token": token, "allowed": True}
+    return {"subject": subject, "token": token, "allowed": True, "roles": roles, "scopes": scopes}
 
 
 @router.post("/auth/token/verify")

@@ -81,3 +81,37 @@ def test_security_requires_token() -> None:
 
 def test_desktop_requires_token() -> None:
     assert _route_requires_token("/desktop/stop", "post")
+
+
+def test_token_issue_validation():
+    set_local_bypass(False)
+    client = TestClient(_build_app())
+    assert client.post("/auth/token/issue", json={}).status_code == 400
+    assert client.post("/auth/token/issue", json={"subject": "ab"}).status_code == 200
+    assert client.post("/auth/token/issue", json={"subject": "ok", "roles": ["", "x"]}).status_code == 400
+    assert client.post("/auth/token/issue", json={"subject": "ok", "roles": ["root"]}).status_code == 400
+    issue = client.post("/auth/token/issue", json={"subject": "ok", "roles": ["admin"], "scopes": ["read"]}).json()
+    assert issue["roles"] == ["admin"]
+    assert issue["scopes"] == ["read"]
+    assert issue["token"]
+
+
+def test_model_route_requires_token() -> None:
+    assert _route_requires_token("/model/route", "post", {"task": "x"})
+
+
+def test_reasoning_traces_require_token() -> None:
+    assert _route_requires_token(
+        "/reasoning/traces",
+        "post",
+        {
+            "trace_id": "rt-1",
+            "title": "t",
+            "status": "completed",
+            "steps": [{"step_index": 0, "claim": "c", "evidence_refs": [], "assumptions": [], "confidence": 1.0, "metadata": {"kind": "strategic"}}],
+            "decision_id": "d1",
+            "memory_ids": [],
+            "conclusion": "",
+            "metadata": {},
+        },
+    )
