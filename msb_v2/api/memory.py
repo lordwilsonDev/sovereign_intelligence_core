@@ -3,9 +3,10 @@ from __future__ import annotations
 from dataclasses import field
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.memory.persistence import PersistentMemoryStore
 from msb_v2.memory.types import MemoryConfidence, MemoryHealth, MemoryRecord, MemoryStatus
 
@@ -51,7 +52,7 @@ class MemoryConsolidateRequest(BaseModel):
 
 
 @router.post("/add", response_model=MemoryResponse)
-def memory_add(payload: MemoryAddRequest) -> MemoryResponse:
+def memory_add(payload: MemoryAddRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> MemoryResponse:
     record = MemoryRecord(
         id=payload.id,
         kind=payload.kind,
@@ -85,13 +86,13 @@ def memory_search(q: str) -> Dict[str, Any]:
 
 
 @router.post("/consolidate")
-def memory_consolidate(payload: MemoryConsolidateRequest) -> Dict[str, Any]:
+def memory_consolidate(payload: MemoryConsolidateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     summaries = _get_store().consolidate(payload.kind, min_items=payload.min_items)
     return {"summaries": [{"id": s.id, "kind": s.kind, "content": s.content} for s in summaries]}
 
 
 @router.post("/{id_}/verify")
-def memory_verify(id_: str) -> Dict[str, Any]:
+def memory_verify(id_: str, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     record = _get_store().verify(id_)
     return {
         "id": record.id,
