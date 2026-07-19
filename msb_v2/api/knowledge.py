@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.knowledge.graph import GraphEdge, GraphNode, KnowledgeGraph
 
 router = APIRouter(tags=["knowledge"])
-
 _graph = KnowledgeGraph(db_path="./knowledge_graph_api.db")
 
 
@@ -26,7 +26,7 @@ class AddEdgeRequest(BaseModel):
 
 
 @router.post("/knowledge/nodes")
-def knowledge_nodes(payload: UpsertNodeRequest) -> Dict[str, Any]:
+def knowledge_nodes(payload: UpsertNodeRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     node = GraphNode(node_id=payload.id, label=payload.id)
     _graph.add_node(node)
     return {"id": node.node_id, "status": "added"}
@@ -38,7 +38,7 @@ def knowledge_neighbors(node_id: str) -> Dict[str, Any]:
 
 
 @router.post("/knowledge/edges")
-def knowledge_edges(payload: AddEdgeRequest) -> Dict[str, Any]:
+def knowledge_edges(payload: AddEdgeRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     edge = GraphEdge(source=payload.source, target=payload.target, relation=payload.relation)
     _graph.add_edge(edge)
     return {"source": edge.source, "target": edge.target, "relation": edge.relation, "status": "added"}

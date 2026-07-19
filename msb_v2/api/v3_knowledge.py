@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from typing import Any, Dict
+
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.knowledge.graph import KnowledgeGraph, LearningEngine, GraphNode, GraphEdge
 from msb_v2.knowledge.ranker import GraphRanker
 
@@ -14,7 +17,7 @@ _ranker = GraphRanker(graph=_graph)
 
 
 @router.post("/v3/knowledge/_reset")
-def knowledge_reset() -> JSONResponse:
+def knowledge_reset(auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     _graph._conn.execute("DELETE FROM edges")
     _graph._conn.execute("DELETE FROM nodes")
     _graph._conn.commit()
@@ -23,7 +26,7 @@ def knowledge_reset() -> JSONResponse:
 
 
 @router.post("/v3/knowledge/nodes")
-def add_node(payload: dict) -> JSONResponse:
+def add_node(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     node_id = payload.get("node_id", "")
     label = payload.get("label", node_id)
     node = GraphNode(
@@ -37,7 +40,7 @@ def add_node(payload: dict) -> JSONResponse:
 
 
 @router.post("/v3/knowledge/edges")
-def add_edge(payload: dict) -> JSONResponse:
+def add_edge(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     edge = GraphEdge(
         source=payload.get("source", ""),
         target=payload.get("target", ""),
