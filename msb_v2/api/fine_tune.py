@@ -5,8 +5,10 @@ import sys
 from dataclasses import asdict
 from typing import Any, Dict
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
+from msb_v2.api.middleware import require_bearer_token
 
 from cognitive_compiler.sovereign_finetune_harness_v1 import SovereignFineTuningHarness
 
@@ -42,7 +44,7 @@ def _ensure_unsloth_available() -> Dict[str, Any]:
 
 
 @router.post("/fine-tune/scan")
-def fine_tune_scan(body: ScanRequest) -> Dict[str, Any]:
+def fine_tune_scan(body: ScanRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     if not os.path.isdir(body.repo_path):
         raise HTTPException(status_code=400, detail="repo_path must be a directory")
     harness = SovereignFineTuningHarness(repo_path=body.repo_path, privacy_boundary=body.privacy_boundary)
@@ -60,7 +62,7 @@ def fine_tune_scan(body: ScanRequest) -> Dict[str, Any]:
 
 
 @router.post("/fine-tune/distill")
-def fine_tune_distill(body: DistillRequest) -> Dict[str, Any]:
+def fine_tune_distill(body: DistillRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     if not os.path.isdir(body.repo_path):
         raise HTTPException(status_code=400, detail="repo_path must be a directory")
     harness = SovereignFineTuningHarness(repo_path=body.repo_path)
@@ -74,7 +76,7 @@ def fine_tune_distill(body: DistillRequest) -> Dict[str, Any]:
 
 
 @router.post("/fine-tune/train")
-def fine_tune_train(body: TrainRequest) -> Dict[str, Any]:
+def fine_tune_train(body: TrainRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     if not os.path.isdir(body.repo_path):
         raise HTTPException(status_code=400, detail="repo_path must be a directory")
     harness = SovereignFineTuningHarness(repo_path=body.repo_path)
