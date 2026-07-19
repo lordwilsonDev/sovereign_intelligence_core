@@ -16,6 +16,8 @@ from msb_v2.reasoning.types import (
 from msb_v2.verification.capability_registry import CapabilityRegistry
 from msb_v2.verification.evidence import EvidenceEngine
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["reasoning"])
 store = ReasoningStore(SEED)
 _registry = CapabilityRegistry()
@@ -196,3 +198,7 @@ def backfill_decision(trace_id: str, decision_id: str = Body(...), auth: Dict[st
 @router.get("/refs/{ref_id}")
 def refs_for(ref_id: str) -> list[dict[str, object]]:
     return [r.__dict__ for r in store.refs_for(ref_id)]
+# HCL contract registration
+_register_contract(HarnessContract(route="/reasoning/traces", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/reasoning/traces/{trace_id}/status", method="patch", allow_anonymous=False))
+_register_contract(HarnessContract(route="/reasoning/traces/{trace_id}/decision", method="post", allow_anonymous=False))

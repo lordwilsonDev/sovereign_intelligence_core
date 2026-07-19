@@ -8,6 +8,8 @@ from fastapi import APIRouter, Depends
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.engine.rcoh_persistence import RCOHPersistence
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _PERSISTENCE = RCOHPersistence()
 
@@ -43,3 +45,5 @@ def torsion_events(limit: int = 50) -> Dict[str, Any]:
         "median_anomaly": median_anomaly,
         "threshold": 0.75,
     }
+# HCL contract registration
+_register_contract(HarnessContract(route="/monitor/torsion/events", method="post", allow_anonymous=False))

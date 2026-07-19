@@ -11,6 +11,8 @@ from pydantic import BaseModel
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.engine.merkle_reasoning import MerkleReasoningChain
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _DREAMS_DIR = Path("/Users/lordwilson/msb-v2/.artifacts/dreams")
 
@@ -63,3 +65,5 @@ def imagination_dream_get(dream_id: str) -> dict:
     if dream is None:
         raise HTTPException(status_code=404, detail="dream not found")
     return {"status": "ok", "dream": dream}
+# HCL contract registration
+_register_contract(HarnessContract(route="/imagination/dreams", method="post", allow_anonymous=False))

@@ -9,6 +9,8 @@ from msb_v2.api.middleware import require_bearer_token
 from msb_v2.values.types import ValuePreference
 from msb_v2.values.registry import ValueRegistry
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 
 _VALUE_REGISTRY = ValueRegistry()
@@ -52,3 +54,6 @@ def register_value(payload: ValueRegisterRequest, auth: Dict[str, Any] = Depends
 def arbitrate(payload: ArbitrateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> ArbitrateResponse:
     result = _VALUE_REGISTRY.resolve(payload.candidates)
     return ArbitrateResponse(outcome=result.outcome, resolution=result.resolution, chosen=result.chosen, rejected=result.rejected)
+# HCL contract registration
+_register_contract(HarnessContract(route="/values/values/register", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/values/values/arbitrate", method="post", allow_anonymous=False))

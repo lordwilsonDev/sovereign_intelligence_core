@@ -12,6 +12,8 @@ from msb_v2.v3.inversion_registry import get_registry as _get_inversion_registry
 from msb_v2.v3.memory_router import MemoryRouter
 from msb_v2.v3.registry import get_registry as _get_capability_registry
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["v3-deliberation"])
 
 
@@ -46,3 +48,5 @@ def deliberate(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_toke
         "rounds": rounds,
         "recommended": rounds[0]["hypothesis_id"] if rounds else None,
     })
+# HCL contract registration
+_register_contract(HarnessContract(route="/v3/deliberate", method="post", allow_anonymous=False))

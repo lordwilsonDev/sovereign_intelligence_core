@@ -10,6 +10,8 @@ from msb_v2.api.middleware import require_bearer_token
 from msb_v2.memory.persistence import PersistentMemoryStore
 from msb_v2.memory.types import MemoryConfidence, MemoryHealth, MemoryRecord, MemoryStatus
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _memory_store: PersistentMemoryStore | None = None
 
@@ -108,3 +110,8 @@ def memory_verify(id_: str, auth: Dict[str, Any] = Depends(require_bearer_token)
 def memory_influence(id_: str, delta: float) -> Dict[str, Any]:
     record = _get_store().record_influence(id_, delta)
     return {"id": record.id, "decision_impact_score": record.confidence.decision_impact_score}
+# HCL contract registration
+_register_contract(HarnessContract(route="/memory/add", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/memory/consolidate", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/memory/{id_}/verify", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/memory/{id_}/influence", method="post", allow_anonymous=False))

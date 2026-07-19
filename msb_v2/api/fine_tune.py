@@ -12,6 +12,8 @@ from msb_v2.api.middleware import require_bearer_token
 
 from cognitive_compiler.sovereign_finetune_harness_v1 import SovereignFineTuningHarness
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["fine-tuning"])
 
 _UNSLOTH_REPO_PATH = "/Users/lordwilson/unsloth"
@@ -101,3 +103,7 @@ def fine_tune_train(body: TrainRequest, auth: Dict[str, Any] = Depends(require_b
             "falsification_condition": report.falsification_condition,
         },
     }
+# HCL contract registration
+_register_contract(HarnessContract(route="/fine-tune/scan", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/fine-tune/distill", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/fine-tune/train", method="post", allow_anonymous=False))

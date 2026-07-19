@@ -7,6 +7,8 @@ from msb_v2.api.middleware import require_bearer_token
 from msb_v2.engine.rcoh import RCOH, RCOHState
 from msb_v2.engine.rcoh_persistence import RCOHPersistence
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _persistence = RCOHPersistence()
 
@@ -62,3 +64,5 @@ def get_cycle(cycle_id: str) -> dict:
     if state is None:
         raise HTTPException(status_code=404, detail=f"Cycle '{cycle_id}' not found")
     return {"cycle_id": state.cycle_id, "phase": state.current_phase.value, "cycle": _state_to_dict(state)}
+# HCL contract registration
+_register_contract(HarnessContract(route="/rcoh/start", method="post", allow_anonymous=False))

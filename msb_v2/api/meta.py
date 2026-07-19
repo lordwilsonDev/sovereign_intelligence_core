@@ -8,6 +8,8 @@ from cognitive_compiler.router_observer import RouterObserver
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.transport.compression import compress_content
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["meta"])
 
 _COMPRESS_THRESHOLD = 2000
@@ -78,3 +80,6 @@ def brain_meta_run(payload: BrainMetaPayload) -> JSONResponse:
         "telemetry": result.get("telemetry"),
         "elapsed_s": result.get("elapsed_s"),
     })
+# HCL contract registration
+_register_contract(HarnessContract(route="/meta/route", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/brain/meta-run", method="post", allow_anonymous=False))

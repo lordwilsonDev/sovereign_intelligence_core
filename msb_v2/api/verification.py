@@ -14,6 +14,8 @@ from msb_v2.verification.integrity_verifier import IntegrityVerifier
 from msb_v2.verification.extension import VerificationFeedbackExtension
 from msb_v2.runtime.context import RuntimeContext
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["verification"])
 
 _stream = EventStreamStore()
@@ -109,3 +111,8 @@ def feedback_correction(payload: CorrectionBody) -> Dict[str, Any]:
 @router.get("/feedback/summary")
 def feedback_summary() -> Dict[str, Any]:
     return _extension.summary()
+# HCL contract registration
+_register_contract(HarnessContract(route="/verification/integrity/batch", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/verification/benchmark/{name}/run", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/verification/evaluate", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/feedback/correction", method="post", allow_anonymous=False))

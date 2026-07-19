@@ -10,6 +10,8 @@ from auth.authz_controller import issue_token, verify_token
 from security.identity import Identity, PermissionEngine, AuditLog
 
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["security"])
 permission_engine = PermissionEngine(default_deny=True)
 audit_log = AuditLog()
@@ -54,3 +56,7 @@ def auth_token_issue(body: ApproveRequest) -> Dict[str, Any]:
 def auth_token_verify(body: ApproveRequest) -> Dict[str, Any]:
     valid = verify_token(body.subject, body.roles or [], body.scopes or [])
     return {"subject": body.subject, "verified": bool(valid["ok"])}
+# HCL contract registration
+_register_contract(HarnessContract(route="/security/approve", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/auth/token/issue", method="post", allow_anonymous=True))
+_register_contract(HarnessContract(route="/auth/token/verify", method="post", allow_anonymous=True))

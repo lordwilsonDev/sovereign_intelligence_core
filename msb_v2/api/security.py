@@ -7,6 +7,8 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from msb_v2.api.middleware import require_bearer_token
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["security"])
 _secret_store: Dict[str, Any] = {"current": None, "previous": None, "rotations": 0, "algorithm": "hmac-sha256"}
 _secret_lock = threading.Lock()
@@ -55,3 +57,6 @@ def security_rotate(body: Dict[str, Any], auth: Dict[str, Any] = Depends(require
         "rotation_count": _secret_store["rotations"],
         "metadata": metadata,
     }
+# HCL contract registration
+_register_contract(HarnessContract(route="/security/secret/store", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/security/rotate", method="post", allow_anonymous=False))

@@ -12,6 +12,8 @@ from msb_v2.engine.moie_judge import Judge
 from msb_v2.engine.moie_orchestrator import MoIEOrchestrator
 from msb_v2.engine.rcoh_persistence import RCOHPersistence
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 
 _moie: MoIEOrchestrator | None = None
@@ -38,3 +40,5 @@ def moie_run(payload: QueryRequest) -> dict[str, Any]:
     result = moie.run(payload.query)
     result["status"] = "ok" if result.get("status") != "failed" else "failed"
     return result
+# HCL contract registration
+_register_contract(HarnessContract(route="/moie/run", method="post", allow_anonymous=False))

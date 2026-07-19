@@ -10,6 +10,8 @@ from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.v3.crew_state import AgentStatus, Crew, CrewSupervisor, Agent
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _supervisor = CrewSupervisor()
 _lock = threading.Lock()
@@ -65,3 +67,7 @@ def route_agent_message(crew_id: str, agent_id: str, payload: RouteMessageReques
 @router.get("/v3/crew")
 def list_crews() -> dict[str, Any]:
     return _supervisor.summary()
+# HCL contract registration
+_register_contract(HarnessContract(route="/v3/crew", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/crew/{crew_id}/agent", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/crew/{crew_id}/agent/{agent_id}/route", method="post", allow_anonymous=False))

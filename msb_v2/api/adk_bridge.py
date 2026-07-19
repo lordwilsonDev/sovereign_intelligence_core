@@ -9,6 +9,8 @@ from msb_v2.api.middleware import require_bearer_token
 from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.api.reasoning_integrity import _stream
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 
 
@@ -99,3 +101,5 @@ def demo_query_adk(payload: AdkQueryRequest) -> Dict[str, Any]:
     "adk_run_id": None,
     "adk_error": None,
   }
+# HCL contract registration
+_register_contract(HarnessContract(route="/adk/query-adk", method="post", allow_anonymous=False))

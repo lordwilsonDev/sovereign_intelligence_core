@@ -6,6 +6,8 @@ from fastapi import APIRouter, Body
 from pydantic import BaseModel
 from msb_v2.agent.task_queue import TaskPriority, get_queue
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["scheduler"])
 
 
@@ -32,3 +34,5 @@ def scheduler_status(task_id: str) -> Dict[str, Any]:
 @router.get("/scheduler/queue")
 def scheduler_queue() -> Dict[str, Any]:
     return {"tasks": get_queue().get_all_statuses()}
+# HCL contract registration
+_register_contract(HarnessContract(route="/scheduler/submit", method="post", allow_anonymous=False))

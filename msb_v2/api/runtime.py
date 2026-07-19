@@ -7,6 +7,8 @@ from typing import Any, Dict
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.runtime.context import RuntimeContext
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["runtime"])
 
 
@@ -75,3 +77,6 @@ def runtime_replay_run(run_id: str) -> JSONResponse:
 def runtime_replay_runs() -> JSONResponse:
     from msb_v2.runtime.replay import replay_store
     return JSONResponse({"runs": replay_store.list_runs()})
+# HCL contract registration
+_register_contract(HarnessContract(route="/runtime/snapshots", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/runtime/snapshots/rollback", method="post", allow_anonymous=False))

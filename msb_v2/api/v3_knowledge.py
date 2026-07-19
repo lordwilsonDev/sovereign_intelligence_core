@@ -9,6 +9,8 @@ from msb_v2.api.middleware import require_bearer_token
 from msb_v2.knowledge.graph import KnowledgeGraph, LearningEngine, GraphNode, GraphEdge
 from msb_v2.knowledge.ranker import GraphRanker
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["v3-knowledge"])
 
 _graph = KnowledgeGraph()
@@ -82,3 +84,8 @@ def recommend(node_id: str) -> JSONResponse:
 def rank_targets(start: str, depth: int = 2, limit: int = 10) -> JSONResponse:
     ranked = _ranker.top_targets(start, depth=depth, limit=limit)
     return JSONResponse({"start": start, "depth": depth, "ranked": ranked, "count": len(ranked)})
+# HCL contract registration
+_register_contract(HarnessContract(route="/v3/knowledge/_reset", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/knowledge/nodes", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/knowledge/edges", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/knowledge/update-outcome", method="post", allow_anonymous=False))

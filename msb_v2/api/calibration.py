@@ -9,6 +9,7 @@ from msb_v2.api.middleware import require_bearer_token
 from msb_v2.v3.contracts import HarnessContract, register as _register_contract
 from msb_v2.reasoning.calibration import CalibrationStore
 
+from msb_v2.v3.contracts import HarnessContract
 router = APIRouter(tags=["calibration"])
 _calibration_store = CalibrationStore()
 _register_contract(HarnessContract(route="/reasoning/calibration/record", method="post", allow_anonymous=False))
@@ -55,3 +56,6 @@ def calibration_summary(window: int = 100) -> Dict[str, Any]:
 @router.get("/calibration/records")
 def calibration_records(window: int = 100) -> Dict[str, Any]:
     return {"records": _calibration_store.list_records(window=window)}
+# HCL contract registration
+_register_contract(HarnessContract(route="/reasoning/calibration/calibration/record", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/reasoning/calibration/calibration/record-assessment", method="post", allow_anonymous=False))

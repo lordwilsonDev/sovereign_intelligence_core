@@ -9,6 +9,8 @@ from msb_v2.api.middleware import require_bearer_token
 from runtime.rollback import rollback_store
 
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["recovery"])
 
 
@@ -33,3 +35,5 @@ def recovery_rollback(key: str, auth: Dict[str, Any] = Depends(require_bearer_to
 def recovery_status(key: str) -> Dict[str, Any]:
     snap = rollback_store.load(key)
     return {"key": key, "has_snapshot": bool(snap), "snapshot": snap}
+# HCL contract registration
+_register_contract(HarnessContract(route="/recovery/snapshot", method="post", allow_anonymous=False))

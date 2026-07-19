@@ -15,6 +15,8 @@ from msb_v2.engine.moie_orchestrator import MoIEOrchestrator
 from msb_v2.engine.rcoh import RCOH, RCOHState, Phase
 from msb_v2.engine.merkle_reasoning import MerkleReasoningChain
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["brain"])
 
 class ManifestRequest(BaseModel):
@@ -152,3 +154,5 @@ def brain_run(req: ManifestRequest, auth: Dict[str, Any] = Depends(require_beare
 
     metrics = gen.send(metrics.with_reasoning(success_rate=0.0, planning_accuracy=0.0, contradictions=0).with_coding(tests_passed=0, tests_total=0, regressions=0, security_warnings=0).with_autonomy(human_interventions=0, recovery_actions=0, failed_loops=0))
     return _ok("fallback", {"resolved": "noop", "query": req.query}, task_id, trace_id, metrics)
+# HCL contract registration
+_register_contract(HarnessContract(route="/brain/run", method="post", allow_anonymous=False))

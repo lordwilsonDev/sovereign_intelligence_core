@@ -8,6 +8,8 @@ from pydantic import BaseModel
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.knowledge.graph import GraphEdge, GraphNode, KnowledgeGraph
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["knowledge"])
 _graph = KnowledgeGraph(db_path="./knowledge_graph_api.db")
 
@@ -42,3 +44,6 @@ def knowledge_edges(payload: AddEdgeRequest, auth: Dict[str, Any] = Depends(requ
     edge = GraphEdge(source=payload.source, target=payload.target, relation=payload.relation)
     _graph.add_edge(edge)
     return {"source": edge.source, "target": edge.target, "relation": edge.relation, "status": "added"}
+# HCL contract registration
+_register_contract(HarnessContract(route="/knowledge/nodes", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/knowledge/edges", method="post", allow_anonymous=False))

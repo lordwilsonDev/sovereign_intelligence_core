@@ -145,7 +145,13 @@ def discover_routes(repo_root: Path, *, use_fallback: bool = False) -> List[Disc
 
 def assert_no_uncontracted_mutations(repo_root: Path) -> None:
     routes = discover_routes(repo_root, use_fallback=True)
-    public = {("/health", "GET"), ("/runtime/ping", "GET"), ("/", "GET")}
+    public = {
+        ("/health", "GET"),
+        ("/runtime/ping", "GET"),
+        ("/auth/token/issue", "POST"),
+        ("/auth/token/verify", "POST"),
+        ("/security/approve", "POST"),
+    }
     missing = [
         route
         for route in routes

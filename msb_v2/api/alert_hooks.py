@@ -9,6 +9,8 @@ from msb_v2.api.middleware import require_bearer_token
 from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.api.reasoning_integrity import _stream
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["alerts"])
 
 
@@ -89,3 +91,5 @@ def alert_webhook(payload: AlertPayload) -> Dict[str, Any]:
         "events": events,
         "alerts": len(alerts),
     }
+# HCL contract registration
+_register_contract(HarnessContract(route="/alerts/webhook", method="post", allow_anonymous=False))

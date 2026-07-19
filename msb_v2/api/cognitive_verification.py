@@ -8,6 +8,8 @@ from pydantic import BaseModel
 
 from msb_v2.engine.merkle_reasoning import MerkleReasoningChain
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 
 
@@ -65,3 +67,6 @@ def semantic_drift(payload: SemanticDriftRequest) -> Dict[str, Any]:
         "expected_tokens": len(expected_tokens),
         "actual_tokens": len(actual_tokens),
     }
+# HCL contract registration
+_register_contract(HarnessContract(route="/cognitive/verification/merkle", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/cognitive/semantic/drift", method="post", allow_anonymous=False))

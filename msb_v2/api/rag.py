@@ -10,6 +10,8 @@ from pydantic import BaseModel
 
 from msb_v2.api.middleware import require_bearer_token
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _ARTIFACT_ROOT = Path("/Users/lordwilson/msb-v2/.artifacts/rag")
 _QUERY_LOG_ROOT = Path("/Users/lordwilson/msb-v2/.artifacts/rag_queries")
@@ -76,3 +78,6 @@ def rag_converse(payload: ConverseRequest, auth: Dict[str, Any] = Depends(requir
     log_path = _QUERY_LOG_ROOT / f"{int(time.time())}.json"
     log_path.write_text(json.dumps(log, indent=2), encoding="utf-8")
     return {"status": "ok", "query": payload.query, "matches": matches}
+# HCL contract registration
+_register_contract(HarnessContract(route="/rag/ingest", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/rag/converse", method="post", allow_anonymous=False))

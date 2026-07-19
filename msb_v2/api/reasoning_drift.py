@@ -7,6 +7,8 @@ from fastapi import APIRouter, HTTPException
 from msb_v2.reasoning.scorer import score_from_events
 from msb_v2.api.reasoning_integrity import _stream
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 
 
@@ -78,3 +80,6 @@ def list_drift() -> Dict[str, Any]:
         if _stream.get_baseline(key):
             row["has_baseline"] = True
     return {"baseline_count": sum(1 for r in rows.values() if r["has_baseline"]), "traces": sorted(rows.values(), key=lambda x: x.get("trace_id", ""))}
+# HCL contract registration
+_register_contract(HarnessContract(route="/reasoning/drift/baseline", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/reasoning/drift/measure", method="post", allow_anonymous=False))

@@ -8,6 +8,8 @@ from fastapi.responses import JSONResponse
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.v3.digital_twin import DigitalTwinHook
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["v3-twin"])
 
 _hooks = DigitalTwinHook()
@@ -49,3 +51,7 @@ def get_twin(twin_id: str) -> JSONResponse:
 @router.get("/v3/twin/summary")
 def twin_summary() -> JSONResponse:
     return JSONResponse(_hooks.summary())
+# HCL contract registration
+_register_contract(HarnessContract(route="/v3/twin", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/twin/{twin_id}/snapshot", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/twin/{twin_id}/evolve", method="post", allow_anonymous=False))

@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.agent.task_queue import TaskPriority, get_queue
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 
 
@@ -34,3 +36,5 @@ def get_task_status(task_id: str) -> dict:
 def list_tasks() -> dict:
     queue = get_queue()
     return {"tasks": queue.get_all_statuses()}
+# HCL contract registration
+_register_contract(HarnessContract(route="/v3/tasks/submit", method="post", allow_anonymous=False))

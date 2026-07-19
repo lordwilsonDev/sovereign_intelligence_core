@@ -9,6 +9,8 @@ from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.v3.inversion_registry import get_registry as _get_inversion_registry
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["v3-inversion"])
 
 
@@ -63,3 +65,7 @@ def add_evidence(experiment_id: str, payload: dict, auth: Dict[str, Any] = Depen
         note=payload.get("note", ""),
     )
     return JSONResponse({"evidence_id": evidence.evidence_id})
+# HCL contract registration
+_register_contract(HarnessContract(route="/v3/inversion/hypotheses", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/inversion/experiments", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/inversion/experiments/{experiment_id}/evidence", method="post", allow_anonymous=False))

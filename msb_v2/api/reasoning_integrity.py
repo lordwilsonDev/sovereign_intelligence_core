@@ -5,6 +5,8 @@ from pydantic import BaseModel, Field
 
 from msb_v2.reasoning.integrity import EventKind, EventStreamStore, ExecutionEvent
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["reasoning"])
 _stream = EventStreamStore()
 
@@ -92,3 +94,5 @@ def materialize_trace(trace_id: str) -> dict:
 @router.get("/trace/verify/{decision_id}")
 def verify_trace(decision_id: str) -> dict:
     return _stream.verify_integrity(decision_id)
+# HCL contract registration
+_register_contract(HarnessContract(route="/reasoning/integrity/events", method="post", allow_anonymous=False))

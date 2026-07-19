@@ -13,6 +13,8 @@ from msb_v2.api.reasoning_integrity import _stream
 from msb_v2.core.budget_manager import CognitiveBudgetManager
 from msb_v2.memory.types import MemoryConfidence, MemoryRecord
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 
 
@@ -295,3 +297,6 @@ def demo_query_adk(payload: DemoQueryRequest) -> Dict[str, Any]:
         "trace_id": payload.trace_id,
         "confidence_assessment": assessment_payload,
     }
+# HCL contract registration
+_register_contract(HarnessContract(route="/demo/query", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/demo/query-adk", method="post", allow_anonymous=False))

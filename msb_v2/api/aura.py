@@ -10,6 +10,8 @@ from msb_v2.api.middleware import require_bearer_token
 from msb_v2.aura.aura_core import AURACore
 from msb_v2.aura.models import State
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["aura"])
 
 
@@ -26,3 +28,5 @@ def aura_run(payload: dict) -> JSONResponse:
         "step": state.step,
     }
     return JSONResponse({"status": "ok", "result": result})
+# HCL contract registration
+_register_contract(HarnessContract(route="/aura/run", method="post", allow_anonymous=False))

@@ -10,6 +10,8 @@ from msb_v2.api.middleware import require_bearer_token
 from validation.workflow_tests import run_workflow_tests
 from runtime.state_machine import RuntimeStateMachine, READY, THINKING, EXECUTING, VERIFYING, COMPLETED, FAILED
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["system"])
 state_machine = RuntimeStateMachine()
 
@@ -62,3 +64,6 @@ def sandbox_run(body: RunSandboxRequest) -> Dict[str, Any]:
     except Exception as exc:
         task.transition(FAILED, error=str(exc))
     return task.to_dict()
+# HCL contract registration
+_register_contract(HarnessContract(route="/system/validate", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/sandbox/run", method="post", allow_anonymous=False))

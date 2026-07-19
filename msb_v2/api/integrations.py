@@ -9,6 +9,8 @@ from msb_v2.integrations.content_service import ContentService
 from msb_v2.integrations.github import fetch_github_issues, fetch_github_prs
 from msb_v2.integrations.rss import RSSArticle
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["integrations"])
 
 _store = InMemoryArticleStore()
@@ -48,3 +50,5 @@ def github_issues(owner: str, repo: str, limit: int = 20) -> dict:
 def github_prs(owner: str, repo: str, limit: int = 20) -> dict:
     items = [pr.__dict__ for pr in fetch_github_prs(owner, repo, limit=limit)]
     return {"owner": owner, "repo": repo, "prs": items, "count": len(items)}
+# HCL contract registration
+_register_contract(HarnessContract(route="/integrations/content/refresh", method="post", allow_anonymous=False))

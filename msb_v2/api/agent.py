@@ -11,6 +11,8 @@ from msb_v2.agent.runtime import AgentRuntime
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.runtime.context import RuntimeContext
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["agent"])
 
 _context = RuntimeContext()
@@ -114,3 +116,9 @@ def agent_queue_status(task_id: str) -> JSONResponse:
     if status is None:
         return JSONResponse({"error": "not_found"}, status_code=404)
     return JSONResponse(status)
+# HCL contract registration
+_register_contract(HarnessContract(route="/agent/run", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/agent/run/loop", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/agent/plan", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/agent/execute", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/agent/queue", method="post", allow_anonymous=False))

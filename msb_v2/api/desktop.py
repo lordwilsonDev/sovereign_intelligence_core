@@ -13,6 +13,8 @@ from cognitive_compiler.router_observer import RouterObserver
 from cognitive_compiler.shared_cognitive_state import SharedCognitiveState
 from msb_v2.api.middleware import require_bearer_token
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(prefix="/desktop", tags=["desktop"])
 
 _harness = DesktopHarness()
@@ -67,3 +69,7 @@ def approve_desktop(confirm_token: str, approved: bool = True, auth: Dict[str, A
     result = _harness.approve_run(confirm_token=confirm_token, approved=approved)
     status = 200 if result.get("state") != "rejected" else 409
     return JSONResponse(result, status_code=status)
+# HCL contract registration
+_register_contract(HarnessContract(route="/stop", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/execute", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/approve", method="post", allow_anonymous=False))

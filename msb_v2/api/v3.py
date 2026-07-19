@@ -11,6 +11,8 @@ from msb_v2.v3.registry import get_registry as _get_registry
 from msb_v2.v3.memory_pipeline import EventToMemoryPipeline, MemoryEnhancedPlanner, MemoryEntry, InMemoryStore
 from msb_v2.knowledge.graph import KnowledgeGraph, LearningEngine
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter(tags=["v3"])
 
 _shared_store = InMemoryStore()
@@ -118,3 +120,8 @@ def plan_task(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token
     context_text = "" if context is None else (context if isinstance(context, str) else str(context))
     result = planner.plan(task=task, context=context_text or None)
     return JSONResponse(result)
+# HCL contract registration
+_register_contract(HarnessContract(route="/v3/capabilities/{capability_id}/validate", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/memory/ingest", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/memory/ingest/batch", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/v3/planner/plan", method="post", allow_anonymous=False))

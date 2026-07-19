@@ -8,6 +8,8 @@ from pydantic import BaseModel
 from msb_v2.reasoning.counterfactual import CounterfactualError, _event_to_dict, branch_trace
 from msb_v2.api.reasoning_integrity import _stream
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 
 
@@ -77,3 +79,5 @@ def scan() -> dict[str, Any]:
         "weak_signals": len(weak),
         "signals": signals,
     }
+# HCL contract registration
+_register_contract(HarnessContract(route="/reasoning/counterfactual/branch", method="post", allow_anonymous=False))

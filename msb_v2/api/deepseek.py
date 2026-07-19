@@ -12,6 +12,8 @@ from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.reasoning.scorer import score_from_events
 from msb_v2.api.reasoning_integrity import _stream
 
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _provider = DeepSeekProvider()
 SCORER_ENABLED = os.getenv("MSB_REASONING_SCORER", "0").lower() in ("1", "true", "yes")
@@ -97,3 +99,5 @@ def deepseek_chat(payload: DeepSeekChatRequest, auth: Dict[str, Any] = Depends(r
         response["confidence_assessment"] = assessment_payload
 
     return {**response, "result": result}
+# HCL contract registration
+_register_contract(HarnessContract(route="/deepseek/chat", method="post", allow_anonymous=False))
