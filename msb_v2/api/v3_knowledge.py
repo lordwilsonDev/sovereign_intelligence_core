@@ -13,6 +13,15 @@ _learning = LearningEngine(graph=_graph)
 _ranker = GraphRanker(graph=_graph)
 
 
+@router.post("/v3/knowledge/_reset")
+def knowledge_reset() -> JSONResponse:
+    _graph._conn.execute("DELETE FROM edges")
+    _graph._conn.execute("DELETE FROM nodes")
+    _graph._conn.commit()
+    _learning.heuristics.clear()
+    return JSONResponse({"ok": True})
+
+
 @router.post("/v3/knowledge/nodes")
 def add_node(payload: dict) -> JSONResponse:
     node_id = payload.get("node_id", "")

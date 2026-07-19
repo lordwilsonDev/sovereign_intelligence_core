@@ -3,58 +3,42 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter
+from pydantic import BaseModel
+
+from msb_v2.knowledge.graph import GraphEdge, GraphNode, KnowledgeGraph
 
 router = APIRouter(tags=["knowledge"])
 
-
-class SimpleKnowledgeGraph:
-    def __init__(self) -> None:
-        self.nodes: Dict[str, Dict[str, Any]] = {}
-        self.edges: List[Dict[str, Any]] = []
-
-    def upsert_node(self, node_id: str, labels: Optional[List[str]] = None, properties: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        self.nodes[node_id] = {"id": node_id, "labels": labels or [], "properties": properties or {}}
-        return self.nodes[node_id]
-
-    def add_edge(self, source: str, target: str, relation: str, properties: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        edge = {"source": source, "target": target, "relation": relation, "properties": properties or {}}
-        self.edges.append(edge)
-        return edge
-
-    def neighbors(self, node_id: str) -> List[Dict[str, Any]]:
-        result = []
-        for edge in self.edges:
-            if edge["source"] == node_id:
-                nid = edge["target"]
-            elif edge["target"] == node_id:
-                nid = edge["source"]
-            else:
-                continue
-            result.append({"node_id": nid, "node": self.nodes.get(nid), "edge": edge})
-        return result
+_graph = KnowledgeGraph(db_path="./knowledge_graph_api.db")
 
 
-kg = SimpleKnowledgeGraph()
+class UpsertNodeRequest(BaseModel):
+    id: str
+    labels: Optional[List[str]] = None
+    properties: Optional[Dict[str, Any]] = None
+
+
+class AddEdgeRequest(BaseModel):
+    source: str
+    target: str
+    relation: str
+    properties: Optional[Dict[str, Any]] = None
 
 
 @router.post("/knowledge/nodes")
-def knowledge_nodes(body: Dict[str, Any]) -> Dict[str, Any]:
-    node_id = str(body.get("id", ""))
-    if not node_id:
-        return {"error": "id required"}
-    return kg.upsert_node(node_id, labels=body.get("labels"), properties=body.get("properties"))
+def knowledge_nodes(payload: UpsertNodeRequest) -> Dict[str, Any]:
+    node = GraphNode(node_id=payload.id, label=payload.id)
+    _graph.add_node(node)
+    return {"id": node.node_id, "status": "added"}
 
 
 @router.get("/knowledge/neighbors/{node_id}")
 def knowledge_neighbors(node_id: str) -> Dict[str, Any]:
-    return {"node_id": node_id, "neighbors": kg.neighbors(node_id)}
+    return {"node_id": node_id, "neighbors": _graph.neighbors(node_id)}
 
 
 @router.post("/knowledge/edges")
-def knowledge_edges(body: Dict[str, Any]) -> Dict[str, Any]:
-    source = str(body.get("source", ""))
-    target = str(body.get("target", ""))
-    relation = str(body.get("relation", ""))
-    if not source or not target or not relation:
-        return {"error": "source, target, relation required"}
-    return kg.add_edge(source, target, relation, properties=body.get("properties"))
+def knowledge_edges(payload: AddEdgeRequest) -> Dict[str, Any]:
+    edge = GraphEdge(source=payload.source, target=payload.target, relation=payload.relation)
+    _graph.add_edge(edge)
+    return {"source": edge.source, "target": edge.target, "relation": edge.relation, "status": "added"}

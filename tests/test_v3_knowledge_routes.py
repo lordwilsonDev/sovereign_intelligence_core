@@ -8,6 +8,7 @@ client = TestClient(create_app())
 
 
 def test_knowledge_nodes_and_edges():
+    client.post("/v3/knowledge/_reset")
     r = client.post("/v3/knowledge/nodes", json={"node_id": "a", "label": "Alpha", "weight": 0.8})
     assert r.status_code == 200
     client.post("/v3/knowledge/nodes", json={"node_id": "b", "label": "Beta", "weight": 0.4})
@@ -27,6 +28,7 @@ def test_knowledge_nodes_and_edges():
 
 
 def test_knowledge_learning_update_and_recommend():
+    client.post("/v3/knowledge/_reset")
     client.post("/v3/knowledge/nodes", json={"node_id": "x", "label": "X"})
     r = client.post("/v3/knowledge/update-outcome", json={"node_id": "x", "outcome": "success"})
     assert r.status_code == 200
