@@ -58,16 +58,18 @@ class MetaRoutingHarness:
 
     def __init__(self):
         self.keyword_map = {
-            "research": ["research", "investigate", "study", "experiment", "hypothesis", "literature", "theory"],
+            "research": ["research", "investigate", "study", "experiment", "hypothesis", "literature", "theory", "market research", "competitive analysis", "adoption forecast"],
             "building": ["design", "build", "architect", "plan", "implement", "create", "api", "system"],
             "complex_reasoning": ["ethics", "philosophy", "strategy", "concept", "paradox", "reconcile", "tension"],
             "desktop": ["desktop", "automation", "click", "type", "launch", "open app", "screenshot", "mouse", "ui", "finder", "browser", "electron"],
             "career": ["career", "job", "cv", "resume", "cover letter", "evaluate", "offer", "salary", "scan job", "portal", "ATS", "tracker"],
             "telegram": ["telegram", "artifact", "chart", "recipe", "shopping list", "miniapp", "webapp", "web app", "html", "widget"],
             "agentic-dev": ["agentic", "software development", "feature", "bug fix", "system design", "code review", "inversion", "MoIE", "developer"],
-            "empirical-grounding": ["grounding", "empirical", "assumption", "falsif", "integrity", "reality test", "FTS", "debt"],
+            "empirical-grounding": ["grounding", "empirical", "assumption", "falsif", "integrity", "reality test", "FTS", "debt", "startup viability", "cost model", "falsifiable prediction", "ethical risk"],
             "base_are": [],
         }
+        self.blocked_secondary_requires = {"NEURALAGENT_USER_ACCESS_TOKEN", "NEURALAGENT_THREAD_ID"}
+        self.non_task_domains = {"desktop": ["ui", "screenshot", "mouse", "click", "launch", "open app", "finder", "browser"]}
         self.triviality_threshold_words = 10
 
     def classify(self, query: str, context: Dict[str, Any] = None) -> HarnessDecision:
