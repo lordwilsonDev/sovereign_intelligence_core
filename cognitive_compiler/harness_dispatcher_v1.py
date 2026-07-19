@@ -23,6 +23,7 @@ from cognitive_compiler.sovereign_autonomy_core import (
     PhysicalSovereigntyAssertion,
     QuarantineInversionAgent,
     ReasoningToNoiseMeter,
+    SACEnvelope,
     SovereignAutonomyCore,
     SovereignAutonomyScore,
 )
@@ -40,6 +41,7 @@ class HarnessDispatcher:
         self.finetune = SovereignFineTuningHarness(repo_path="", privacy_boundary="local-only")
         self.coordinator = coordinator or MetaIntelligenceCoordinator(worker_count=2)
         self.verifier = CognitiveCompilerVerifier()
+        self._sac = SovereignAutonomyCore()
 
     def dispatch(self, query: str, context: Dict[str, Any] = None, scs: Optional[SharedCognitiveState] = None) -> Dict[str, Any]:
         context = context or {}
@@ -264,6 +266,12 @@ class HarnessDispatcher:
         return self._base_are(handoff_prompt, context)
 
     def _post_process(self, result: Dict[str, Any], meta: MetaRoutingResult) -> Dict[str, Any]:
+        core = getattr(self, "_sac", None) or SovereignAutonomyCore()
+        result.setdefault("sac", {}).update(
+            SovereignAutonomyCore.to_dict(
+                self._run_post_sac(result, query=result.get("query", ""), context=result.get("context", {}), core=core)
+            )
+        )
         if "memory_bytes" not in result["telemetry"]["primary"]:
             try:
                 import sys as _sys
@@ -271,3 +279,12 @@ class HarnessDispatcher:
             except Exception:
                 pass
         return result
+
+    def _run_post_sac(self, harness_output: Dict[str, Any], *, query: str, context: Dict[str, Any], core: Optional[SovereignAutonomyCore] = None) -> SACEnvelope:
+        return (core or getattr(self, "_sac", SovereignAutonomyCore())).run_dispatch_gate(
+            query=query,
+            context=context,
+            harness_output=harness_output,
+            model_source="local",
+            change_id=context.get("change_id"),
+        )

@@ -69,6 +69,7 @@ from msb_v2.api import v3_crew as v3_crew_router
 
 from msb_v2.engine.orchestrator import Task, orchestrate
 
+from cognitive_compiler.sovereign_autonomy_core import SovereignAutonomyCore
 from msb_v2.transport.compression import compress_content
 from msb_v2.v3.contracts import HarnessContract
 from msb_v2.v3.contracts import register as _register_contract
@@ -160,7 +161,14 @@ def create_app() -> FastAPI:
     app.include_router(v3_tools_router.router)
     app.include_router(v3_tasks_router.router)
     app.include_router(v3_crew_router.router)
-    if str(__import__("os").getenv("MSB_REQUIRE_HCL", "")).lower() in {"1", "true", "yes"}:
+    @app.get("/sac/status")
+    def sac_status() -> dict:
+        core = SovereignAutonomyCore()
+        return SovereignAutonomyCore.to_dict(
+            core.run_dispatch_gate(query="api-status", context={"high_stakes": False}, model_source="local")
+        )
+
+    if str(__import__("os").getenv("MSB_REQUIRE_HCL", "strict")).lower() not in {"0", "false", "no", "off"}:
         from msb_v2.v3.contract_coverage import assert_no_uncontracted_mutations
         assert_no_uncontracted_mutations(Path(__file__).resolve().parent.parent)
     return app
