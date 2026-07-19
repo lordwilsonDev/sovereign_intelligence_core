@@ -118,6 +118,10 @@ def create_app() -> FastAPI:
     app.include_router(system_router, prefix="")
     app.include_router(auth_router)
     app.include_router(policy_router)
+    from msb_v2.api.model_router import router as model_router
+    app.include_router(model_router)
+    from msb_v2.api.recovery import router as recovery_router
+    app.include_router(recovery_router)
     try:
         from msb_v2.transport.compression_middleware import ResponseCompressionMiddleware
         app.add_middleware(ResponseCompressionMiddleware, threshold=2000)
