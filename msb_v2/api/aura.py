@@ -3,16 +3,17 @@ from __future__ import annotations
 import asyncio
 from typing import Any
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.aura.aura_core import AURACore
 from msb_v2.aura.models import State
 
 router = APIRouter(tags=["aura"])
 
 
-@router.post("/run")
+@router.post("/run", dependencies=[Depends(require_bearer_token)])
 def aura_run(payload: dict) -> JSONResponse:
     goal = str(payload.get("goal", "") or "")
     state = asyncio.run(AURACore().run(goal=goal))

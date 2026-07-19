@@ -36,12 +36,12 @@ def _fake_routing_result(intent: Optional[str]) -> MetaRoutingResult:
 
 
 @router.get("/health")
-def desktop_health():
+def desktop_health(auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     return {"status": "ok", "module": "desktop"}
 
 
 @router.get("/status")
-def desktop_status():
+def desktop_status(auth: Dict[str, Any] = Depends(require_bearer_token)):
     return _harness.status
 
 
@@ -61,7 +61,7 @@ def execute_desktop(payload: DesktopExecutePayload, auth: Dict[str, Any] = Depen
 
 
 @router.post("/approve")
-def approve_desktop(confirm_token: str, approved: bool = True):
+def approve_desktop(confirm_token: str, approved: bool = True, auth: Dict[str, Any] = Depends(require_bearer_token)):
     if not confirm_token:
         raise HTTPException(status_code=400, detail="confirm_token is required")
     result = _harness.approve_run(confirm_token=confirm_token, approved=approved)

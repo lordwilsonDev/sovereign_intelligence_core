@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -67,7 +67,7 @@ def _queue() -> TaskQueue:
 
 
 @router.post("/agent/plan")
-def agent_plan(goal: str) -> JSONResponse:
+def agent_plan(goal: str, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     from msb_v2.agent.planner import Plan, fallback_plan, Step
 
     plan = fallback_plan(goal) if not goal.strip() else Plan(
@@ -90,7 +90,7 @@ def agent_plan(goal: str) -> JSONResponse:
 
 
 @router.post("/agent/execute")
-def agent_execute(goal: str) -> JSONResponse:
+def agent_execute(goal: str, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     from msb_v2.agent.planner import Plan, Step
     from msb_v2.agent.executor import execute
 
@@ -100,7 +100,7 @@ def agent_execute(goal: str) -> JSONResponse:
 
 
 @router.post("/agent/queue")
-def agent_queue_submit(goal: str, priority: int = 2) -> JSONResponse:
+def agent_queue_submit(goal: str, priority: int = 2, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     from msb_v2.agent.task_queue import TaskPriority, get_queue
 
     p = TaskPriority.HIGH if priority <= 1 else (TaskPriority.LOW if priority >= 3 else TaskPriority.NORMAL)

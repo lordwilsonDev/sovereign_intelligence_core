@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body, Depends
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.api.reasoning_integrity import _stream
 
 router = APIRouter()
+
 
 class AdkQueryRequest(BaseModel):
   query: str

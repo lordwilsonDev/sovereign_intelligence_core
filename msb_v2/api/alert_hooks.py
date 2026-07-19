@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.api.reasoning_integrity import _stream
 
@@ -42,7 +43,7 @@ def _normalize_alerts(payload: AlertPayload) -> list[dict[str, Any]]:
     return normalized
 
 
-@router.post("/webhook")
+@router.post("/webhook", dependencies=[Depends(require_bearer_token)])
 def alert_webhook(payload: AlertPayload) -> Dict[str, Any]:
     alerts = _normalize_alerts(payload)
     events = []

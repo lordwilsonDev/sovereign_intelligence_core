@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from cognitive_compiler.router_observer import RouterObserver
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.transport.compression import compress_content
 
 router = APIRouter(tags=["meta"])
@@ -32,7 +33,7 @@ class RoutePayload(BaseModel):
     context: dict | None = None
 
 
-@router.post("/meta/route")
+@router.post("/meta/route", dependencies=[Depends(require_bearer_token)])
 def meta_route_endpoint(payload: RoutePayload) -> JSONResponse:
     from cognitive_compiler.harness_dispatcher_v1 import HarnessDispatcher
 
@@ -54,7 +55,7 @@ class BrainMetaPayload(BaseModel):
     trace_id: str | None = None
 
 
-@router.post("/brain/meta-run")
+@router.post("/brain/meta-run", dependencies=[Depends(require_bearer_token)])
 def brain_meta_run(payload: BrainMetaPayload) -> JSONResponse:
     from cognitive_compiler.harness_dispatcher_v1 import HarnessDispatcher
 
