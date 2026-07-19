@@ -70,6 +70,12 @@ from msb_v2.api import v3_crew as v3_crew_router
 from msb_v2.engine.orchestrator import Task, orchestrate
 
 from msb_v2.transport.compression import compress_content
+from msb_v2.v3.contracts import HarnessContract
+from msb_v2.v3.contracts import register as _register_contract
+
+_register_contract(HarnessContract(route="/orchestrate", method="post", allow_anonymous=False, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/health", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/runtime/ping", method="get", allow_anonymous=True, max_body_bytes=65536))
 
 
 class OrchestrateRequest(BaseModel):
