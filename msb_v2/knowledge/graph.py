@@ -23,9 +23,9 @@ class GraphEdge:
 
 
 class KnowledgeGraph:
-    def __init__(self, db_path: str = ":memory:") -> None:
-        self.db_path = db_path
-        self._conn = sqlite3.connect(db_path, check_same_thread=False)
+    def __init__(self, db_path: str = "./knowledge_graph.db") -> None:
+        self.db_path = str(Path(db_path).resolve())
+        self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
         self._init()
 
@@ -35,8 +35,7 @@ class KnowledgeGraph:
             "CREATE TABLE IF NOT EXISTS nodes (node_id TEXT PRIMARY KEY, label TEXT NOT NULL, node_type TEXT, weight REAL)"
         )
         cur.execute(
-            "CREATE TABLE IF NOT EXISTS edges (source TEXT NOT NULL, target TEXT NOT NULL, relation TEXT NOT NULL, weight REAL, "
-            "PRIMARY KEY (source, target, relation))"
+            "CREATE TABLE IF NOT EXISTS edges (source TEXT NOT NULL, target TEXT NOT NULL, relation TEXT NOT NULL, weight REAL, PRIMARY KEY (source, target, relation))"
         )
         cur.execute("CREATE INDEX IF NOT EXISTS idx_edges_source ON edges(source)")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_edges_target ON edges(target)")
@@ -44,21 +43,28 @@ class KnowledgeGraph:
 
     def add_node(self, node: GraphNode) -> None:
         cur = self._conn.cursor()
-        cur.execute("INSERT OR REPLACE INTO nodes VALUES (?,?,?,?)", (node.node_id, node.label, node.node_type, node.weight))
+        cur.execute(
+            "INSERT OR REPLACE INTO nodes VALUES (?,?,?,?)",
+            (node.node_id, node.label, node.node_type, node.weight),
+        )
         self._conn.commit()
 
     def add_edge(self, edge: GraphEdge) -> None:
         cur = self._conn.cursor()
-        cur.execute("INSERT OR REPLACE INTO edges VALUES (?,?,?,?)", (edge.source, edge.target, edge.relation, edge.weight))
+        cur.execute(
+            "INSERT OR REPLACE INTO edges VALUES (?,?,?,?)",
+            (edge.source, edge.target, edge.relation, edge.weight),
+        )
         self._conn.commit()
 
     def neighbors(self, node_id: str) -> List[dict]:
         cur = self._conn.cursor()
-        cur.execute("SELECT target, relation, weight FROM edges WHERE source = ?", (node_id,))
+        cur.execute(
+            "SELECT target, relation, weight FROM edges WHERE source = ?", (node_id,)
+        )
         return [dict(r) for r in cur.fetchall()]
 
     def shortest_path(self, start: str, end: str) -> List[str]:
-        # BFS shortest path for unweighted/fairly weighted graphs
         visited = {start}
         queue = [[start]]
         while queue:

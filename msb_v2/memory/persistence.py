@@ -10,8 +10,27 @@ from typing import Any, Dict, Iterator, List, Optional
 from msb_v2.memory.types import MemoryConfidence, MemoryHealth, MemoryKind, MemoryRecord, MemoryStatus, influence_penalty
 
 
-def _now() -> datetime:
+def _now() -> "datetime":
+    from datetime import datetime
     return datetime.now()
+
+
+def _datetime_from(value: Optional[str]) -> Optional["datetime"]:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def _json_list(value: Optional[str]) -> List[str]:
+    if not value:
+        return []
+    try:
+        return list(__import__("json").loads(value))
+    except Exception:
+        return []
 
 
 def _row_to_record(row: Dict[str, Any]) -> MemoryRecord:
@@ -54,180 +73,126 @@ def _row_to_record(row: Dict[str, Any]) -> MemoryRecord:
     )
 
 
-def _datetime_from(value: Optional[str]) -> Optional[datetime]:
-    if not value:
-        return None
-    try:
-        return datetime.fromisoformat(value)
-    except ValueError:
-        return None
-
-
-def _json_list(value: Optional[str]) -> List[str]:
-    if not value:
-        return []
-    try:
-        return json.loads(value)
-    except json.JSONDecodeError:
-        return []
-
-
-def _schema(path: str) -> None:
-    conn = sqlite3.connect(path)
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS memory (
-            id TEXT PRIMARY KEY,
-            kind TEXT NOT NULL,
-            content TEXT NOT NULL,
-            confidence REAL DEFAULT 0.5,
-            importance REAL DEFAULT 0.5,
-            novelty REAL DEFAULT 0.5,
-            trust_score REAL DEFAULT 0.5,
-            last_access TEXT,
-            last_verified TEXT,
-            created TEXT NOT NULL,
-            source TEXT DEFAULT 'runtime',
-            verified INTEGER DEFAULT 0,
-            access_count INTEGER DEFAULT 0,
-            verification_interval_days INTEGER,
-            expires_at TEXT,
-            source_reliability REAL DEFAULT 0.5,
-            retrieval_count INTEGER DEFAULT 0,
-            decision_impact_score REAL DEFAULT 0.0,
-            tags TEXT DEFAULT '[]',
-            relationships TEXT DEFAULT '[]',
-            experimental_group TEXT,
-            hypothesis_id TEXT,
-            outcome TEXT,
-            tool TEXT,
-            model TEXT,
-            version TEXT,
-            immutable INTEGER DEFAULT 0,
-            status TEXT DEFAULT 'active',
-            revision_id TEXT,
-            revision_of TEXT,
-            integrity_hash TEXT,
-            provenance TEXT
-        )
-        """
-    )
-    conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_memory_id ON memory(id)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_memory_status ON memory(status)")
-    conn.execute("CREATE INDEX IF NOT EXISTS idx_memory_kind ON memory(kind)")
-    conn.commit()
-    conn.close()
-
-
 class PersistentMemoryStore:
     def __init__(self, path: str = "./memory_store.db") -> None:
         self.path = str(Path(path).resolve())
         self._lock = threading.Lock()
-        _schema(self.path)
+        self._ensure_schema()
+
+    def _ensure_schema(self) -> None:
+        with sqlite3.connect(self.path) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS memory (
+                    id TEXT PRIMARY KEY,
+                    kind TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    confidence REAL DEFAULT 0.5,
+                    importance REAL DEFAULT 0.5,
+                    novelty REAL DEFAULT 0.5,
+                    trust_score REAL DEFAULT 0.5,
+                    last_access TEXT,
+                    last_verified TEXT,
+                    created TEXT NOT NULL,
+                    source TEXT DEFAULT 'runtime',
+                    verified INTEGER DEFAULT 0,
+                    access_count INTEGER DEFAULT 0,
+                    verification_interval_days INTEGER,
+                    expires_at TEXT,
+                    source_reliability REAL DEFAULT 0.5,
+                    retrieval_count INTEGER DEFAULT 0,
+                    decision_impact_score REAL DEFAULT 0.0,
+                    tags TEXT DEFAULT '[]',
+                    relationships TEXT DEFAULT '[]',
+                    experimental_group TEXT,
+                    hypothesis_id TEXT,
+                    outcome TEXT,
+                    tool TEXT,
+                    model TEXT,
+                    version TEXT,
+                    immutable INTEGER DEFAULT 0,
+                    status TEXT DEFAULT 'active',
+                    revision_id TEXT,
+                    revision_of TEXT,
+                    integrity_hash TEXT,
+                    provenance TEXT
+                )
+                """
+            )
+            conn.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_memory_id ON memory(id)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_memory_status ON memory(status)")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_memory_kind ON memory(kind)")
+            conn.commit()
+
+    def _connection(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.path)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA journal_mode=WAL")
+        return conn
 
     def add(self, record: MemoryRecord) -> MemoryRecord:
         with self._lock:
-            conn = sqlite3.connect(self.path)
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO memory (
-                    id, kind, content, confidence, importance, novelty, trust_score, last_access, last_verified, created, source,
-                    verified, access_count, verification_interval_days, expires_at, source_reliability, retrieval_count, decision_impact_score,
-                    tags, relationships, experimental_group, hypothesis_id, outcome, tool, model, version, immutable, status,
-                    revision_id, revision_of, integrity_hash, provenance
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
-                    record.id,
-                    record.kind,
-                    record.content,
-                    record.confidence.confidence,
-                    record.confidence.importance,
-                    record.confidence.novelty,
-                    record.confidence.trust_score,
-                    record.confidence.last_access.isoformat() if record.confidence.last_access else None,
-                    record.confidence.last_verified.isoformat() if record.confidence.last_verified else None,
-                    record.confidence.created.isoformat(),
-                    record.confidence.source,
-                    int(record.confidence.verified),
-                    record.confidence.access_count,
-                    record.confidence.verification_interval_days,
-                    record.confidence.expires_at.isoformat() if record.confidence.expires_at else None,
-                    record.confidence.source_reliability,
-                    record.confidence.retrieval_count,
-                    record.confidence.decision_impact_score,
-                    json.dumps(record.tags),
-                    json.dumps(record.relationships),
-                    record.experimental_group,
-                    record.hypothesis_id,
-                    record.outcome,
-                    record.tool,
-                    record.model,
-                    record.version,
-                    int(record.immutable),
-                    record.status,
-                    record.revision_id,
-                    record.revision_of,
-                    record.integrity_hash,
-                    json.dumps(record.provenance),
-            ),
-            )
-            conn.commit()
-            conn.close()
+            with self._connection() as conn:
+                conn.execute(
+                    """
+                    INSERT OR REPLACE INTO memory (
+                        id, kind, content, confidence, importance, novelty, trust_score, last_access, last_verified, created,
+                        source, verified, access_count, verification_interval_days, expires_at, source_reliability,
+                        retrieval_count, decision_impact_score, tags, relationships, experimental_group, hypothesis_id,
+                        outcome, tool, model, version, immutable, status, revision_id, revision_of, integrity_hash, provenance
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        record.id,
+                        record.kind,
+                        record.content,
+                        record.confidence.confidence,
+                        record.confidence.importance,
+                        record.confidence.novelty,
+                        record.confidence.trust_score,
+                        record.confidence.last_access.isoformat() if record.confidence.last_access else None,
+                        record.confidence.last_verified.isoformat() if record.confidence.last_verified else None,
+                        record.confidence.created.isoformat(),
+                        record.confidence.source,
+                        int(record.confidence.verified),
+                        record.confidence.access_count,
+                        record.confidence.verification_interval_days,
+                        record.confidence.expires_at.isoformat() if record.confidence.expires_at else None,
+                        record.confidence.source_reliability,
+                        record.confidence.retrieval_count,
+                        record.confidence.decision_impact_score,
+                        json.dumps(record.tags),
+                        json.dumps(record.relationships),
+                        record.experimental_group,
+                        record.hypothesis_id,
+                        record.outcome,
+                        record.tool,
+                        record.model,
+                        record.version,
+                        int(record.immutable),
+                        record.status,
+                        record.revision_id,
+                        record.revision_of,
+                        record.integrity_hash,
+                        json.dumps(record.provenance),
+                    ),
+                )
         return record
 
     def get(self, id_: str) -> Optional[MemoryRecord]:
-        with self._lock, sqlite3.connect(self.path) as conn:
+        with self._lock, self._connection() as conn:
             cursor = conn.execute("SELECT * FROM memory WHERE id = ?", (id_,))
             row = cursor.fetchone()
             if row is None:
                 return None
-            column_names = [description[0] for description in cursor.description]
-        return _row_to_record(dict(zip(column_names, row)))
-
-    def _apply(self, record: MemoryRecord) -> None:
-        with self._lock, sqlite3.connect(self.path) as conn:
-            conn.execute(
-                """
-                UPDATE memory SET
-                    kind = ?, content = ?, confidence = ?, importance = ?, novelty = ?, trust_score = ?,
-                    last_access = ?, last_verified = ?, status = ?, tags = ?, relationships = ?,
-                    experimental_group = ?, hypothesis_id = ?, outcome = ?, tool = ?, model = ?, version = ?,
-                    immutable = ?, revision_id = ?, revision_of = ?, integrity_hash = ?, provenance = ?
-                WHERE id = ?
-                """,
-                (
-                    record.kind,
-                    record.content,
-                    record.confidence.confidence,
-                    record.confidence.importance,
-                    record.confidence.novelty,
-                    record.confidence.trust_score,
-                    record.confidence.last_access.isoformat() if record.confidence.last_access else None,
-                    record.confidence.last_verified.isoformat() if record.confidence.last_verified else None,
-                    record.status,
-                    json.dumps(record.tags),
-                    json.dumps(record.relationships),
-                    record.experimental_group,
-                    record.hypothesis_id,
-                    record.outcome,
-                    record.tool,
-                    record.model,
-                    record.version,
-                    int(record.immutable),
-                    record.revision_id,
-                    record.revision_of,
-                    record.integrity_hash,
-                    record.provenance,
-                    record.id,
-                ),
-            )
-            conn.execute("COMMIT")
+            return _row_to_record(dict(row))
 
     def mark_status(self, id_: str, status: str) -> Optional[MemoryRecord]:
         record = self.get(id_)
         if record is None or record.immutable:
             return record
+        from msb_v2.memory.store import MemoryStore
+        updated = MemoryStore.mark_status(MemoryStore(), id_, status) if False else record
         return self.add(
             MemoryRecord(
                 id=record.id,
@@ -268,36 +233,27 @@ class PersistentMemoryStore:
         )
 
     def search(self, query: str, *, limit: int = 20) -> List[MemoryRecord]:
-        rows: List[Dict[str, Any]] = []
-        with self._lock, sqlite3.connect(self.path) as conn:
-            cursor = conn.execute(
-                """
-                SELECT id, kind, content, confidence AS confidence, importance, novelty, trust_score,
-                       tags, status, created
-                FROM memory
-                WHERE status != ?
-                LIMIT ?
-                """,
-                (MemoryStatus.DELETED, limit * 4),
-            )
-            column_names = [description[0] for description in cursor.description]
-            rows = [dict(zip(column_names, row)) for row in cursor.fetchall()]
-
         q = query.strip().casefold()
         if not q:
-            return rows[:limit]
-
+            return [self.get(r["id"]) for r in self._select_candidates(limit * 4) if self.get(r["id"])][:limit]
         scored: List[tuple[float, MemoryRecord]] = []
-        for row in rows:
-            record = _row_to_record(row)
+        for row in self._select_candidates(limit * 4):
+            record = _row_to_record(dict(row))
             text = f"{record.content} {' '.join(record.tags)}".casefold()
-            matches = text.count(q)
-            if matches == 0:
+            if q not in text:
                 continue
-            score = matches * 10.0 + record.confidence.importance * 5.0
+            score = text.count(q) * 10.0 + record.confidence.importance * 5.0
             scored.append((score, record))
         scored.sort(key=lambda item: item[0], reverse=True)
         return [record for _, record in scored[:limit]]
+
+    def _select_candidates(self, limit: int) -> List[sqlite3.Row]:
+        with self._lock, self._connection() as conn:
+            cursor = conn.execute(
+                "SELECT id, kind, content, confidence, importance, novelty, trust_score, tags, status, created FROM memory WHERE status != ? LIMIT ?",
+                (MemoryStatus.DELETED, max(1, limit)),
+            )
+            return list(cursor.fetchall())
 
     def trust_score(self, id_: str) -> float:
         record = self.get(id_)
@@ -313,7 +269,7 @@ class PersistentMemoryStore:
         if new_record.kind != MemoryKind.SEMANTIC:
             return conflicts
         needle = new_record.content.strip()
-        with self._lock, sqlite3.connect(self.path) as conn:
+        with self._lock, self._connection() as conn:
             cursor = conn.execute(
                 "SELECT id, content FROM memory WHERE kind = ? AND status != ?",
                 (MemoryKind.SEMANTIC, MemoryStatus.DELETED),
@@ -428,7 +384,7 @@ class PersistentMemoryStore:
         preserved = 0
         failed = 0
         mistakes: List[str] = []
-        with self._lock, sqlite3.connect(self.path) as conn:
+        with self._lock, self._connection() as conn:
             cursor = conn.execute("SELECT id, kind, content, outcome FROM memory WHERE status != ?", (MemoryStatus.DELETED,))
             rows = cursor.fetchall()
         for id_, kind, content, outcome in rows:
@@ -447,14 +403,13 @@ class PersistentMemoryStore:
         }
 
     def health(self) -> MemoryHealth:
-        with self._lock, sqlite3.connect(self.path) as conn:
+        with self._lock, self._connection() as conn:
             cursor = conn.execute("SELECT COUNT(*) FROM memory WHERE status != ?", (MemoryStatus.DELETED,))
             total = cursor.fetchone()[0]
             if total == 0:
                 return MemoryHealth()
             cursor = conn.execute("SELECT verified, confidence, created FROM memory WHERE status != ?", (MemoryStatus.DELETED,))
             rows = cursor.fetchall()
-
         now = _now()
         verified = 0
         stale = 0
@@ -480,18 +435,13 @@ class PersistentMemoryStore:
             avg_decision_impact_score=influence_sum / max(1, total),
         )
 
-    def all(self, *, exclude_deleted: bool = True) -> List[MemoryRecord]:
-        return list(self.iter_all(exclude_deleted=exclude_deleted))
-
     def iter_all(self, *, exclude_deleted: bool = True) -> Iterator[MemoryRecord]:
-        with self._lock, sqlite3.connect(self.path) as conn:
+        with self._lock, self._connection() as conn:
             query = "SELECT * FROM memory"
             if exclude_deleted:
-                query += " WHERE status != ?"
-                cursor = conn.execute(query, (MemoryStatus.DELETED,))
+                cursor = conn.execute(query + " WHERE status != ?", (MemoryStatus.DELETED,))
             else:
                 cursor = conn.execute(query)
             column_names = [description[0] for description in cursor.description]
-        for row in cursor:
-            yield _row_to_record(dict(zip(column_names, row)))
-    pass
+            for row in cursor:
+                yield _row_to_record(dict(zip(column_names, row)))
