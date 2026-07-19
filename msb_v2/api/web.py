@@ -34,6 +34,7 @@ from msb_v2.api.counterfactual import router as counterfactual_router
 from msb_v2.api.reasoning_drift import router as reasoning_drift_router
 from msb_v2.api.observability import router as observability_router
 from msb_v2.api.observability_console import router as observability_console_router
+from observability.multica_dashboard import router as multica_dashboard_router
 from msb_v2.api.calibration import router as calibration_router
 from msb_v2.api.adk_bridge import router as adk_router
 from msb_v2.api.alert_hooks import router as alert_hooks_router
@@ -126,6 +127,7 @@ def create_app() -> FastAPI:
     app.include_router(reasoning_drift_router, prefix="/reasoning/drift")
     app.include_router(observability_router, prefix="/observability")
     app.include_router(observability_console_router, prefix="/observability")
+    app.include_router(multica_dashboard_router, prefix="")
     app.include_router(calibration_router, prefix="/reasoning/calibration")
     app.include_router(adk_router, prefix="/adk")
     app.include_router(alert_hooks_router, prefix="/alerts")
@@ -208,7 +210,15 @@ def create_app() -> FastAPI:
             while True:
                 try:
                     auditor = get_auditor()
-                    result = auditor.run_audit()
+                    report = auditor.run_audit()
+                    result = {
+                        "mirage_detected": report.mirage_detected,
+                        "sas_confidence_weight": report.sas_confidence_weight,
+                        "adversarial_finding": report.adversarial_finding,
+                        "cma_verdict": report.cma_verdict,
+                        "cma_details": report.cma_details,
+                        "timestamp": report.timestamp,
+                    }
                     if result.get("mirage_detected"):
                         _sac_bg_logger.warning("SAC self-audit detected a mirage. Confidence weight halved.")
                     else:
