@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import logging
 import os
+import time
 from pathlib import Path
 from typing import Any, Dict
 
@@ -70,7 +72,7 @@ from msb_v2.api import v3_crew as v3_crew_router
 from msb_v2.engine.orchestrator import Task, orchestrate
 
 from cognitive_compiler.sovereign_autonomy_core import SovereignAutonomyCore
-from cognitive_compiler.sac_self_audit import SACSelfAudit, get_auditor
+from cognitive_compiler.sac_self_audit import SacSelfAuditor, get_auditor
 from msb_v2.transport.compression import compress_content
 from msb_v2.v3.contracts import HarnessContract
 from msb_v2.v3.contracts import register as _register_contract
@@ -172,7 +174,7 @@ def create_app() -> FastAPI:
 
     @app.get("/sac/self-audit")
     def sac_self_audit() -> dict:
-        return get_auditor().run_self_audit()
+        return get_auditor().run_audit()
 
     try:
         from prometheus_client import generate_latest, REGISTRY
@@ -187,4 +189,28 @@ def create_app() -> FastAPI:
 
     from cognitive_compiler.sac_self_audit import set_app_factory
     set_app_factory(create_app)
+
+    try:
+        import threading
+        from cognitive_compiler.sac_self_audit import SacSelfAuditor
+        _sac_bg_logger = logging.getLogger("msb_v2.sac_self_audit.bg")
+
+        def _background_audit_loop() -> None:
+            _sac_bg_logger.info("SAC background audit loop starting")
+            while True:
+                try:
+                    auditor = get_auditor()
+                    result = auditor.run_audit()
+                    if result.get("mirage_detected"):
+                        _sac_bg_logger.warning("SAC self-audit detected a mirage. Confidence weight halved.")
+                    else:
+                        _sac_bg_logger.info("SAC self-audit clean.")
+                except Exception as exc:
+                    _sac_bg_logger.error("SAC self-audit failed: %s", exc)
+                time.sleep(3600)
+
+        t = threading.Thread(target=_background_audit_loop, daemon=True)
+        t.start()
+    except Exception:
+        pass
     return app
