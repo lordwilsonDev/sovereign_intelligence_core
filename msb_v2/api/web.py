@@ -49,6 +49,7 @@ from msb_v2.api.knowledge import router as knowledge_router
 from msb_v2.api.security import router as security_router
 from msb_v2.api.model_router import router as model_router
 from msb_v2.api.recovery import router as recovery_router
+from msb_v2.api.fine_tune import router as fine_tune_router
 from msb_v2.api import v3 as v3_router
 from msb_v2.api import v3_inversion as v3_inversion_router
 from msb_v2.api import v3_deliberation as v3_deliberation_router
@@ -128,6 +129,7 @@ def create_app() -> FastAPI:
     app.include_router(scheduler_router)
     app.include_router(knowledge_router)
     app.include_router(security_router)
+    app.include_router(fine_tune_router)
     try:
         from msb_v2.transport.compression_middleware import ResponseCompressionMiddleware
         app.add_middleware(ResponseCompressionMiddleware, threshold=2000)
