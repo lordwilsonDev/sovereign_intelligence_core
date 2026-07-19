@@ -26,15 +26,28 @@ class ModelRouter:
     @staticmethod
     def route(task: str, context: Dict[str, Any]) -> Dict[str, Any]:
         low = task.lower()
+        context_lower = {str(k).lower(): v for k, v in context.items()}
+        prefer_local = str(context_lower.get("prefer_local", "")).lower() in {"1", "true", "yes"}
         candidates = default_registry.available("reasoning")
         if not candidates:
             return {"model": "local", "reason": "fallback default", "candidates": []}
-        if any(k in low for k in ["code", "review", "refactor"]):
-            pick = next((m for m in candidates if m.capabilities.coding), candidates[0])
-        elif any(k in low for k in ["extract", "parse", "document"]):
-            pick = next((m for m in candidates if m.capabilities.extraction), candidates[0])
-        else:
-            pick = next((m for m in candidates if m.name == "claude"), candidates[0])
+        capable = candidates
+        if any(k in low for k in ["extract", "parse", "document", "entities"]):
+            capable = [m for m in candidates if getattr(m.capabilities, "extraction", False)]
+            capable = capable or candidates
+        elif any(k in low for k in ["code", "review", "refactor", "function"]):
+            capable = [m for m in candidates if getattr(m.capabilities, "coding", False)]
+            capable = capable or candidates
+        if prefer_local:
+            capable = [m for m in capable if getattr(m.provider, "lower", lambda: "")() == "local"] or capable
+        ranked = sorted(
+            capable,
+            key=lambda m: (
+                0 if getattr(m.capabilities, "speed", "fast") == "fast" else 1,
+                float(m.capabilities.cost_per_1k_tokens or 0),
+            ),
+        )
+        pick = ranked[0]
         return {
             "model": pick.name,
             "provider": pick.provider,
