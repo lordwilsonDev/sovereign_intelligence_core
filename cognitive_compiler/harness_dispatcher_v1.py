@@ -182,8 +182,11 @@ class HarnessDispatcher:
         if primary == "sovereign-finetune":
             action = context.get("finetune_action", "scan")
             repo = context.get("repo_path", "/tmp")
+            if hasattr(self, "finetune"):
+                setattr(self.finetune, "repo_path", repo)
+            if action == "scan":
+                return self.finetune.scan_documents()
             if action == "distill":
-                self.finetune.repo_path = repo
                 pairs = self.finetune.synthesize_pairs(max_pairs=int(context.get("max_pairs", 64)))
                 validation = self.finetune.validate_pairs()
                 return {"action": "distill", "pairs": len(pairs), "validation": validation, "privacy_boundary": self.finetune.privacy_boundary}
