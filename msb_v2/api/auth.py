@@ -54,12 +54,12 @@ def auth_token_issue(body: Dict[str, Any]) -> Dict[str, Any]:
         token = str(value).strip()
         if not token:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="roles must be non-empty strings")
-        roles.append(token.lower())
+        roles.append(token)
     for value in raw_scopes:
         token = str(value).strip()
         if not token:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="scopes must be non-empty strings")
-        scopes.append(token.lower())
+        scopes.append(token)
     allowed_roles = {"user", "power_user", "admin", "system", "operator"}
     if roles and not set(roles).issubset(allowed_roles):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="roles must be from allowed set")

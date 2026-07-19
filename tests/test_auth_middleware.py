@@ -90,6 +90,7 @@ def test_token_issue_validation():
     assert client.post("/auth/token/issue", json={"subject": "ab"}).status_code == 200
     assert client.post("/auth/token/issue", json={"subject": "ok", "roles": ["", "x"]}).status_code == 400
     assert client.post("/auth/token/issue", json={"subject": "ok", "roles": ["root"]}).status_code == 400
+    assert client.post("/auth/token/issue", json={"subject": "ok", "roles": ["admin"]}).status_code == 200
     issue = client.post("/auth/token/issue", json={"subject": "ok", "roles": ["admin"], "scopes": ["read"]}).json()
     assert issue["roles"] == ["admin"]
     assert issue["scopes"] == ["read"]
