@@ -6,11 +6,15 @@ __pycache__/
 
 # Runtime artifacts
 .snapshots/
+.runtime_artifacts/
 evolution_memory.db
 runtime_events.db
 knowledge_graph.db
 knowledge_graph_api.db
 memory_store.db
+*.db-wal
+*.db-shm
+*.db-journal
 models/*
 !models/registry.py
 !models/router.py
