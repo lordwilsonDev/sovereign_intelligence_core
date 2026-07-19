@@ -2,15 +2,17 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body, Depends
+from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.reasoning.calibration import CalibrationStore
 
-router = APIRouter(tags=["reasoning"])
+router = APIRouter(tags=["calibration"])
 _calibration_store = CalibrationStore()
 
 
-@router.post("/calibration/record")
+@router.post("/calibration/record", dependencies=[Depends(require_bearer_token)])
 def record_calibration(body: Dict[str, Any]) -> Dict[str, Any]:
     statement_id = str(body.get("statement_id") or "")
     confidence = float(body.get("confidence") or 0.0)

@@ -3,15 +3,16 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any, Dict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.engine.rcoh_persistence import RCOHPersistence
 
 router = APIRouter()
 _PERSISTENCE = RCOHPersistence()
 
 
-@router.post("/events")
+@router.post("/events", dependencies=[Depends(require_bearer_token)])
 def torsion_events(limit: int = 50) -> Dict[str, Any]:
     recent = _PERSISTENCE.recent(limit=limit)
     events: list[Dict[str, Any]] = []

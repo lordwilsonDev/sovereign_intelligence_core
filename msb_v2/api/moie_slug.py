@@ -5,8 +5,10 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
+
+from msb_v2.api.middleware import require_bearer_token
 
 router = APIRouter()
 _MOIE_ROOT = Path("/Users/lordwilson/msb-v2/.artifacts/moie")
@@ -42,7 +44,7 @@ def _load_artifact(slug: str) -> Optional[Dict[str, Any]]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-@router.post("/store")
+@router.post("/store", dependencies=[Depends(require_bearer_token)])
 def moie_slug_store(payload: Dict[str, Any]) -> Dict[str, Any]:
     slug = str(payload.get("slug") or payload.get("query") or "result")
     blob = {key: value for key, value in payload.items() if key != "slug"}

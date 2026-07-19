@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Body, Depends, Query
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.integrations.article_store import InMemoryArticleStore
 from msb_v2.integrations.content_service import ContentService
 from msb_v2.integrations.github import fetch_github_issues, fetch_github_prs
@@ -18,7 +19,7 @@ class RefreshRequest(BaseModel):
     urls: list[str] = []
 
 
-@router.post("/integrations/content/refresh")
+@router.post("/integrations/content/refresh", dependencies=[Depends(require_bearer_token)])
 def refresh_content(payload: RefreshRequest) -> dict:
     added = _service.refresh_from_rss(payload.urls or [])
     return {"added": [article.link for article in added]}

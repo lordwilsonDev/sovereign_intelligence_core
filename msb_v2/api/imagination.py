@@ -5,9 +5,10 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.engine.merkle_reasoning import MerkleReasoningChain
 
 router = APIRouter()
@@ -41,7 +42,7 @@ def imagination_ping() -> dict:
     return {"status": "ok", "module": "imagination"}
 
 
-@router.post("/dreams")
+@router.post("/dreams", dependencies=[Depends(require_bearer_token)])
 def imagination_dream(payload: DreamRequest) -> dict:
     seed = payload.seed or uuid.uuid4().hex
     chain = MerkleReasoningChain()

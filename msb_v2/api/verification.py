@@ -2,10 +2,11 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Body, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.reasoning.integrity import EventStreamStore
 from msb_v2.verification.capability_registry import CapabilityRegistry
 from msb_v2.verification.evidence import EvidenceEngine
@@ -60,7 +61,7 @@ def verification_decision(decision_id: str) -> JSONResponse:
     )
 
 
-@router.post("/verification/integrity/batch")
+@router.post("/verification/integrity/batch", dependencies=[Depends(require_bearer_token)])
 def verification_batch(payload: BatchVerifyRequest) -> JSONResponse:
     return JSONResponse(_verifier.batch_verify(payload.decision_ids))
 
@@ -70,7 +71,7 @@ def verification_benchmarks() -> Dict[str, Any]:
     return {"benchmarks": list(_registry._benchmarks.keys()), "scores": _registry.get_scores()}
 
 
-@router.post("/verification/benchmark/{name}/run")
+@router.post("/verification/benchmark/{name}/run", dependencies=[Depends(require_bearer_token)])
 def verification_run_benchmark(name: str) -> Dict[str, Any]:
     try:
         score = _registry.run_benchmark(name)
@@ -79,7 +80,7 @@ def verification_run_benchmark(name: str) -> Dict[str, Any]:
     return {"benchmark": name, "score": score, "history": _registry.get_history(name)}
 
 
-@router.post("/verification/evaluate")
+@router.post("/verification/evaluate", dependencies=[Depends(require_bearer_token)])
 def verification_evaluate(payload: EvaluateBody) -> Dict[str, Any]:
     engine = EvidenceEngine(registry=_registry, memory_client=_extension)
     report = engine.evaluate(query=payload.query, answer=payload.answer, trace=payload.trace)
@@ -98,7 +99,7 @@ def verification_evaluate(payload: EvaluateBody) -> Dict[str, Any]:
     }
 
 
-@router.post("/feedback/correction")
+@router.post("/feedback/correction", dependencies=[Depends(require_bearer_token)])
 def feedback_correction(payload: CorrectionBody) -> Dict[str, Any]:
     context = _extension
     context.event_bus.publish("user_correction", payload.model_dump())

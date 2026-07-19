@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.engine.rcoh import RCOH, RCOHState
 from msb_v2.engine.rcoh_persistence import RCOHPersistence
 
@@ -40,7 +41,7 @@ def recent_cycles(limit: int = 20) -> dict:
     return {"cycles": cycles}
 
 
-@router.post("/start")
+@router.post("/start", dependencies=[Depends(require_bearer_token)])
 def start_cycle(req: StartCycleRequest = StartCycleRequest()) -> dict:
     state = RCOHState(
         cycle_id=RCOH()._new_cycle_id(),

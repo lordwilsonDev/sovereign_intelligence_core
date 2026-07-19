@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 from typing import Any, Dict
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.api.observability_metrics import MetricsStore
 from msb_v2.api.reasoning_integrity import _stream as reasoning_stream
 from msb_v2.api.memory import _get_store as _memory_store_getter
