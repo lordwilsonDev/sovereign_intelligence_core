@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
 from cognitive_compiler.harness_abc import BaseHarness, HarnessResult, HarnessTelemetry
+from cognitive_compiler.codebrain_artifact import ArtifactNormalizer
 
 
 @dataclass
@@ -127,6 +128,11 @@ class AgenticSoftwareDevelopmentHarness(BaseHarness):
             "elapsed_s": elapsed,
         }
         telemetry = HarnessTelemetry(routing_confidence=0.85, execution_time_s=elapsed, tags=["agentic", "building"])
+        payload["artifact"] = ArtifactNormalizer().normalize({
+            "goal": goal,
+            "requirements": [r.text for r in requirements],
+            "assumptions": assumptions,
+        }, kind="agentic-dev").to_dict()
         return HarnessResult(ok=True, event="evaluated", payload=payload, telemetry=telemetry)
 
     def execute(self, query: str, *args: Any, context: Optional[Dict[str, Any]] = None, **kwargs: Any) -> HarnessResult:

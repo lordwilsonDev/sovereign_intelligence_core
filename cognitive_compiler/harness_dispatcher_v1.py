@@ -98,6 +98,8 @@ class HarnessDispatcher:
             result.setdefault("telemetry", {})["primary"]["error_class"] = "verification"
             result.setdefault("telemetry", {})["primary"]["fallback_reason"] = f"axiom_risk={verification.risk:.2f}"
             return self._post_process(result, meta)
+
+        if secondary and order == "serial":
             handoff_prompt = (
                 "You are continuing a hybrid reasoning session.\n" + scs.to_prompt_context() +
                 "\nIntegrate the prior reasoning and complete the secondary protocol."
