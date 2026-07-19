@@ -1,7 +1,11 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Body, HTTPException
+from typing import Any, Dict
+
+from fastapi import APIRouter, Body, Depends, HTTPException
 from pydantic import BaseModel, Field
+
+from msb_v2.api.middleware import require_bearer_token
 
 from msb_v2.reasoning.store import ReasoningStore, SEED
 from msb_v2.reasoning.types import (
@@ -140,7 +144,7 @@ def get_trace(trace_id: str) -> TraceOut:
 
 
 @router.post("/traces", response_model=TraceOut)
-def create_trace(body: TraceCreate) -> TraceOut:
+def create_trace(body: TraceCreate, auth: Dict[str, Any] = Depends(require_bearer_token)) -> TraceOut:
     trace_id = body.trace_id or store.next_trace_id()
     trace = ReasoningTrace(
         trace_id=trace_id,
@@ -172,7 +176,7 @@ def create_trace(body: TraceCreate) -> TraceOut:
 
 
 @router.patch("/traces/{trace_id}/status", response_model=TraceOut)
-def patch_status(trace_id: str, body: SetStatusBody) -> TraceOut:
+def patch_status(trace_id: str, body: SetStatusBody, auth: Dict[str, Any] = Depends(require_bearer_token)) -> TraceOut:
     try:
         trace = store.set_status(trace_id, body.status)
         return _trace_out(trace, _build_evidence_report(trace))
