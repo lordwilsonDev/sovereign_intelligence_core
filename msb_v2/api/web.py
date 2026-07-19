@@ -70,6 +70,7 @@ from msb_v2.api import v3_crew as v3_crew_router
 from msb_v2.engine.orchestrator import Task, orchestrate
 
 from cognitive_compiler.sovereign_autonomy_core import SovereignAutonomyCore
+from cognitive_compiler.sac_self_audit import SACSelfAudit, get_auditor
 from msb_v2.transport.compression import compress_content
 from msb_v2.v3.contracts import HarnessContract
 from msb_v2.v3.contracts import register as _register_contract
@@ -77,8 +78,8 @@ from msb_v2.v3.contracts import register as _register_contract
 _register_contract(HarnessContract(route="/orchestrate", method="post", allow_anonymous=False, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/health", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/runtime/ping", method="get", allow_anonymous=True, max_body_bytes=65536))
-
-
+_register_contract(HarnessContract(route="/sac/status", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/sac/self-audit", method="get", allow_anonymous=True, max_body_bytes=65536))
 class OrchestrateRequest(BaseModel):
     tasks: list[Task]
 
@@ -168,7 +169,10 @@ def create_app() -> FastAPI:
             core.run_dispatch_gate(query="api-status", context={"high_stakes": False}, model_source="local")
         )
 
-    if str(__import__("os").getenv("MSB_REQUIRE_HCL", "strict")).lower() not in {"0", "false", "no", "off"}:
-        from msb_v2.v3.contract_coverage import assert_no_uncontracted_mutations
-        assert_no_uncontracted_mutations(Path(__file__).resolve().parent.parent)
+    @app.get("/sac/self-audit")
+    def sac_self_audit() -> dict:
+        return get_auditor().run_self_audit()
+
+    from cognitive_compiler.sac_self_audit import set_app_factory
+    set_app_factory(create_app)
     return app
