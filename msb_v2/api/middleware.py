@@ -2,19 +2,19 @@ from __future__ import annotations
 
 import contextlib
 import contextvars
-from typing import Any, Dict, Optional
+import logging
+from typing import Any, Callable, Dict, Optional
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from auth.jwt import verify_token
+from msb_v2.v3.contracts import lookup as _hcl_lookup
 
 security = HTTPBearer(auto_error=False)
 
-
 # contextvar so TestClient runs never leak auth state across tests
 _bypass_override: contextvars.ContextVar[Optional[bool]] = contextvars.ContextVar("_bypass_override", default=None)
-
 
 def set_local_bypass(enabled: Optional[bool]) -> None:
     _bypass_override.set(enabled)
@@ -45,3 +45,44 @@ async def require_bearer_token(credentials: Optional[HTTPAuthorizationCredential
         detail = result.get("reason", "invalid_token")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail)
     return result
+
+
+_logger = logging.getLogger("msb_v2.v3.hcl")
+
+
+async def hcl_contract_middleware(request: Request, call_next: Callable[..., Any]) -> Any:
+    strict = __import__("os").getenv("MSB_REQUIRE_HCL", "").lower() in {"2", "strict"}
+    enforce = strict or __import__("os").getenv("MSB_REQUIRE_HCL", "").lower() in {"1", "true", "yes"}
+    if not enforce:
+        return await call_next(request)
+    path = request.url.path
+    method = request.method.lower()
+    contract = _hcl_lookup(path, method)
+    if contract is None:
+        if strict:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail={"error": "uncontracted_route", "path": path, "method": method})
+        _logger.warning({"event": "hcl_skip", "path": path, "method": method})
+        return await call_next(request)
+    if not contract.allow_anonymous:
+        auth_header = request.headers.get("authorization", "")
+        if not auth_header.lower().startswith("bearer "):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="missing_bearer")
+    content_type = request.headers.get("content-type", "")
+    if request.method in {"POST", "PUT", "PATCH"} and "application/json" in content_type:
+        content_length_raw = request.headers.get("content-length")
+        max_bytes = int(contract.max_body_bytes)
+        if content_length_raw is not None:
+            try:
+                if int(content_length_raw) > max_bytes:
+                    raise HTTPException(status_code=413, detail="payload_too_large")
+            except ValueError:
+                pass
+        body_bytes = await request.body()
+        if body_bytes:
+            try:
+                payload = __import__("json").loads(body_bytes)
+            except Exception:
+                raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="invalid_json_payload")
+            if len(body_bytes) > max_bytes:
+                raise HTTPException(status_code=413, detail="payload_too_large")
+    return await call_next(request)

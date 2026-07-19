@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Any, Dict
 
 from fastapi import FastAPI, Depends
 from pydantic import BaseModel
 
-from msb_v2.api.middleware import require_bearer_token
+from msb_v2.api.middleware import hcl_contract_middleware, require_bearer_token
 
 from msb_v2.api.cognitive import router as cognitive_router
 from msb_v2.api.imagination import router as imagination_router
@@ -76,6 +78,7 @@ class OrchestrateRequest(BaseModel):
 
 def create_app() -> FastAPI:
     app = FastAPI(title="MSB v2.0")
+    app.middleware("http")(hcl_contract_middleware)
 
     @app.get("/health")
     def health() -> dict:

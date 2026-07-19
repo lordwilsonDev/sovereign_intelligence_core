@@ -5,6 +5,7 @@ import logging
 
 import pytest
 from fastapi.testclient import TestClient
+from msb_v2.api.main import create_app
 
 from msb_v2.engine.causal_memory import CausalMemory, StateSnapshot
 from msb_v2.engine.moie_orchestrator import DialecticDepthGauge
@@ -80,6 +81,88 @@ def test_production_mutation_routes_reject_without_auth():
         if r.status_code != 401:
             disallowed.append((path, r.status_code, r.text[:200]))
     assert disallowed == [], disallowed
+
+
+def test_hcl_middleware_enforces_contracted_anon_route():
+    from fastapi import APIRouter, FastAPI
+    from fastapi.testclient import TestClient
+    from msb_v2.v3.contracts import register
+    from msb_v2.api.middleware import hcl_contract_middleware
+    import os as _os
+
+    route_path = "/test-public"
+    register(HarnessContract(route=route_path, method="POST", allow_anonymous=True, max_body_bytes=4096))
+    router = APIRouter()
+
+    @router.post(route_path)
+    def _public_test():
+        return {"status": "ok"}
+
+    app = FastAPI()
+    app.middleware("http")(hcl_contract_middleware)
+    app.include_router(router)
+    client = TestClient(app)
+    prev = _os.environ.get("MSB_REQUIRE_HCL")
+    _os.environ["MSB_REQUIRE_HCL"] = "1"
+    try:
+        r = client.post(route_path, json={})
+        assert r.status_code == 200, r.text
+        r = client.post(route_path)
+        assert r.status_code == 200, r.text
+    finally:
+        if prev is None:
+            _os.environ.pop("MSB_REQUIRE_HCL", None)
+        else:
+            _os.environ["MSB_REQUIRE_HCL"] = prev
+
+
+def test_hcl_middleware_blocks_payload_over_limit():
+    import os as _os
+    from fastapi import APIRouter, FastAPI
+    from fastapi.testclient import TestClient
+    from fastapi.exceptions import HTTPException
+    from msb_v2.v3.contracts import register
+    from msb_v2.api.middleware import hcl_contract_middleware
+
+    route_path = "/test-limited"
+    register(HarnessContract(route=route_path, method="post", allow_anonymous=True, max_body_bytes=1))
+    router = APIRouter()
+
+    @router.post(route_path)
+    def _limited_test(payload: dict):
+        return {"status": "ok"}
+
+    app = FastAPI()
+    app.middleware("http")(hcl_contract_middleware)
+    app.include_router(router)
+    client = TestClient(app)
+    prev = _os.environ.get("MSB_REQUIRE_HCL")
+    _os.environ["MSB_REQUIRE_HCL"] = "1"
+    try:
+        with pytest.raises(HTTPException) as exc_info:
+            client.post(route_path, content=b'{"overflow": true}', headers={"content-type": "application/json", "content-length": "9"})
+        assert exc_info.value.status_code == 413
+    finally:
+        if prev is None:
+            _os.environ.pop("MSB_REQUIRE_HCL", None)
+        else:
+            _os.environ["MSB_REQUIRE_HCL"] = prev
+
+
+def test_hcl_middleware_blocks_unauthenticated_non_anon_route_full_app():
+    from msb_v2.api.middleware import set_local_bypass
+    set_local_bypass(None)
+    client = TestClient(create_app())
+    r = client.post("/orchestrate", json={"tasks": [{"id": "1", "status": "queued"}]})
+    assert r.status_code == 401, r.text
+
+
+def test_hcl_middleware_allows_correct_behavior_on_full_app():
+    from msb_v2.api.middleware import set_local_bypass
+    set_local_bypass(None)
+    client = TestClient(create_app())
+    r = client.post("/orchestrate", json={"tasks": [{"id": "1", "status": "queued"}]})
+    assert r.status_code == 401, r.text
 
 
 def _under_local_bypass() -> bool:
