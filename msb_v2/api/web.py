@@ -80,6 +80,7 @@ _register_contract(HarnessContract(route="/health", method="get", allow_anonymou
 _register_contract(HarnessContract(route="/runtime/ping", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/sac/status", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/sac/self-audit", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/metrics", method="get", allow_anonymous=True, max_body_bytes=65536))
 class OrchestrateRequest(BaseModel):
     tasks: list[Task]
 
@@ -172,6 +173,17 @@ def create_app() -> FastAPI:
     @app.get("/sac/self-audit")
     def sac_self_audit() -> dict:
         return get_auditor().run_self_audit()
+
+    try:
+        from prometheus_client import generate_latest, REGISTRY
+        from fastapi.responses import Response as FastAPIResponse
+
+        @app.get("/metrics")
+        def prometheus_metrics() -> FastAPIResponse:
+            data = generate_latest(REGISTRY)
+            return FastAPIResponse(content=data, media_type="text/plain; version=0.0.4")
+    except Exception:
+        pass
 
     from cognitive_compiler.sac_self_audit import set_app_factory
     set_app_factory(create_app)
