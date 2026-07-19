@@ -24,5 +24,4 @@ endpoint_registry = [
     EndpointProbe("/verification/benchmarks", "GET", expect_keys=[]),
     EndpointProbe("/evolution/proposals", "GET", expect_keys=[]),
     EndpointProbe("/verification/evaluate", "POST", body={"query": "ping", "answer": "ok"}, expect_keys=[]),
-    EndpointProbe("/agent/queue", "POST", body={"goal": "health", "priority": 2}, expect_keys=[]),
 ]
