@@ -43,3 +43,5 @@ default_registry.register(RegisteredModel("claude", "anthropic", ModelCapabiliti
 default_registry.register(RegisteredModel("deepseek", "deepseek", ModelCapabilities(reasoning=True, extraction=True, cost_per_1k_tokens=0.0005), max_tokens=8192, fallback="claude"))
 default_registry.register(RegisteredModel("local", "local", ModelCapabilities(reasoning=True, classification=True, cost_per_1k_tokens=0.0), max_tokens=4096, fallback="claude"))
 default_registry.register(RegisteredModel("gemma4:31b", "ollama", ModelCapabilities(reasoning=True, extraction=True, classification=True, coding=True, cost_per_1k_tokens=0.0), max_tokens=8192, fallback="deepseek"))
+default_registry.register(RegisteredModel("qwen3:latest", "ollama", ModelCapabilities(reasoning=True, classification=True, cost_per_1k_tokens=0.0), max_tokens=8192, fallback="qwen2.5:7b-instruct"))
+default_registry.register(RegisteredModel("qwen2.5:7b-instruct", "ollama", ModelCapabilities(reasoning=True, extraction=True, classification=True, coding=True, cost_per_1k_tokens=0.0), max_tokens=8192, fallback="qwen3:latest"))

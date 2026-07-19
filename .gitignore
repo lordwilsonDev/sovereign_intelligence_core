@@ -11,6 +11,10 @@ runtime_events.db
 knowledge_graph.db
 knowledge_graph_api.db
 memory_store.db
+models/*
+!models/registry.py
+!models/router.py
+!models/cost_optimizer.py
 
 # Local config/secrets
 .env
