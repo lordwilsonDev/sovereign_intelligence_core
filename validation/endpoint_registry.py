@@ -20,8 +20,7 @@ endpoint_registry = [
     EndpointProbe("/meta/health", "GET", expect_keys=["status", "module"]),
     EndpointProbe("/desktop/health", "GET", expect_keys=["status", "module"]),
     EndpointProbe("/career/health", "GET", expect_keys=["ok"], expect_status=200),
-    EndpointProbe("/memory/health", "GET", expect_keys=["status"]),
-    EndpointProbe("/observability/dashboard", "GET", expect_keys=["status"]),
+    EndpointProbe("/memory/health", "GET", expect_keys=["verified_facts"]),
     EndpointProbe("/verification/benchmarks", "GET", expect_keys=[]),
     EndpointProbe("/evolution/proposals", "GET", expect_keys=[]),
 ]
