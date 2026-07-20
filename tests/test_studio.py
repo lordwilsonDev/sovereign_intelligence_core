@@ -7,11 +7,17 @@ from msb_v2.api.main import create_app
 
 def test_studio_root_returns_json() -> None:
     client = TestClient(create_app())
-    response = client.get("/")
+    html = client.get("/")
+    assert html.status_code == 200
+    assert "msb-studio" in html.text
+    response = client.get("/studio/status")
     assert response.status_code == 200
     body = response.json()
-    assert body["name"] == "msb-studio"
-    assert "endpoints" in body
+    assert "runtime" in body
+    assert "memory" in body
+    assert "verification" in body
+    assert "evolution" in body
+    assert "agent" in body
 
 
 def test_studio_status_returns_composite_state() -> None:
