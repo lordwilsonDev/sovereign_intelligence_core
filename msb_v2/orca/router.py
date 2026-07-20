@@ -128,7 +128,7 @@ def _snapshot_placeholder(relay: Optional[str]) -> str:
     return "<!doctype html><html><head><meta charset='utf-8'><title>Orca browser</title></head><body><p>Browser snapshot requires ORCA_BIN.</p></body></html>"
 
 
-@router.get("/status", dependencies=[Depends(require_bearer_token)])
+@router.get("/status")
 def orca_status() -> Dict[str, Any]:
     git_ok = bool(shutil.which("git"))
     orca_root = Path(__file__).resolve().parent.parent.parent / "vendor" / "orca"

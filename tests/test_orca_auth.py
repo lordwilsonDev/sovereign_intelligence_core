@@ -37,9 +37,12 @@ def client_with_bypass(app_with_bypass) -> Generator[TestClient, None, None]:
     yield TestClient(app_with_bypass)
 
 
-def test_orca_status_without_auth_returns_401(client_no_bypass: TestClient):
+def test_orca_status_without_auth_returns_200(client_no_bypass: TestClient):
     r = client_no_bypass.get("/orchestrate/orca/status")
-    assert r.status_code == 401, r.text
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["adapter"] == "git-worktree-python"
+    assert "mode" in body
 
 
 def test_orca_worktree_create_without_auth_returns_401(client_no_bypass: TestClient):
