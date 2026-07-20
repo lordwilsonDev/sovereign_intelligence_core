@@ -1,24 +1,20 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from fastapi import APIRouter, Depends, Query
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends
 
 from msb_v2.api.middleware import require_bearer_token
-from msb_v2.v3.contracts import HarnessContract, register as _register_contract
-from msb_v2.audit.sac_audit import get_audit_log
+from msb_v2.audit.audit_engine import AuditEngine
+from msb_v2.audit.storage import AuditStore
 
-router = APIRouter(tags=["audit"])
-
-
-class SacRecentResponse(BaseModel):
-    events: List[Dict[str, Any]]
+router = APIRouter()
 
 
-@router.get("/recent", dependencies=[Depends(require_bearer_token)])
-def sac_recent(limit: int = 100) -> SacRecentResponse:
-    return SacRecentResponse(events=get_audit_log().recent(limit=limit))
+def _engine() -> AuditEngine:
+    return AuditEngine(store=AuditStore())
 
 
-_register_contract(HarnessContract(route="/audit/sac/recent", method="get", allow_anonymous=False))
+@router.get("/recent")
+def recent_audit_events(limit: int = 100, engine: AuditEngine = Depends(_engine)) -> list[dict[str, Any]]:
+    return engine.events(limit=limit)
