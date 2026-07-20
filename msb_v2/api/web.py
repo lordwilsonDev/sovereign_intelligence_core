@@ -41,7 +41,7 @@ _register_contract(HarnessContract(route="/gateway/telegram/webhook", method="po
 _register_contract(HarnessContract(route="/continuity/resume-prompt", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/metrics", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/memory/add", method="post", allow_anonymous=True, max_body_bytes=65536))
-_register_contract(HarnessContract(route="/memory/search", method="post", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/memory/search", method="get", allow_anonymous=True, max_body_bytes=65536))
 
 _ROUTER_REGISTRY: List[Tuple[Any, str]] = []
 
