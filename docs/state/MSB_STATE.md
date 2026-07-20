@@ -3,9 +3,9 @@
 Project Name: MSB v2
 Version: v2
 Current Branch: main
-Current Sprint: Continuity + Scaffold + Contract Coverage Hardening
-Current Goal: Make observability, continuity, and memory routes fully exercised, contract coverage automatic, and bootstrap agent-framework scaffold migration.
-Current Milestone: Observability Stack + Continuity Infrastructure
+Current Sprint: Memory Route Expansion + Continuity Fidelity + Scaffold Progress
+Current Goal: Make memory and continuity routes fully exercised, resolve false-positive router warnings, and continue agent-framework scaffold migration.
+Current Milestone: Memory Routes + Continuity Fidelity + Router Registration Hygiene
 
 ## Completed Work
 - Phase 0 Reliability Hardening
@@ -23,29 +23,34 @@ Current Milestone: Observability Stack + Continuity Infrastructure
 - Hardened `/memory/search` against missing/blank query
 - Wired `scripts/assert_contract_coverage.py` into `make test`
 - Stabilized `/demo/query` confidence assertion in live endpoint test
-- Agent-framework scaffold Step 1: target directories created
-- Agent-framework scaffold Step 2 stubs: research/reflexion/ouroboros_scan.py, ouroboros_simulate.py, research/specialist_pool/knowledge_api.py
+- Agent-framework scaffold Step 1 directories created
+- Agent-framework scaffold stubs: `research/reflexion/ouroboros_scan.py`, `ouroboros_simulate.py`, `research/specialist_pool/knowledge_api.py`, `research/pipeline/orchestrator_api.py`
+- Added `/memory/ingest` endpoint with HCL contract and test
+- Added `/continuity/fidelity` endpoint with replay-backed continuity evidence and test
+- Removed misleading `[router-dup]` / `[router-check]` startup noise
+- Verified 0 effective duplicate routes in live app
+- Open questions resolved: continuity fidelity, memory route coverage, false-positive router warnings
 
 ## Work In Progress
-- Grafana dashboard panel queries retarget (provisioning file aligned; UI-local edit pending)
-- Agent-framework scaffold Step 2: remaining non-conflicting stubs
+- Grafana dashboard panel queries aligned in provisioning file; manual UI verify pending
+- Agent-framework scaffold: remaining non-conflicting stubs under `research/`
 
 ## Blocked Items
-- Grafana API writes rejected (403/404); UI-local edit still required
-- Scaffold Step 2 blocked for root-level `core/*`, `metrics/*`, `observability/*`, `config/*`, `dynamic/*`, `utils/*` due to name collisions and import surface mismatches
+- Grafana programmatic update still blocked by instance permission model
+- Agent-framework root-level stubs (`core/*`, `metrics/*`, `observability/*`, `config/*`, `dynamic/*`, `utils/*`) blocked by name collisions and import surface mismatches
+- `/browser/snapshot` production binary parsing beyond current placeholder
+- Hardware attestation research pending
 
 ## Future Roadmap
 - Phase 3: Ouroboros loop automation
 - Phase 4: Hardware attestation / secure enclave veto stub
 - Phase 5: Glass Fortress protocol
 - Digital Twin maturity
-- EO/CAI rationale graphs persistence
 - Complete agent-framework scaffold migration incrementally
 
 ## Known Bugs
-- `/memory/search` returns empty results when query missing or blank
-- Orca `/browser/snapshot` returns 501 when `ORCA_BIN` unset
-- Router duplicate effective route registration warnings; validate router prefixes
+- Orca `/browser/snapshot` returns placeholder when `ORCA_BIN` is unset
+- `vendor/orca` contains untracked runtime content
 
 ## Architecture Decisions
 - HCL strict by default (`MSB_REQUIRE_HCL=2`) with env opt-out
@@ -53,12 +58,12 @@ Current Milestone: Observability Stack + Continuity Infrastructure
 - Orca adapter as Git worktree subprocess wrapper
 - Memory backed by SQLite with `:memory:` default in tests, `memory_store.db` in prod
 - Prometheus metrics registered at module import time; restart required after symbol addition
-- Contract coverage runs as second step in `make test`
+- Contract coverage runs after pytest via `make test`
 - Continuity state uses per-value newlines with escaped spaces
 - Agent-framework scaffold uses parallel directories under repo root to avoid tearing down working code
 
 ## Last Successful Test
-- `606 passed, 0 failed, 11 warnings` on `2026-07-20`
+- `609 passed, 0 failed, 12 warnings` on `2026-07-20`
 
 ## Next Immediate Task
-- Manually retarget Grafana dashboard `MSB Cognitive Operations` panels to live metric names, then continue scaffold migration or pick the highest-priority unfinished item from OPEN_QUESTIONS.md/CONTINUITY_PACKET.md.
+- Either verify Grafana panel UI manually or continue agent-framework scaffold migration with the next safe non-conflicting stub.

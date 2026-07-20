@@ -1,7 +1,7 @@
 # Capabilities
 
 | Component | Status |
-|-----------|--------|
+|---|---|
 | Authentication | Stable |
 | Memory | Stable |
 | Planner | Experimental |
@@ -13,3 +13,5 @@
 | Orca Adapter | Stable |
 | SAC Audit | Stable |
 | HCL Enforcement | Stable |
+| Research Scaffold | In Progress |
+| Agent-Framework Migration | In Progress |

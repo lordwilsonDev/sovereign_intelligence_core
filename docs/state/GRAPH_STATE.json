@@ -10,5 +10,6 @@
   "sac_audit": "stable",
   "hcl_enforcement": "stable",
   "knowledge_graph": "experimental",
-  "telegram_gateway": "stable"
+  "telegram_gateway": "stable",
+  "agent_framework_scaffold": "in_progress"
 }
