@@ -9,6 +9,7 @@ from fastapi.testclient import TestClient
 from msb_v2.api.main import create_app
 from msb_v2.api.middleware import set_local_bypass
 from msb_v2.audit.audit_engine import AuditEngine
+from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
 from msb_v2.audit.business_metrics import BusinessMetrics
 from msb_v2.audit.events import AuditEvent, EventType, Status
 from msb_v2.audit.storage import AuditStore
@@ -44,6 +45,26 @@ def test_audit_summary_accepts_limit(client):
     assert isinstance(response.json(), dict)
 
 
+def test_audit_policies_route_exists(client):
+    response = client.get("/audit/policies")
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, dict)
+    assert "actions" in body
+    assert "count" in body
+
+
+def test_audit_policies_returns_schema(client):
+    response = client.get("/audit/policies")
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, dict)
+    assert "actions" in body
+    assert "count" in body
+    assert isinstance(body["actions"], list)
+    assert isinstance(body["count"], int)
+
+
 def test_business_metrics_snapshot_structure(tmp_path):
     store = AuditStore(root=str(tmp_path))
     engine = AuditEngine(store=store)
@@ -57,3 +78,17 @@ def test_business_metrics_snapshot_structure(tmp_path):
     assert snapshot["business_impact"]["hours_saved"] >= 0
     assert isinstance(snapshot["recommendations"], list)
     assert isinstance(snapshot["immutable_record"], dict)
+
+
+def test_auto_healing_emits_self_correction_event(tmp_path):
+    store = AuditStore(root=str(tmp_path))
+    engine = AuditEngine(store=store)
+    for _ in range(20):
+        engine.record(AuditEvent(workflow="w", event_type=EventType.TOOL_CALLED, status=Status.SUCCEEDED))
+    for _ in range(20):
+        engine.record(AuditEvent(workflow="w", event_type=EventType.TIMEOUT, status=Status.FAILED))
+    AutoHealingPolicyEngine(audit=engine).evaluate()
+    events = engine.events()
+    self_corrections = [event for event in events if event.get("event_type") == EventType.SELF_CORRECTION.value]
+    assert len(self_corrections) == 1
+    assert self_corrections[0]["metadata"]["policy"] == "tool_timeout_rate"

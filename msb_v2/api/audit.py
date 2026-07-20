@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.audit.audit_engine import AuditEngine
+from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
 from msb_v2.audit.business_metrics import BusinessMetrics
 from msb_v2.audit.storage import AuditStore
 
@@ -25,3 +26,9 @@ def recent_audit_events(limit: int = 100, engine: AuditEngine = Depends(_engine)
 def audit_summary(limit: int = 100, engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
     engine.events(limit=limit)
     return BusinessMetrics(audit=engine).snapshot()
+
+
+@router.get("/policies")
+def audit_policies(engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
+    actions = AutoHealingPolicyEngine(audit=engine).evaluate()
+    return {"actions": actions, "count": len(actions)}
