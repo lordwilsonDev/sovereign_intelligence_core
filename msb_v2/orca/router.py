@@ -2,7 +2,7 @@
 
 Wraps `git worktree` so MSB can create agent sessions as disposable Git
 worktrees without depending on the Node/Electron Orca UI. Browser snapshot
-relies on the bundled Orca CLI when explicitly enabled; otherwise returns 501.
+relies on the bundled Orca CLI when explicitly enabled; protected by auth.
 """
 from __future__ import annotations
 
@@ -240,4 +240,4 @@ def orca_browser_snapshot(agent: Optional[str] = Query(None, description="Option
 _register_contract(HarnessContract(route="/orchestrate/orca/status", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/orchestrate/orca/worktree/create", method="post", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/orchestrate/orca/worktree/{session_id}", method="get", allow_anonymous=True, max_body_bytes=65536))
-_register_contract(HarnessContract(route="/orchestrate/orca/browser/snapshot", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/orchestrate/orca/browser/snapshot", method="get", allow_anonymous=False, max_body_bytes=65536))
