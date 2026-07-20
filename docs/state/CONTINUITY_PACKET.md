@@ -35,7 +35,7 @@ Recent Decisions:
 
 Known Issues:
 - vendor/orca contains untracked runtime content
-- Memory search 500 on missing query param
+- Continuity compiler requires stable API before exporting full adr json
 
 Next Task:
 - Full test suite verification at new commit + handoff-ready continuation packet

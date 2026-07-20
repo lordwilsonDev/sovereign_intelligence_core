@@ -95,9 +95,12 @@ def memory_health() -> MemoryHealth:
 
 
 @router.get("/search")
-def memory_search(q: str) -> Dict[str, Any]:
-    results = _get_store().search(q)
-    return {"query": q, "results": [{"id": r.id, "kind": r.kind, "content": r.content} for r in results]}
+def memory_search(q: Optional[str] = None) -> Dict[str, Any]:
+    query = (q or "").strip()
+    if not query:
+        return {"query": "", "results": []}
+    results = _get_store().search(query)
+    return {"query": query, "results": [{"id": r.id, "kind": r.kind, "content": r.content} for r in results]}
 
 
 @router.post("/consolidate")
