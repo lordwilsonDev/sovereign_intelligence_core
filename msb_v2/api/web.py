@@ -181,6 +181,12 @@ def _load_routers() -> None:
     _register(v3_tasks_router.router, "")
     _register(v3_crew_router.router, "")
 
+    try:
+        from msb_v2.v3.policy import register_dispatch_contracts as _register_dispatch_contracts
+        _register_dispatch_contracts()
+    except Exception:
+        pass
+
 
 def create_app() -> FastAPI:
     app = FastAPI(title="MSB v2.0")
