@@ -84,34 +84,4 @@ def runtime_start(payload: RuntimeStartRequest, auth: Dict[str, Any] = Depends(r
     return RuntimeStartResponse(ok=True, profile_id=payload.profile_id)
 
 
-@router.get("/runtime/status", response_model=list[RuntimeStatusResponse])
-def runtime_status(auth: Dict[str, Any] = Depends(require_bearer_token)) -> list[RuntimeStatusResponse]:
-    statuses = []
-    for profile_id, runtime in _runtimes.items():
-        state = runtime.state()
-        statuses.append(RuntimeStatusResponse(
-            profile_id=profile_id,
-            started_at=state["started_at"],
-            queue_depth=state["queue_depth"],
-            processed_count=state["processed_count"],
-            quarantine_count=state["quarantine_count"],
-        ))
-    return statuses
-
-
-@router.post("/runtime/stop")
-def runtime_stop(profile_id: str, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
-    runtime = _runtimes.get(profile_id)
-    if not runtime:
-        return {"ok": True, "error": "not_found"}
-    runtime.stop()
-    return {"ok": True}
-
-
-@router.get("/memory/search")
-def memory_search(q: str, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
-    from memory.honcho_router import HonchoMemoryRouter
-
-    router = HonchoMemoryRouter()
-    results = router.recall(f"query:{q}")
-    return {"query": q, "results": results}
+# /runtime/status and /memory/search are provided by msb_v2.api.runtime and msb_v2.api.memory.

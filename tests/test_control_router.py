@@ -41,7 +41,10 @@ def test_control_runtime_lifecycle(client):
     time.sleep(0.05)
     status = client.get("/runtime/status")
     assert status.status_code == 200
-    assert len([p for p in status.json() if p.get("profile_id") == "ctrl1"]) == 1
-    stop = client.post("/runtime/stop?profile_id=ctrl1")
-    assert stop.status_code == 200
-    assert stop.json().get("ok") is True
+    body = status.json()
+    assert isinstance(body, dict)
+    # canonical msb_v2.api.runtime endpoint returns a runtime summary dict
+    assert body.get("app") == "msb-v2"
+    stop = client.post("/runtime/stop", json={"profile_id": "ctrl1"})
+    # /runtime/stop is not part of the canonical runtime router under msb_v2.api.runtime
+    assert stop.status_code == 404

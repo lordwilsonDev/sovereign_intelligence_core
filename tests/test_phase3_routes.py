@@ -43,7 +43,10 @@ def test_security_rotate_and_secret_store_are_scaffolded() -> None:
 
 def test_public_auth_token_issue_returns_token() -> None:
     client = TestClient(create_app())
-    response = client.post("/auth/token/issue", json={"subject": "user-1", "roles": ["admin"], "scopes": ["system:read", "token:issue"]})
+    response = client.post(
+        "/auth/token/issue",
+        json={"subject": "user-1", "action": "issue_token", "resource": "msb", "roles": ["admin"], "scopes": ["system:read", "token:issue"]},
+    )
     assert response.status_code == 200
     body = response.json()
     assert body.get("token")
@@ -61,6 +64,6 @@ def _bearer(client: TestClient) -> Generator[None, None, None]:
 
 
 def _issue_test_token(client: TestClient) -> str:
-    res = client.post("/auth/token/issue", json={"subject": "test-bypass", "roles": ["admin"], "scopes": ["*"]})
+    res = client.post("/auth/token/issue", json={"subject": "test-bypass", "action": "issue_token", "resource": "msb", "roles": ["admin"], "scopes": ["*"]})
     assert res.status_code == 200, res.text
     return res.json()["token"]

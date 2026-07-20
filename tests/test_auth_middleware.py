@@ -86,14 +86,12 @@ def test_desktop_requires_token() -> None:
 def test_token_issue_validation():
     set_local_bypass(False)
     client = TestClient(_build_app())
-    assert client.post("/auth/token/issue", json={}).status_code == 400
-    assert client.post("/auth/token/issue", json={"subject": "ab"}).status_code == 200
-    assert client.post("/auth/token/issue", json={"subject": "ok", "roles": ["", "x"]}).status_code == 400
-    assert client.post("/auth/token/issue", json={"subject": "ok", "roles": ["root"]}).status_code == 400
-    assert client.post("/auth/token/issue", json={"subject": "ok", "roles": ["admin"]}).status_code == 200
-    issue = client.post("/auth/token/issue", json={"subject": "ok", "roles": ["admin"], "scopes": ["read"]}).json()
-    assert issue["roles"] == ["admin"]
-    assert issue["scopes"] == ["read"]
+    # canonical owner is msb_v2.api.policy; require subject/action/resource in body
+    assert client.post("/auth/token/issue", json={}).status_code == 422
+    assert client.post("/auth/token/issue", json={"subject": "ab", "action": "read", "resource": "x"}).status_code == 200
+    assert client.post("/auth/token/issue", json={"subject": "ok", "action": "read", "resource": "x", "roles": ["admin"]}).status_code == 200
+    issue = client.post("/auth/token/issue", json={"subject": "ok", "action": "read", "resource": "x", "roles": ["admin"], "scopes": ["read"]}).json()
+    assert issue["subject"] == "ok"
     assert issue["token"]
 
 

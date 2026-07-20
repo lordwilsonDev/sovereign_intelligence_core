@@ -101,7 +101,6 @@ def _load_routers() -> None:
     from msb_v2.api.desktop import router as desktop_router
     from msb_v2.api.career import router as career_router
     from msb_v2.api.system import router as system_router
-    from msb_v2.api.auth import router as auth_router
     from msb_v2.api.policy import router as policy_router
     from msb_v2.api.scheduler import router as scheduler_router
     from msb_v2.api.knowledge import router as knowledge_router
@@ -169,7 +168,6 @@ def _load_routers() -> None:
     _register(desktop_router, "")
     _register(career_router, "")
     _register(system_router, "")
-    _register(auth_router, "")
     _register(policy_router, "")
     _register(model_router, "")
     _register(recovery_router, "")
