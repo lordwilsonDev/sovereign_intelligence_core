@@ -360,13 +360,14 @@ def create_app() -> FastAPI:
         from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
         from msb_v2.audit.audit_engine import AuditEngine
         from msb_v2.audit.storage import AuditStore
+        from msb_v2.audit.telemetry import _update_policy_metrics
 
         _policy_engine = AutoHealingPolicyEngine(audit=AuditEngine(store=AuditStore()))
 
         def _policy_engine_loop() -> None:
             while True:
                 try:
-                    _policy_engine.evaluate()
+                    _update_policy_metrics(_policy_engine.evaluate())
                 except Exception:
                     pass
                 time.sleep(1800)

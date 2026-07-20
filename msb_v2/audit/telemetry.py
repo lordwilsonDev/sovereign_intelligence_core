@@ -7,6 +7,7 @@ from typing import Any
 from prometheus_client import Counter, Gauge, Histogram  # type: ignore[import]
 
 from msb_v2.audit.audit_engine import AuditEngine
+from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
 from msb_v2.audit.events import AuditEvent, EventType
 from msb_v2.audit.schemas import stable_workflow
 
@@ -16,6 +17,8 @@ _workflow_tokens = Counter("msb_audit_workflow_tokens_total", "Tokens consumed b
 _workflow_usd = Counter("msb_audit_workflow_usd_total", "USD cost by workflow", ["workflow"])
 _event_total = Counter("msb_audit_event_total", "Audit events by event_type and status", ["event_type", "status"])
 _workflow_success_rate = Gauge("msb_audit_workflow_success_rate", "Success rate by workflow", ["workflow"])
+_policy_action_total = Counter("msb_audit_policy_action_total", "Auto-healing policy actions by policy", ["policy"])
+_policy_actions_current = Gauge("msb_audit_policy_actions_current", "Current detected policy actions", ["policy"])
 
 
 def _update_from_events(events: list[dict[str, Any]]) -> None:
@@ -39,6 +42,16 @@ def _update_from_events(events: list[dict[str, Any]]) -> None:
         usd = sum(float(item.get("cost", {}).get("usd", 0.0)) for item in items if item.get("cost") is not None)
         _workflow_tokens.labels(workflow=workflow).inc(tokens)
         _workflow_usd.labels(workflow=workflow).inc(usd)
+
+
+def _update_policy_metrics(actions: list[dict[str, Any]]) -> None:
+    counts: dict[str, int] = defaultdict(int)
+    for action in actions:
+        policy = action.get("policy") or "unknown"
+        counts[policy] += 1
+    for policy, count in counts.items():
+        _policy_action_total.labels(policy=policy).inc(count)
+        _policy_actions_current.labels(policy=policy).set(count)
 
 
 class AuditTelemetry:

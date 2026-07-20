@@ -6,8 +6,8 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from msb_v2.audit.audit_engine import AuditEngine
-from msb_v2.audit.events import AuditEvent, EventType
-from msb_v2.audit.schemas import stable_workflow
+from msb_v2.audit.events import EventType
+from msb_v2.audit.schemas import apply_event_hashes, stable_workflow
 
 
 class BusinessMetrics:
@@ -25,7 +25,7 @@ class BusinessMetrics:
         errors = self._error_summary(recent)
         business = self._business_impact(recent)
         recommendations = self._recommendations(errors, business)
-        cypher = self._immutability_stub(now)
+        cypher = self._immutability_record(recent)
         return {
             "generated_at": now.isoformat(),
             "summary": {
@@ -155,11 +155,13 @@ class BusinessMetrics:
             })
         return recommendations
 
-    def _immutability_stub(self, now: datetime) -> dict[str, Any]:
-        prefix = now.strftime("%Y%m%d%H%M%S")
+    def _immutability_record(self, events: list[dict[str, Any]]) -> dict[str, Any]:
+        enriched = apply_event_hashes(events)
+        chain_root = enriched[0].get("chain_hash") if enriched else None
         return {
-            "generated_at": now.isoformat(),
-            "root_hash": f"{prefix}-" + "".join(random.choice("0123456789abcdef") for _ in range(16)),
-            "total_blocks": 0,
-            "note": "Immutable event hash chain will replace this stub once storage signatures are enabled.",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "root_hash": chain_root or ("0" * 40),
+            "total_blocks": len(enriched),
+            "note": "Event hash chain over the reporting window.",
         }
+

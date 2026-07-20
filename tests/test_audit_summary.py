@@ -77,7 +77,13 @@ def test_business_metrics_snapshot_structure(tmp_path):
     assert snapshot["summary"]["success_rate"] == 0.5
     assert snapshot["business_impact"]["hours_saved"] >= 0
     assert isinstance(snapshot["recommendations"], list)
-    assert isinstance(snapshot["immutable_record"], dict)
+    immutable = snapshot["immutable_record"]
+    assert isinstance(immutable, dict)
+    assert "root_hash" in immutable
+    assert "total_blocks" in immutable
+    assert isinstance(immutable["root_hash"], str)
+    assert isinstance(immutable["total_blocks"], int)
+    assert immutable["total_blocks"] == 3
 
 
 def test_auto_healing_emits_self_correction_event(tmp_path):
