@@ -245,7 +245,10 @@ def create_app() -> FastAPI:
                 dupes += 1
                 continue
             seen[key] = (router, prefix)
-        unique_routes.append((router, prefix))
+        if any(hasattr(r, 'path') for r in getattr(router, 'routes', [])):
+            unique_routes.append((router, prefix))
+        else:
+            unique_routes.append((router, prefix))
 
     if dupes:
         print(f"[router-dup] skipped {dupes} duplicate effective route registrations; validate router prefixes")
