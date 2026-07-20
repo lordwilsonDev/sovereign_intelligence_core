@@ -1,9 +1,8 @@
 """
 Harness Contract Language (HCL) — register-time contract registry for MSB routes.
 
-This module intentionally avoids external deps. Contracts are declared in-code
-and inspected at startup by `create_app()` to install runtime validators where
-present, without changing router declarations further.
+This module is the single place to register and inspect contracts. It sets no
+policy by itself; runtime enforcement is wired into `msb_v2.api.middleware`.
 """
 from __future__ import annotations
 
@@ -38,12 +37,19 @@ _CONTRACT_LIST: List[HarnessContract] = []
 
 
 def register(contract: HarnessContract) -> None:
-    _CONTRACTS[(contract.route, contract.method.lower())] = contract
-    _CONTRACT_LIST.append(contract)
+    normalized_route = contract.route.rstrip("/") or "/"
+    _CONTRACTS[(normalized_route, contract.method.lower())] = contract
+    if contract not in _CONTRACT_LIST:
+        _CONTRACT_LIST.append(contract)
 
 
 def lookup(route: str, method: str) -> Optional[HarnessContract]:
-    return _CONTRACTS.get((route, method.lower()))
+    normalized_route = route.rstrip("/") or "/"
+    contract = _CONTRACTS.get((normalized_route, method.lower()))
+    if contract is not None:
+        return contract
+    normalized_route = route.rstrip("/") or "/"
+    return _CONTRACTS.get((normalized_route, "any"))
 
 
 def all_contracts() -> List[HarnessContract]:
