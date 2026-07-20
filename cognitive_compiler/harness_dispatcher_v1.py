@@ -63,6 +63,35 @@ class HarnessDispatcher:
         primary = meta.decision.primary
         secondary = meta.decision.secondary
         order = meta.decision.order
+
+        try:
+            from msb_v2.v3.policy import CognitivePolicyError, enforce_dispatch_policy
+            actor = context.get("actor") or context.get("sub") or "anonymous"
+            enforce_dispatch_policy(str(primary), {"actor": actor, **context})
+            if secondary and order == "serial":
+                enforce_dispatch_policy(str(secondary), {"actor": actor, **context})
+        except CognitivePolicyError as exc:
+            return {
+                "routing": {
+                    "primary": primary,
+                    "secondary": secondary,
+                    "order": order,
+                    "confidence": 0.0,
+                    "justification": str(exc),
+                    "rerouted": False,
+                },
+                "primary_output": {"verification": "blocked", "reason": str(exc)},
+                "secondary_output": None,
+                "telemetry": {
+                    "primary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": str(exc), "error_class": "policy", "tags": [primary]},
+                    "secondary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": None, "error_class": None, "tags": [secondary]},
+                    "routing_confidence": 0.0,
+                    "elapsed_s": meta.elapsed_s,
+                },
+                "elapsed_s": meta.elapsed_s,
+            }
+        except Exception:
+            pass
         result: Dict[str, Any] = {
             "routing": {
                 "primary": primary,
