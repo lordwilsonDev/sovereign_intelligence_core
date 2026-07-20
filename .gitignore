@@ -32,3 +32,6 @@ logs/
 .artifacts/
 .ouroboros/
 .snapshots/
+*.db-shm
+*.db-wal
+*.db-journal
