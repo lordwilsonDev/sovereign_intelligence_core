@@ -250,12 +250,6 @@ def create_app() -> FastAPI:
         else:
             unique_routes.append((router, prefix))
 
-    if dupes:
-        print(f"[router-dup] skipped {dupes} duplicate effective route registrations; validate router prefixes")
-
-    if len(unique_routes) != len(_ROUTER_REGISTRY):
-        print(f"[router-check] mounted {len(unique_routes)} unique routers from {len(_ROUTER_REGISTRY)} entries")
-
     for router, prefix in unique_routes:
         app.include_router(router, prefix=prefix)
 
@@ -353,12 +347,6 @@ def ensure_factory_registry() -> None:
                     continue
                 seen[key] = (router, prefix)
             unique_routes.append((router, prefix))
-
-        if dupes:
-            print(f"[router-dup] skipped {dupes} duplicate effective route registrations; validate router prefixes")
-
-        if len(unique_routes) != len(_ROUTER_REGISTRY):
-            print(f"[router-check] mounted {len(unique_routes)} unique routers from {len(_ROUTER_REGISTRY)} entries")
 
         for router, prefix in unique_routes:
             globals()['app'].include_router(router, prefix=prefix)
