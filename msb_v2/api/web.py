@@ -353,6 +353,24 @@ def create_app() -> FastAPI:
         if not getattr(create_app, "_audit_telemetry_started", False):
             threading.Thread(target=_audit_telemetry_loop, daemon=True).start()
             create_app._audit_telemetry_started = True  # type: ignore[attr-defined]
+
+        from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
+        from msb_v2.audit.audit_engine import AuditEngine
+        from msb_v2.audit.storage import AuditStore
+
+        _policy_engine = AutoHealingPolicyEngine(audit=AuditEngine(store=AuditStore()))
+
+        def _policy_engine_loop() -> None:
+            while True:
+                try:
+                    _policy_engine.evaluate()
+                except Exception:
+                    pass
+                time.sleep(1800)
+
+        if not getattr(create_app, "_policy_engine_started", False):
+            threading.Thread(target=_policy_engine_loop, daemon=True).start()
+            create_app._policy_engine_started = True  # type: ignore[attr-defined]
     except Exception:
         pass
     return app
