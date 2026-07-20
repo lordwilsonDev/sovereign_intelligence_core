@@ -9,6 +9,13 @@ Sovereign Agent Runtime Blueprint.  It provides:
   permission policy stubs.
 
 All I/O, network, and tool-execution surfaces are deferred to later phases.
+
+Concurrency model
+------------------
+All accepted payloads are wrapped in ``Cancellable`` so cancellation can
+propagate monadically through bind/fmap.  Each profile runs inside a
+``TaskScope``; cancelling the scope cancels the whole subtree, and
+``results()`` reduces child outcomes via error fusion.
 """
 
 from __future__ import annotations
@@ -20,6 +27,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
 
+from msb_v2.concurrency.cancellable import CancellableOutput, Cancelled, Done, cancel, done, is_cancelled
+from msb_v2.concurrency.task_scope import ScopeCancelled, SquadErrorFusion, TaskScope
 
 logger = logging.getLogger("msb_v2.sar")
 
@@ -52,7 +61,7 @@ class LoveGateway:
         self._lock = threading.Lock()
         self.ttl = ttl
 
-    def quarantine(self, payload: Dict[str, Any], reason: str) -> Dict[str, Any]:
+    def quarantine(self, payload: Dict[str, Any], reason: str) -> CancellableOutput[Any]:
         record = {
             "quarantined_at": datetime.now(timezone.utc).isoformat(),
             "reason": reason,
@@ -61,14 +70,27 @@ class LoveGateway:
         with self._lock:
             self._quarantine.append(record)
         logger.warning("love_gateway.quarantine: %s", reason)
-        return {"quarantined": True, "reason": reason, "record": record}
+        return cancel(reason=reason, record=record, quarantined=True)
 
-    def rejected(self, payload: Dict[str, Any], reason: str) -> Dict[str, Any]:
-        return {"accepted": False, "reason": reason, "record": {"payload": payload}}
+    def rejected(self, payload: Dict[str, Any], reason: str) -> CancellableOutput[Any]:
+        return cancel(reason=reason, record={"payload": payload}, accepted=False)
 
     def recent(self, limit: int = 50) -> List[Dict[str, Any]]:
         with self._lock:
             return list(self._quarantine)[-max(1, limit) :]
+
+
+class ShutdownManager:
+    """Bounded finalization for the SAR daemon."""
+
+    def __init__(self, scope: TaskScope, timeout: float = 10.0) -> None:
+        self.scope = scope
+        self.timeout = timeout
+
+    def shutdown(self) -> None:
+        self.scope.cancel()
+        if not self.scope.wait_all(timeout=self.timeout):
+            logger.error("ShutdownManager timeout after %ss", self.timeout)
 
 
 class SovereignAgentRuntime:
@@ -93,14 +115,18 @@ class SovereignAgentRuntime:
     def submit(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """Accept or quarantine an inbound payload."""
         if not isinstance(payload, dict):
-            return self.love_gateway.rejected(payload, "payload_not_dict")
-        if payload.get("type") in {"ignore", "injection_attempt"}:
-            return self.love_gateway.quarantine(payload, "epistemic_risk")
-        if "content" not in payload:
-            return self.love_gateway.rejected(payload, "missing_content")
-        with self._lock:
-            self._queue.append(payload)
-        return {"accepted": True, "queue_depth": len(self._queue)}
+            result = self.love_gateway.rejected(payload, "payload_not_dict")
+        elif payload.get("type") in {"ignore", "injection_attempt"}:
+            result = self.love_gateway.quarantine(payload, "epistemic_risk")
+        elif "content" not in payload:
+            result = self.love_gateway.rejected(payload, "missing_content")
+        else:
+            with self._lock:
+                self._queue.append(payload)
+            return {"accepted": True, "queue_depth": len(self._queue)}
+        if isinstance(result, Done):
+            return result.value
+        return {"accepted": False, "cancelled": True, "reason": result.reason, **result.metadata}
 
     def _process(self, payload: Dict[str, Any]) -> None:
         content = payload.get("content", "")

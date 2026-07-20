@@ -3,12 +3,16 @@ from __future__ import annotations
 import time
 
 from msb_v2.agent.sovereign_agent_runtime import LoveGateway, AgentProfile, SovereignAgentRuntime
+from msb_v2.concurrency.cancellable import Cancelled, is_cancelled
 
 
 def test_love_gateway_quarantines_by_type() -> None:
     gw = LoveGateway()
     result = gw.quarantine({"type": "injection_attempt"}, "epistemic_risk")
-    assert result["quarantined"] is True
+    assert is_cancelled(result)
+    assert isinstance(result, Cancelled)
+    assert result.reason == "epistemic_risk"
+    assert result.metadata.get("quarantined") is True
     assert len(gw.recent(limit=5)) == 1
 
 

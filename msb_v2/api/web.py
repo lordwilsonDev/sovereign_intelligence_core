@@ -188,6 +188,9 @@ def create_app() -> FastAPI:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+        status_code = getattr(exc, 'status_code', None)
+        if isinstance(status_code, int) and 400 <= status_code < 600:
+            raise
         correlation_id = str(uuid.uuid4())
         logging.getLogger("msb_v2.api.errors").error("Unhandled exception %s: %s", correlation_id, exc, exc_info=True)
         return JSONResponse(
