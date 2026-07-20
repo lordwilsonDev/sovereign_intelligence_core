@@ -158,6 +158,7 @@ class CognitiveBudgetManager:
             ctx = BudgetContext(trace_id=key)
             self._contexts[key] = ctx
         self._labels = labels
+        record_trace_started(trace_id)
         _budget_depth_gauge.labels(**labels).set(ctx.depth)
         _budget_tool_calls_gauge.labels(**labels).set(ctx.tool_calls)
         _budget_health_gauge.labels(**labels).set(0 if ctx.breached else 1)
@@ -183,6 +184,7 @@ class CognitiveBudgetManager:
         ctx.tool_calls += 1
         self._global_tool_calls += 1
         _budget_tool_calls_gauge.labels(**self._current_labels(trace_id)).set(ctx.tool_calls)
+        _g_tool_calls_total.inc()
         self._update_global_load()
         self._check_latency(ctx)
 
