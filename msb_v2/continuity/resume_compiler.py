@@ -31,23 +31,31 @@ class ResumeBlob:
     memory_pointer: str = ""
 
     def compact_text(self) -> str:
-        return "\n".join(
-            [
-                f"project={self.project} version={self.version} timestamp={self.timestamp}",
-                f"simple_assumption_score={self.simple_assumption_score} assumption_debt={len(self.assumption_debt_ids)}",
-                f"active_task={self.active_task or 'none'}",
-                f"topic={self.topic or 'none'}",
-                f"last_turn_summary={self.last_turn_summary}",
-                f"recent_decisions={';'.join(self.recent_decisions) or 'none'}",
-                f"open_questions={';'.join(self.open_questions) or 'none'}",
-                f"reliable_findings={';'.join(self.reliable_findings) or 'none'}",
-                f"code_references={';'.join(self.code_references) or 'none'}",
-                f"pending_actions={';'.join(self.pending_actions) or 'none'}",
-                f"recent_tool_calls={';'.join(self.recent_tool_calls) or 'none'}",
-                f"memory_pointer={self.memory_pointer or 'none'}",
-                f"active_harness={self.active_harness or 'none'}",
+        if None in (self.project, self.version):
+            values = []
+        else:
+            values = [
+                f"project={self.project}",
+                f"version={self.version}",
+                f"timestamp={self.timestamp}",
             ]
-        )
+        values += [
+            f"simple_assumption_score={self.simple_assumption_score}",
+            f"assumption_debt_count={len(self.assumption_debt_ids)}",
+            f"assumption_debt_ids={','.join(self.assumption_debt_ids) or 'none'}",
+            f"active_task={self.active_task or 'none'}",
+            f"topic={self.topic or 'none'}",
+            f"last_turn_summary={self.last_turn_summary}",
+            f"recent_decisions={';'.join(self.recent_decisions) or 'none'}",
+            f"open_questions={';'.join(self.open_questions) or 'none'}",
+            f"reliable_findings={';'.join(self.reliable_findings) or 'none'}",
+            f"code_references={';'.join(self.code_references) or 'none'}",
+            f"pending_actions={';'.join(self.pending_actions) or 'none'}",
+            f"recent_tool_calls={';'.join(self.recent_tool_calls) or 'none'}",
+            f"memory_pointer={self.memory_pointer or 'none'}",
+            f"active_harness={self.active_harness or 'none'}",
+        ]
+        return "\n".join(values)
 
     def to_prompt(self) -> str:
         return "\n".join(
