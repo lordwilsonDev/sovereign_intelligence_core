@@ -102,8 +102,8 @@ def memory_search(q: str) -> Dict[str, Any]:
 
 @router.post("/consolidate")
 def memory_consolidate(payload: MemoryConsolidateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
-    summaries = _get_store().consolidate(payload.kind, min_items=payload.min_items)
-    return {"summaries": [{"id": s.id, "kind": s.kind, "content": s.content} for s in summaries]}
+    summaries = _get_honcho_router().consolidate(payload.kind, min_items=payload.min_items)
+    return {"summaries": summaries}
 
 
 @router.post("/{id_}/verify")
@@ -128,3 +128,5 @@ _register_contract(HarnessContract(route="/memory/add", method="post", allow_ano
 _register_contract(HarnessContract(route="/memory/consolidate", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/{id_}/verify", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/{id_}/influence", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/memory/search", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/memory/health", method="get", allow_anonymous=True, max_body_bytes=65536))

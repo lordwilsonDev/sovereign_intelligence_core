@@ -146,6 +146,23 @@ class HonchoMemoryRouter:
             self.peer_cards.pop(k, None)
         return {"expired_diachronic": expired, "pruned_peers": peers_to_remove}
 
+    def consolidate(self, kind: str, min_items: int = 3) -> List[Dict[str, Any]]:
+        if self.msb is None:
+            return []
+        try:
+            summaries = self.msb.consolidate(kind, min_items=min_items)
+            return [
+                {
+                    "id": getattr(s, "id", None),
+                    "kind": getattr(s, "kind", kind),
+                    "content": getattr(s, "content", ""),
+                }
+                for s in summaries
+            ]
+        except Exception as exc:
+            logger.debug("honcho_router.consolidate_failed: %s", exc)
+            return []
+
     # ------------------------------------------------------------------
     # Dreaming / dreaming-like aggregation from long-term identity notes
     # ------------------------------------------------------------------
