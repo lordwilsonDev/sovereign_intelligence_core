@@ -75,7 +75,8 @@ def orchestrate(
             dependencies = [by_id[dependency] for dependency in task.dependencies]
             if any(dependent.status in {FAILED, BLOCKED} for dependent in dependencies):
                 task.status = BLOCKED
-                remaining.remove(task.id)
+                if task.id in remaining:
+                    remaining.remove(task.id)
                 if hook:
                     hook("blocked", task.id, {"reason": "parent_failed_or_blocked"}, None)
                 progressed = True
@@ -97,7 +98,8 @@ def orchestrate(
                 task.status = SUCCEEDED
                 if hook:
                     hook("result", task.id, {"result": _safe(task.result)}, None)
-            remaining.remove(task.id)
+            if task.id in remaining:
+                remaining.remove(task.id)
             progressed = True
 
         if not progressed:
