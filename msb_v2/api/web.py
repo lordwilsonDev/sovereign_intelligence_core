@@ -73,6 +73,7 @@ def _load_routers() -> None:
     from msb_v2.api.values import router as values_router
     from msb_v2.api.reasoning import router as reasoning_router
     from msb_v2.api.reasoning_integrity import router as reasoning_integrity_router
+    from msb_v2.api.consciousness import router as consciousness_router
     from msb_v2.api.demo import router as demo_router
     from msb_v2.api.counterfactual import router as counterfactual_router
     from msb_v2.api.reasoning_drift import router as reasoning_drift_router
@@ -140,6 +141,7 @@ def _load_routers() -> None:
     _register(values_router, "/values")
     _register(reasoning_router, "/reasoning")
     _register(reasoning_integrity_router, "/reasoning/integrity")
+    _register(consciousness_router, "/consciousness")
     _register(demo_router, "/demo")
     _register(counterfactual_router, "/reasoning/counterfactual")
     _register(reasoning_drift_router, "/reasoning/drift")
