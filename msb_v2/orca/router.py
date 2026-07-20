@@ -16,9 +16,10 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from msb_v2.api.middleware import require_bearer_token
 from msb_v2.v3.contracts import HarnessContract, register as _register_contract
 
 router = APIRouter(prefix="/orchestrate/orca", tags=["orca"])
@@ -127,7 +128,7 @@ def _snapshot_placeholder(relay: Optional[str]) -> str:
     return "<!doctype html><html><head><meta charset='utf-8'><title>Orca browser</title></head><body><p>Browser snapshot requires ORCA_BIN.</p></body></html>"
 
 
-@router.get("/status", response_model=Dict[str, str])
+@router.get("/status", dependencies=[Depends(require_bearer_token)])
 def orca_status() -> Dict[str, Any]:
     git_ok = bool(shutil.which("git"))
     orca_root = Path(__file__).resolve().parent.parent.parent / "vendor" / "orca"
@@ -143,7 +144,7 @@ def orca_status() -> Dict[str, Any]:
     }
 
 
-@router.post("/worktree/create", response_model=WorktreeCreateResponse)
+@router.post("/worktree/create", response_model=WorktreeCreateResponse, dependencies=[Depends(require_bearer_token)])
 def orca_worktree_create(payload: WorktreeCreateRequest) -> WorktreeCreateResponse:
     repo_path = _ensure_repo(payload.repo)
     branch = payload.branch or f"msb/{payload.agent}/{uuid.uuid4().hex[:8]}"
@@ -181,7 +182,7 @@ def orca_worktree_create(payload: WorktreeCreateRequest) -> WorktreeCreateRespon
     )
 
 
-@router.get("/worktree/{session_id}", response_model=WorktreeStatusResponse)
+@router.get("/worktree/{session_id}", response_model=WorktreeStatusResponse, dependencies=[Depends(require_bearer_token)])
 def orca_worktree_status(session_id: str, repo: str = Query(..., description="Repo path for this worktree")) -> WorktreeStatusResponse:
     repo_path = _ensure_repo(repo)
     list_cmd = _git("worktree", "list", cwd=repo_path)
@@ -215,7 +216,7 @@ def orca_worktree_status(session_id: str, repo: str = Query(..., description="Re
     )
 
 
-@router.get("/browser/snapshot", response_model=SnapshotResponse)
+@router.get("/browser/snapshot", response_model=SnapshotResponse, dependencies=[Depends(require_bearer_token)])
 def orca_browser_snapshot(agent: Optional[str] = Query(None, description="Optional screen context")) -> SnapshotResponse:
     if not _ORCA_BIN:
         return SnapshotResponse(ok=False, html=_snapshot_placeholder(None), url="", relay=None)
