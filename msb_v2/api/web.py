@@ -85,6 +85,7 @@ def _load_routers() -> None:
     from msb_v2.api.calibration import router as calibration_router
     from msb_v2.api.adk_bridge import router as adk_router
     from msb_v2.api.alert_hooks import router as alert_hooks_router
+    from msb_v2.api.hooks import router as hooks_router
     from msb_v2.api.runtime import router as runtime_router
     from msb_v2.api.verification import router as verification_router
     from msb_v2.api.evolution import router as evolution_router

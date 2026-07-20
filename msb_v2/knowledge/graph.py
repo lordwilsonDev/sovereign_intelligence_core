@@ -23,7 +23,7 @@ class GraphEdge:
 
 
 class KnowledgeGraph:
-    def __init__(self, db_path: str = "./knowledge_graph.db") -> None:
+    def __init__(self, db_path: str = ":memory:") -> None:
         self.db_path = str(Path(db_path).resolve())
         self._conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
