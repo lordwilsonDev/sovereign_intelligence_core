@@ -221,7 +221,8 @@ def create_app() -> FastAPI:
     @app.post("/orchestrate")
     def orchestrate_endpoint(payload: OrchestrateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> list:
         from msb_v2.engine.orchestrator import orchestrate
-        return [{"id": t.id, "status": t.status} for t in orchestrate(payload.tasks)]
+        from msb_v2.api.hooks import emit
+        return [{"id": t.id, "status": t.status} for t in orchestrate(payload.tasks, hook=emit)]
 
     if not _ROUTER_REGISTRY:
         _load_routers()
