@@ -23,6 +23,7 @@ _register_contract(HarnessContract(route="/orchestrate", method="post", allow_an
 _register_contract(HarnessContract(route="/audit/recent", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/audit/summary", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/audit/policies", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/audit/report/html", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/health", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/runtime/ping", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/sac/status", method="get", allow_anonymous=True, max_body_bytes=65536))
@@ -94,6 +95,7 @@ def _load_routers() -> None:
     from msb_v2.api.alert_hooks import router as alert_hooks_router
     from msb_v2.api.hooks import router as hooks_router
     from msb_v2.api.audit import router as audit_router
+    from msb_v2.api.audit_report import router as audit_report_router
     from msb_v2.api.runtime import router as runtime_router
     from msb_v2.api.verification import router as verification_router
     from msb_v2.api.evolution import router as evolution_router
@@ -162,6 +164,7 @@ def _load_routers() -> None:
     _register(alert_hooks_router, "/alerts")
     _register(hooks_router, "")
     _register(audit_router, "/audit")
+    _register(audit_report_router, "/audit")
     _register(runtime_router, "")
     _register(verification_router, "")
     _register(evolution_router, "")
