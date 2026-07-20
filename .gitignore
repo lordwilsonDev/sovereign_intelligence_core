@@ -15,7 +15,6 @@ venv/
 .DS_Store
 Thumbs.db
 node_modules/
-.runtime/
 *.db
 *.sqlite
 *.sqlite3
@@ -35,3 +34,13 @@ logs/
 *.db-shm
 *.db-wal
 *.db-journal
+# Runtime/test DBs
+*.db
+*.sqlite
+*.sqlite3
+evolution_memory.db
+knowledge_graph_api.db
+memory_store.db
+runtime_events.db
+runtime/
+:memory:
