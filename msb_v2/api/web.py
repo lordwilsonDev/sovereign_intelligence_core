@@ -21,6 +21,7 @@ from msb_v2.transport.compression import compress_content
 
 _register_contract(HarnessContract(route="/orchestrate", method="post", allow_anonymous=False, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/audit/recent", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/audit/summary", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/health", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/runtime/ping", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/sac/status", method="get", allow_anonymous=True, max_body_bytes=65536))
