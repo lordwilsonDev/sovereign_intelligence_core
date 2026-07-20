@@ -18,6 +18,14 @@ _budget_breach_counter = Counter(
 _budget_health_gauge = Gauge("msb_budget_health", "1 if within budget, 0 if breached", ["trace_id"])
 _g_load_ratio = Gauge("msb_global_load_ratio", "Global cognitive load ratio 0..1")
 _g_circuit_open = Gauge("msb_circuit_breaker_open", "1 if global circuit breaker is open")
+_g_traces_total = Counter("msb_reasoning_traces_total", "Reasoning traces started")
+_g_tool_calls_total = Counter("msb_reasoning_tool_calls_total", "Reasoning tool calls total")
+_g_memory_verification_rate = Gauge("msb_memory_verification_rate", "Memory verification rate 0..1")
+_g_reasoning_avg_score = Gauge("msb_reasoning_avg_score", "Average reasoning score")
+
+
+def record_trace_started(trace_id: Optional[str] = None) -> None:
+    _g_traces_total.inc()
 
 
 @dataclass
