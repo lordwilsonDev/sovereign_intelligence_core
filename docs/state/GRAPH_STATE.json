@@ -1,0 +1,14 @@
+{
+  "planner": "experimental",
+  "memory": "stable",
+  "graph": "experimental",
+  "digital_twin": "prototype",
+  "security": "stable",
+  "observability": "stable",
+  "continuity": "stable",
+  "orca_adapter": "stable",
+  "sac_audit": "stable",
+  "hcl_enforcement": "stable",
+  "knowledge_graph": "experimental",
+  "telegram_gateway": "stable"
+}
