@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from core.base import AgentInstanceConfig, RoleDefinition
+from plugins.types import AgentInstanceConfig, RoleDefinition
 
 
 class PluginManager:

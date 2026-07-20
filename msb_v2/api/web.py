@@ -78,7 +78,7 @@ def _load_routers() -> None:
     from msb_v2.api.reasoning_drift import router as reasoning_drift_router
     from msb_v2.api.observability import router as observability_router
     from msb_v2.api.observability_console import router as observability_console_router
-    from observability.multica_dashboard import router as multica_dashboard_router
+    from msb_v2.observability.multica_dashboard import router as multica_dashboard_router
     from msb_v2.gateway.telegram_gateway import router as telegram_gateway_router
     from msb_v2.orca.router import router as orca_router
     from msb_v2.control.control_router import router as control_router
