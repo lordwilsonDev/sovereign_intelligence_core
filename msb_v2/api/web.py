@@ -3,10 +3,12 @@ from __future__ import annotations
 import logging
 import os
 import time
+import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from msb_v2.api.middleware import hcl_contract_middleware, require_bearer_token
@@ -183,6 +185,19 @@ def _load_routers() -> None:
 def create_app() -> FastAPI:
     app = FastAPI(title="MSB v2.0")
     app.middleware("http")(hcl_contract_middleware)
+
+    @app.exception_handler(Exception)
+    async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+        correlation_id = str(uuid.uuid4())
+        logging.getLogger("msb_v2.api.errors").error("Unhandled exception %s: %s", correlation_id, exc, exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": "internal_server_error",
+                "correlation_id": correlation_id,
+                "detail": str(exc),
+            },
+        )
 
     @app.get("/health")
     def health() -> dict:
