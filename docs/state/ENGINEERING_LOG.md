@@ -27,3 +27,38 @@
   - Grafana API write path blocked by permissions
   - Grafana provider path/folder mismatch prevented automated panel migration
 - Next Step: Full suite verification + manual Grafana UI retarget
+
+## 2026-07-20
+- Objective: Verify HCL contract patch and continue operator milestones
+- Changes Made:
+  - Verified `/memory/search` HCL contract aligned from POST to GET
+  - Added `/memory/peers` endpoint and test coverage
+  - Hardened `/memory/search` against missing/blank query
+  - Wired `scripts/assert_contract_coverage.py` into `make test`
+  - Stabilized `/demo/query` live endpoint confidence assertion
+  - Added docs/state artifacts: BUILD_STATUS.md, CAPABILITIES.md, ADR-001.md
+  - Added GRAPH_STATE.json and SESSION_END.md continuation artifacts
+  - Implemented agent-framework scaffold Step 1 directories
+  - Added reflexion stubs: research/reflexion/ouroboros_scan.py and ouroboros_simulate.py
+  - Added research/specialist_pool/knowledge_api.py stub
+  - Created OPEN_QUESTIONS.md with unresolved items
+- Files Changed:
+  - `msb_v2/api/memory.py`
+  - `tests/test_memory_peers.py`
+  - `tests/test_live_endpoints_phase7.py`
+  - `Makefile`
+  - `docs/state/BUILD_STATUS.md`
+  - `docs/state/CAPABILITIES.md`
+  - `docs/state/ADR-001.md`
+  - `docs/state/GRAPH_STATE.json`
+  - `docs/state/SESSION_END.md`
+  - `docs/state/OPEN_QUESTIONS.md`
+  - `research/reflexion/ouroboros_scan.py`
+  - `research/reflexion/ouroboros_simulate.py`
+  - `research/specialist_pool/knowledge_api.py`
+- Tests Run: `make test`
+- Results: `606 passed, 0 failed`; contract coverage `0 routes, 145 contracts, 0 uncovered`
+- Problems:
+  - Grafana panel retarget remains blocked by instance permissions
+  - Scaffold Step 2 blocked for root-level `core/*`, `metrics/*`, `observability/*`, `config/*`, `dynamic/*`, `utils/*` due to name collisions and import surface mismatches
+- Next Step: Manual Grafana UI retarget or pick next unfinished continuation milestone

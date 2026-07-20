@@ -11,3 +11,6 @@ Continuity: Stable
 Orca Adapter: Stable
 SAC Audit: Stable
 HCL Enforcement: Stable
+Research Scaffold: Partial
+Knowledge Graph API: Stable stub
+Agent-Framework Migration: In Progress
