@@ -38,6 +38,7 @@ _register_contract(HarnessContract(route="/orchestrate/orca/status", method="get
 _register_contract(HarnessContract(route="/orchestrate/orca/worktree/create", method="post", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/orchestrate/orca/browser/snapshot", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/gateway/telegram/webhook", method="post", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/continuity/resume-prompt", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/metrics", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/memory/add", method="post", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/memory/search", method="post", allow_anonymous=True, max_body_bytes=65536))
@@ -119,8 +120,10 @@ def _load_routers() -> None:
     from msb_v2.api import v3_tasks as v3_tasks_router
     from msb_v2.api import v3_crew as v3_crew_router
     from msb_v2.api.health import router as health_router
+    from msb_v2.api.continuity import router as continuity_router
 
     _register(health_router, "")
+    _register(continuity_router, "/continuity")
     _register(cognitive_router, "/cognitive")
     _register(imagination_router, "/imagination")
     _register(moie_router, "/moie")

@@ -19,6 +19,8 @@ Current Milestone: Observability Stack + State Bootstrap
 - App restart enabled live metric exposure on `/metrics`
 - Push to `github.com/lordwilsonDev/msb-v2` `main`
 - Accidental test recovery: `tests/test_orca_auth.py`
+- Resume prompt compiler/loader + `/continuity/resume-prompt` endpoint
+- Bootstrap of `docs/state` continuation artifacts
 
 ## Work In Progress
 - Grafana dashboard panel queries retarget (provisioning file aligned; UI-local edits still pending)
