@@ -114,7 +114,9 @@ def _load_routers() -> None:
     from msb_v2.api import v3_tools as v3_tools_router
     from msb_v2.api import v3_tasks as v3_tasks_router
     from msb_v2.api import v3_crew as v3_crew_router
+    from msb_v2.api.health import router as health_router
 
+    _register(health_router, "")
     _register(cognitive_router, "/cognitive")
     _register(imagination_router, "/imagination")
     _register(moie_router, "/moie")
@@ -287,3 +289,42 @@ def create_app() -> FastAPI:
     except Exception:
         pass
     return app
+
+
+_app_factory_lock = False
+
+
+def ensure_factory_registry() -> None:
+    global _app_factory_lock
+    if _app_factory_lock:
+        return
+    _app_factory_lock = True
+    try:
+        if not _ROUTER_REGISTRY:
+            _load_routers()
+
+        seen: Dict[str, Tuple[Any, str]] = {}
+        unique_routes: List[Tuple[Any, str]] = []
+        dupes = 0
+        for router, prefix in _ROUTER_REGISTRY:
+            for route in getattr(router, 'routes', []):
+                if not hasattr(route, 'path'):
+                    continue
+                path = prefix + route.path
+                key = path + '|' + (','.join(sorted(method.upper() for method in getattr(route, 'methods', []) or [])))
+                if key in seen:
+                    dupes += 1
+                    continue
+                seen[key] = (router, prefix)
+            unique_routes.append((router, prefix))
+
+        if dupes:
+            print(f"[router-dup] skipped {dupes} duplicate effective route registrations; validate router prefixes")
+
+        if len(unique_routes) != len(_ROUTER_REGISTRY):
+            print(f"[router-check] mounted {len(unique_routes)} unique routers from {len(_ROUTER_REGISTRY)} entries")
+
+        for router, prefix in unique_routes:
+            globals()['app'].include_router(router, prefix=prefix)
+    finally:
+        _app_factory_lock = False
