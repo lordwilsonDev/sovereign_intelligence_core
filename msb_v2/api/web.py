@@ -332,6 +332,25 @@ def create_app() -> FastAPI:
             t = threading.Thread(target=_background_audit_loop, daemon=True)
             t.start()
             create_app._sac_audit_started = True  # type: ignore[attr-defined]
+
+        from msb_v2.audit.audit_engine import AuditEngine
+        from msb_v2.audit.storage import AuditStore
+        from msb_v2.audit.telemetry import AuditTelemetry
+
+        _telem_engine = AuditEngine(store=AuditStore())
+        _telemetry = AuditTelemetry(audit=_telem_engine)
+
+        def _audit_telemetry_loop() -> None:
+            while True:
+                try:
+                    _telemetry.maybe_resync()
+                except Exception:
+                    pass
+                time.sleep(60.0)
+
+        if not getattr(create_app, "_audit_telemetry_started", False):
+            threading.Thread(target=_audit_telemetry_loop, daemon=True).start()
+            create_app._audit_telemetry_started = True  # type: ignore[attr-defined]
     except Exception:
         pass
     return app
