@@ -21,11 +21,15 @@ def test_report_html_schema(client):
     response = client.get("/audit/report/html")
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
+    assert "ETag" in response.headers
+    assert "Cache-Control" in response.headers
 
 
 def test_report_html_client_name(client):
     response = client.get("/audit/report/html?client_name=Acme")
     assert response.status_code == 200
+    assert response.headers["Cache-Control"] == "no-store"
+    assert response.headers["ETag"].startswith('"') and response.headers["ETag"].endswith('"')
     html = response.text
     assert "Acme" in html
 
@@ -37,3 +41,4 @@ def test_report_html_contains_sections(client):
     assert "executive summary" in html
     assert "business impact" in html
     assert "immutable record" in html
+

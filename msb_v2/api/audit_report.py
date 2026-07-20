@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from typing import Any
 
 from fastapi import APIRouter, Depends, Query
@@ -17,13 +18,16 @@ def _engine() -> AuditEngine:
     return AuditEngine(store=AuditStore())
 
 
-@router.get("/report/html")
-def generate_report_html(
-    client_name: str = Query("Client", description="Client name for the report"),
-    engine: AuditEngine = Depends(_engine),
-) -> HTMLResponse:
-    snapshot = BusinessMetrics(audit=engine).snapshot()
+def _escape(value: str) -> str:
+    return (
+        value.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
 
+
+def _render_report(client_name: str, snapshot: dict[str, Any]) -> str:
     summary = snapshot.get("summary", {})
     impact = snapshot.get("business_impact", {})
     recommendations = snapshot.get("recommendations", [])
@@ -33,7 +37,7 @@ def generate_report_html(
         f"<li>{_escape(rec.get('suggestion', ''))}</li>" for rec in recommendations
     )
 
-    html = f"""<!DOCTYPE html>
+    return f"""<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8" />
@@ -102,13 +106,21 @@ def generate_report_html(
 </body>
 </html>
 """
-    return HTMLResponse(content=html, media_type="text/html; charset=utf-8")
 
 
-def _escape(value: str) -> str:
-    return (
-        value.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
+@router.get("/report/html")
+def generate_report_html(
+    client_name: str = Query("Client", description="Client name for the report"),
+    engine: AuditEngine = Depends(_engine),
+) -> HTMLResponse:
+    snapshot = BusinessMetrics(audit=engine).snapshot()
+    html = _render_report(client_name, snapshot)
+    etag = hashlib.sha256(html.encode("utf-8")).hexdigest()
+    return HTMLResponse(
+        content=html,
+        media_type="text/html; charset=utf-8",
+        headers={
+            "Cache-Control": "no-store",
+            "ETag": f'"{etag}"',
+        },
     )
