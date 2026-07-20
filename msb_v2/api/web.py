@@ -235,9 +235,12 @@ def create_app() -> FastAPI:
             body = WorktreeCreateRequest(repo=str(repo), agent=str(agent))
             result = orca_worktree_create(body)
             return [{"id": result.session_id, "status": "orchestrated", "intent": intent, "worktree": result.model_dump()}]
+        from msb_v2.audit.audit_engine import AuditEngine
+        from msb_v2.audit.hooks import build_audit_hook
+        engine = AuditEngine()
+        audit_hook = build_audit_hook(engine, workflow="orchestrate", agent="api")
         from msb_v2.engine.orchestrator import orchestrate
-        from msb_v2.api.hooks import emit
-        return [{"id": t.id, "status": t.status} for t in orchestrate(payload.tasks, hook=emit)]
+        return [{"id": t.id, "status": t.status} for t in orchestrate(payload.tasks, hook=lambda event_name, task_id, payload, metadata: (audit_hook(event_name, task_id, payload, metadata), {})[1])]
 
     if not _ROUTER_REGISTRY:
         _load_routers()
