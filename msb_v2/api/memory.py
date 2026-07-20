@@ -66,6 +66,15 @@ class MemoryConsolidateRequest(BaseModel):
     min_items: int = 3
 
 
+class MemoryIngestRequest(BaseModel):
+    source: str = "unknown"
+    content: str = ""
+    memory_type: str = "episodic"
+    importance: float = 0.5
+    tags: List[str] = field(default_factory=list)
+    peer_id: Optional[str] = None
+
+
 class PeerCardResponse(BaseModel):
     peer_id: str
     label: str
@@ -111,6 +120,19 @@ def memory_search(q: Optional[str] = None) -> Dict[str, Any]:
     return {"query": query, "results": [{"id": r.id, "kind": r.kind, "content": r.content} for r in results]}
 
 
+@router.post("/ingest")
+def memory_ingest(payload: MemoryIngestRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
+    item = _get_honcho_router().ingest(
+        source=payload.source,
+        content=payload.content,
+        memory_type=payload.memory_type,
+        importance=payload.importance,
+        tags=list(payload.tags or []),
+        peer_id=payload.peer_id,
+    )
+    return item
+
+
 @router.post("/consolidate")
 def memory_consolidate(payload: MemoryConsolidateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
     summaries = _get_honcho_router().consolidate(payload.kind, min_items=payload.min_items)
@@ -154,6 +176,7 @@ def memory_peers() -> Dict[str, Any]:
     }
 # HCL contract registration
 _register_contract(HarnessContract(route="/memory/add", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/memory/ingest", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/consolidate", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/{id_}/verify", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/{id_}/influence", method="post", allow_anonymous=False))
