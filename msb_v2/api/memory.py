@@ -66,6 +66,14 @@ class MemoryConsolidateRequest(BaseModel):
     min_items: int = 3
 
 
+class PeerCardResponse(BaseModel):
+    peer_id: str
+    label: str
+    relation: str
+    trust: float
+    tags: List[str] = field(default_factory=list)
+
+
 @router.post("/add", response_model=MemoryResponse)
 def memory_add(payload: MemoryAddRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> MemoryResponse:
     record = MemoryRecord(
@@ -126,6 +134,24 @@ def memory_verify(id_: str, auth: Dict[str, Any] = Depends(require_bearer_token)
 def memory_influence(id_: str, delta: float) -> Dict[str, Any]:
     record = _get_store().record_influence(id_, delta)
     return {"id": record.id, "decision_impact_score": record.confidence.decision_impact_score}
+
+
+@router.get("/peers")
+def memory_peers() -> Dict[str, Any]:
+    router = _get_honcho_router()
+    return {
+        "peers": [
+            {
+                "peer_id": card.peer_id,
+                "label": card.label,
+                "relation": card.relation,
+                "trust": card.trust,
+                "last_seen": card.last_seen.isoformat(),
+                "tags": card.tags,
+            }
+            for card in router.peer_cards.values()
+        ]
+    }
 # HCL contract registration
 _register_contract(HarnessContract(route="/memory/add", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/consolidate", method="post", allow_anonymous=False))
@@ -133,3 +159,4 @@ _register_contract(HarnessContract(route="/memory/{id_}/verify", method="post", 
 _register_contract(HarnessContract(route="/memory/{id_}/influence", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/search", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/memory/health", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/memory/peers", method="get", allow_anonymous=True, max_body_bytes=65536))
