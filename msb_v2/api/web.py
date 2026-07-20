@@ -250,6 +250,8 @@ def create_app() -> FastAPI:
         else:
             unique_routes.append((router, prefix))
 
+    logging.getLogger(__name__).info("router registry started with %d entries, %d duplicates, %d mounted routers", len(_ROUTER_REGISTRY), dupes, len(unique_routes))
+
     for router, prefix in unique_routes:
         app.include_router(router, prefix=prefix)
 
