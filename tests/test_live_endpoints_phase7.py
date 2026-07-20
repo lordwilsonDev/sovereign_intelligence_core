@@ -39,6 +39,6 @@ def test_live_endpoints_phase7_roundup() -> None:
     assert demo.status_code == 200
     demo_body = demo.json()
     assert demo_body["query"] == "live"
-    # local fallback path does not include trace_id when scorer is off; assert stability only
+    # local fallback path now includes confidence_assessment
     assert "answer" in demo_body
-    assert demo_body.get("confidence_assessment") is None
+    assert demo_body.get("confidence_assessment") is not None
