@@ -48,6 +48,8 @@ _ROUTER_REGISTRY: List[Tuple[Any, str]] = []
 
 class OrchestrateRequest(BaseModel):
     tasks: list[Task]
+    intent: str | None = None
+    metadata: dict[str, object] | None = None
 
 
 def _register(router: Any, prefix: str) -> None:
@@ -225,6 +227,14 @@ def create_app() -> FastAPI:
 
     @app.post("/orchestrate")
     def orchestrate_endpoint(payload: OrchestrateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> list:
+        intent = payload.intent or payload.metadata.get("intent") if isinstance(payload.metadata, dict) else None
+        if intent == "orca_worktree":
+            repo = ((payload.metadata or {}).get("repo") if isinstance(payload.metadata, dict) else None) or "/Users/lordwilson/msb-v2"
+            agent = ((payload.metadata or {}).get("agent") if isinstance(payload.metadata, dict) else None) or "default"
+            from msb_v2.orca.router import orca_worktree_create, WorktreeCreateRequest
+            body = WorktreeCreateRequest(repo=str(repo), agent=str(agent))
+            result = orca_worktree_create(body)
+            return [{"id": result.session_id, "status": "orchestrated", "intent": intent, "worktree": result.model_dump()}]
         from msb_v2.engine.orchestrator import orchestrate
         from msb_v2.api.hooks import emit
         return [{"id": t.id, "status": t.status} for t in orchestrate(payload.tasks, hook=emit)]
