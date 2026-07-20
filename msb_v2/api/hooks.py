@@ -20,8 +20,12 @@ class SquadHookEvent(BaseModel):
 
 @router.post("/event", dependencies=[Depends(require_bearer_token)])
 def squad_hook_event(event: SquadHookEvent) -> Dict[str, Any]:
-    print("HOOK HIT", event.kind)
     return {"status": "queued", "kind": event.kind, "subject": event.subject}
 
 
 _register_contract(HarnessContract(route="/hooks/event", method="post", allow_anonymous=False))
+
+
+def emit(kind: str, subject: str, payload: Dict[str, Any] | None = None, trace_id: str | None = None) -> Dict[str, Any]:
+    event = SquadHookEvent(kind=kind, subject=subject, payload=payload, trace_id=trace_id)
+    return squad_hook_event(event)

@@ -150,6 +150,7 @@ def _load_routers() -> None:
     _register(calibration_router, "/reasoning/calibration")
     _register(adk_router, "/adk")
     _register(alert_hooks_router, "/alerts")
+    _register(hooks_router, "")
     _register(runtime_router, "")
     _register(verification_router, "")
     _register(evolution_router, "")
@@ -219,7 +220,8 @@ def create_app() -> FastAPI:
 
     @app.post("/orchestrate")
     def orchestrate_endpoint(payload: OrchestrateRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> list:
-        return [{"id": t.id, "status": t.status} for t in orchestrate(payload.tasks)]
+        from msb_v2.api.hooks import emit
+        return [{"id": t.id, "status": t.status} for t in orchestrate(payload.tasks, hook=emit)]
 
     if not _ROUTER_REGISTRY:
         _load_routers()

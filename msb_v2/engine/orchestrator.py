@@ -33,14 +33,23 @@ class Task:
     result: Any = None
 
 
-def orchestrate(tasks: list[Task]) -> list[Task]:
+def _safe(value: Any) -> Any:
+    try:
+        return value if isinstance(value, (bool, int, float, str)) else str(value)
+    except Exception:
+        return None
+
+
+def orchestrate(
+    tasks: list[Task],
+    hook: Callable[[str, str, dict[str, Any] | None, str | None], dict[str, Any]] | None = None,
+) -> list[Task]:
     """Run ready tasks until the graph is complete.
 
     Tasks execute in input order when several are ready. A failed task is
     retained as ``failed``; every descendant is marked ``blocked`` and is not
     executed. Invalid or cyclic dependency graphs raise ``ValueError``.
     """
-
     if not tasks:
         return []
 
@@ -64,22 +73,30 @@ def orchestrate(tasks: list[Task]) -> list[Task]:
                 continue
 
             dependencies = [by_id[dependency] for dependency in task.dependencies]
-            if any(dependency.status in {FAILED, BLOCKED} for dependency in dependencies):
+            if any(dependent.status in {FAILED, BLOCKED} for dependent in dependencies):
                 task.status = BLOCKED
                 remaining.remove(task.id)
+                if hook:
+                    hook("blocked", task.id, {"reason": "parent_failed_or_blocked"}, None)
                 progressed = True
                 continue
-            if not all(dependency.status == SUCCEEDED for dependency in dependencies):
+            if not all(dependent.status == SUCCEEDED for dependent in dependencies):
                 continue
 
             task.status = RUNNING
+            if hook:
+                hook("dispatch", task.id, {"action": bool(task.action)}, None)
             try:
                 task.result = task.action() if task.action else None
-            except Exception as error:  # Task failure is workflow state, not a graph error.
+            except Exception as error:
                 task.status = FAILED
                 task.result = error
+                if hook:
+                    hook("error", task.id, {"error": str(error)}, None)
             else:
                 task.status = SUCCEEDED
+                if hook:
+                    hook("result", task.id, {"result": _safe(task.result)}, None)
             remaining.remove(task.id)
             progressed = True
 
