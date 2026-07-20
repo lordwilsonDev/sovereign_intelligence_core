@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
+from tempfile import mkdtemp
 from typing import Any
 
 from fastapi import APIRouter, Depends, Query
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, Response
 
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.audit.audit_engine import AuditEngine
 from msb_v2.audit.business_metrics import BusinessMetrics
+from msb_v2.audit.report_pdf import IntegrityReportPDF
 from msb_v2.audit.storage import AuditStore
 
 router = APIRouter()
@@ -122,5 +125,24 @@ def generate_report_html(
         headers={
             "Cache-Control": "no-store",
             "ETag": f'"{etag}"',
+        },
+    )
+
+
+@router.get("/report/pdf")
+def generate_report_pdf(
+    client_name: str = Query("Client", description="Client name for the report"),
+    engine: AuditEngine = Depends(_engine),
+) -> Response:
+    report = IntegrityReportPDF(audit=engine)
+    out_path = Path(mkdtemp(prefix="msb-report-")) / f"{client_name}_integrity_report.pdf"
+    report.generate(out_path, client_name=client_name)
+    content = out_path.read_bytes()
+    return Response(
+        content=content,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{out_path.name}"',
+            "Cache-Control": "no-store",
         },
     )

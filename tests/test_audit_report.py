@@ -42,3 +42,19 @@ def test_report_html_contains_sections(client):
     assert "business impact" in html
     assert "immutable record" in html
 
+
+def test_report_pdf_schema(client):
+    response = client.get("/audit/report/pdf")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.headers["Cache-Control"] == "no-store"
+    assert "Client_integrity_report.pdf" in response.headers["content-disposition"]
+
+
+def test_report_pdf_client_name(client):
+    response = client.get("/audit/report/pdf?client_name=AcmeCorp")
+    assert response.status_code == 200
+    assert 'filename="AcmeCorp_integrity_report.pdf"' in response.headers["content-disposition"]
+    assert len(response.content) > 0
+
+

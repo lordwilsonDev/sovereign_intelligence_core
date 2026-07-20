@@ -24,6 +24,7 @@ _register_contract(HarnessContract(route="/audit/recent", method="get", allow_an
 _register_contract(HarnessContract(route="/audit/summary", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/audit/policies", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/audit/report/html", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/audit/report/pdf", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/health", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/runtime/ping", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/sac/status", method="get", allow_anonymous=True, max_body_bytes=65536))
