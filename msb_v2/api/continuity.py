@@ -201,3 +201,24 @@ def resume_prompt(
     if format == "json":
         return {"prompt": prompt, "compact": _compiler.compact_text()}
     return {"prompt": prompt}
+
+
+@router.get("/fidelity")
+def continuity_fidelity(auth: Dict[str, Any] = Depends(require_bearer_token)) -> Dict[str, Any]:
+    from msb_v2.runtime.context import RuntimeContext
+    try:
+        context = RuntimeContext()
+        context.start()
+        try:
+            events = context.replay_events(limit=200)
+        finally:
+            context.stop(wait=False)
+    except Exception:
+        events = []
+    event_count = len(events or [])
+    return {
+        "event_count": event_count,
+        "continuity_fidelity": 1.0 if event_count > 0 else 0.0,
+        "source": "runtime.replay_events",
+        "head": events[-1] if events else None,
+    }
