@@ -86,6 +86,7 @@ def _load_routers() -> None:
     from msb_v2.api.adk_bridge import router as adk_router
     from msb_v2.api.alert_hooks import router as alert_hooks_router
     from msb_v2.api.hooks import router as hooks_router
+    from msb_v2.api.audit import router as audit_router
     from msb_v2.api.runtime import router as runtime_router
     from msb_v2.api.verification import router as verification_router
     from msb_v2.api.evolution import router as evolution_router
@@ -151,6 +152,7 @@ def _load_routers() -> None:
     _register(adk_router, "/adk")
     _register(alert_hooks_router, "/alerts")
     _register(hooks_router, "")
+    _register(audit_router, "/audit")
     _register(runtime_router, "")
     _register(verification_router, "")
     _register(evolution_router, "")

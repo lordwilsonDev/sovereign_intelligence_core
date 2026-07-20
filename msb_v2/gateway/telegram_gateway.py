@@ -20,10 +20,12 @@ from cognitive_compiler.sovereign_autonomy_core import (
 )
 from msb_v2.agent.sovereign_agent_runtime import AgentProfile, LoveGateway, SovereignAgentRuntime
 from msb_v2.v3.contracts import HarnessContract, register as _register_contract
+from msb_v2.audit.sac_audit import get_audit_log, SacAuditEvent
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+_SAC_LOG = get_audit_log()
 
 # ---------------------------------------------------------------------------
 # Config
@@ -173,6 +175,7 @@ def telegram_webhook(payload: Dict[str, Any], background_tasks: BackgroundTasks)
         token = _gateway.generate_audit_receipt(receipt)
         receipt["token"] = token
         background_tasks.add_task(_post_audit_record, receipt, token)
+        _SAC_LOG.append(SacAuditEvent(event_id=receipt["id"], kind="telegram_veto", actor="gateway", payload=receipt))
         logger.warning("I_NSSI veto applied: action=%s", action)
         return JSONResponse({"ok": True, "receipt_id": receipt["id"], "status": "veto"})
 
@@ -189,6 +192,7 @@ def telegram_webhook(payload: Dict[str, Any], background_tasks: BackgroundTasks)
     token = _gateway.generate_audit_receipt(receipt)
     receipt["token"] = token
     background_tasks.add_task(_post_audit_record, receipt, token)
+    _SAC_LOG.append(SacAuditEvent(event_id=receipt["id"], kind="telegram_accepted", actor="gateway", payload=receipt))
     return JSONResponse({"ok": True, "receipt_id": receipt["id"], "status": "accepted"})
 
 
