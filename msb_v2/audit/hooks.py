@@ -7,7 +7,7 @@ from msb_v2.audit.events import AuditEvent, EventType, Status
 from msb_v2.audit.schemas import stable_workflow
 
 
-def build_audit_hook(engine: AuditEngine, workflow: str, agent: str) -> Callable[[str, str, dict[str, Any] | None, str | None], None]:
+def build_audit_hook(engine: AuditEngine, workflow: str, agent: str) -> Callable[[str, str, dict[str, Any] | None, str | None], dict[str, Any]]:
     _span_lookup: dict[str, dict[str, str]] = {}
     _started: dict[str, str] = {}
 
@@ -21,7 +21,7 @@ def build_audit_hook(engine: AuditEngine, workflow: str, agent: str) -> Callable
             _span_lookup[task_id] = {"span_id": span_id, "parent_span_id": parent_span_id}
         return _span_lookup[task_id]
 
-    def hook(event_name: str, task_id: str, payload: dict[str, Any] | None, metadata: str | None) -> None:
+    def hook(event_name: str, task_id: str, payload: dict[str, Any] | None, metadata: str | None) -> dict[str, Any]:
         if payload is None:
             payload = {}
         mapping = {
@@ -41,5 +41,6 @@ def build_audit_hook(engine: AuditEngine, workflow: str, agent: str) -> Callable
             metadata={"task_id": task_id, "payload": payload, "metadata": metadata},
         )
         engine.record(event)
+        return {}
 
     return hook
