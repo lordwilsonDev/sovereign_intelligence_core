@@ -1,44 +1,65 @@
 from __future__ import annotations
 
-import pytest
-
-from validation.workflow_tests import run_workflow_tests
-from runtime.state_machine import RuntimeStateMachine, CREATED, INITIALIZING, READY, THINKING, EXECUTING, VERIFYING, COMPLETED, FAILED
-from validation.health_report import HealthReport
+from msb_v2.api.web import create_app
+from starlette.testclient import TestClient
 
 
-def test_workflow_tests_returns_result_shape():
-    data = run_workflow_tests("http://127.0.0.1:8766")
-    assert "passed" in data
-    assert "failed" in data
-    assert "score" in data
+def test_validation_run_endpoint() -> None:
+    client = TestClient(create_app())
+    r = client.post(
+        "/validation/run",
+        json={
+            "system": "test-system",
+            "domain": "software",
+            "claim": "claim text",
+        },
+    )
+    assert r.status_code == 200
+    data = r.json()
+    assert "subject" in data
+    assert data["subject"] == "test-system:claim text"
+    assert data["confidence"] == 0.8
+    assert data["evidence_score"] == 0.9
+    assert data["falsification_risk"] == 0.4
+    assert data["assumption_count"] == 3
 
 
-def test_state_machine_transitions_allowed():
-    sm = RuntimeStateMachine()
-    task = sm.create_task("task-1", agent="tester")
-    assert task.state == READY
-    task.transition(THINKING)
-    task.transition(EXECUTING)
-    task.transition(VERIFYING)
-    task.transition(COMPLETED, outcome="ok")
-    assert task.state == COMPLETED
-    assert len(task.transitions) == 6
+def test_validation_ail_endpoints() -> None:
+    client = TestClient(create_app())
+    r = client.post("/validation/validation/ail/invert", json={"assumption": "the system is stable"})
+    assert r.status_code == 200
+    data = r.json()
+    assert "inversions" in data
+    assert len(data["inversions"]) == 2
+
+    r = client.post("/validation/validation/ail/mine", json={"text": "It scales horizontally. Because multiple workers handle load, failure domains shrink."})
+    assert r.status_code == 200
+    data = r.json()
+    assert "assumptions" in data
+    assert data["count"] >= 1
 
 
-def test_state_machine_transitions_invalid():
-    sm = RuntimeStateMachine()
-    task = sm.create_task("task-2")
-    with pytest.raises(ValueError):
-        task.transition(COMPLETED)
-
-
-def test_health_report_build():
-    report = HealthReport.build({
-        "passed": ["GET /health", "GET /memory/health"],
-        "failed": [],
-        "score": 100.0,
-    })
-    assert report["grade"] == "A"
-    assert report["msb_integrity_score"] == 100.0
-    assert "health" in report["sections"]
+def test_validation_propulsion_endpoint() -> None:
+    client = TestClient(create_app())
+    payload = {
+        "id": "c1",
+        "problem": "latency",
+        "assumption": "caching reduces latency",
+        "inverse": "caching increases latency",
+        "novelty": 0.8,
+        "explanatory_power": 0.9,
+        "predictive_value": 0.7,
+        "verification_cost": 0.5,
+        "impact": 0.9,
+        "cost": 0.4,
+        "complexity": 0.3,
+        "risk": 0.2,
+        "timing": 0.6,
+        "leverage": 0.8,
+    }
+    r = client.post("/validation/propulsion/evaluate", json=payload)
+    assert r.status_code == 200
+    data = r.json()
+    assert "scored" in data
+    assert "ranked" in data
+    assert data["scored"]["id"] == "c1"
