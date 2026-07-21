@@ -28,9 +28,10 @@ class GateDecision:
 
 
 class SovereignGate:
-    def __init__(self, root: Optional[str] = None, threshold: float = 80.0) -> None:
+    def __init__(self, root: Optional[str] = None, threshold: Optional[float] = None) -> None:
         self.root = Path(root) if root else Path.cwd()
-        self.threshold = float(threshold)
+        env_default = float(os.environ.get("MSB_PIPELINE_SAS_THRESHOLD", "80.0"))
+        self.threshold = float(threshold) if threshold is not None else env_default
         audit_path = self.root / ".pipeline" / "sovereign_gate.jsonl"
         audit_path.parent.mkdir(parents=True, exist_ok=True)
         self.audit_chain = AuditMerkleChain(audit_path)
