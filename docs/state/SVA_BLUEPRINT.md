@@ -182,13 +182,10 @@ Example:
 Claim:
 "Our AI agent is safe."
 Attack:
-```
-What happens when:
-- instructions conflict?
-- memory corrupts?
-- environment changes?
-- incentives change?
-```
+- instructions conflict
+- memory corrupts
+- environment changes
+- incentives change
 
 ## Layer 5 — Evolution Validation
 
@@ -196,12 +193,10 @@ Question:
 > Does the system improve from failure?
 
 Metrics:
-```
-Learning Rate
-Mutation Quality
-Recovery Time
-Knowledge Retention
-```
+* Learning Rate
+* Mutation Quality
+* Recovery Time
+* Knowledge Retention
 
 ## Layer 6 — Ecosystem Validation
 
