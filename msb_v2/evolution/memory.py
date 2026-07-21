@@ -75,18 +75,15 @@ class EvolutionMemory:
                         proposal.risk,
                         proposal.status,
                         proposal.created_at,
-                        json.dumps(proposal.simulation),
+                        json.dumps(getattr(proposal, "simulation", None)),
                         proposal.approval_status,
                         proposal.failure_reason,
                         proposal.rollback_ref,
-                        fingerprint or self._fingerprint(proposal),
-                        target or (proposal.affected_modules[0] if proposal.affected_modules else ""),
+                        fingerprint or getattr(proposal, "fingerprint", None) or self._fingerprint(proposal),
+                        target or getattr(proposal, "target", None) or (proposal.affected_modules[0] if proposal.affected_modules else ""),
                     ),
                 )
-                conn.execute(
-                    "INSERT INTO history (proposal_id, event, ts) VALUES (?, ?, ?)",
-                    (proposal.proposal_id, "recorded", datetime.now(timezone.utc).isoformat()),
-                )
+                conn.execute("INSERT INTO history (proposal_id, event, ts) VALUES (?, ?, ?)", (proposal.proposal_id, "recorded", datetime.now(timezone.utc).isoformat()))
                 conn.commit()
 
     def get(self, proposal_id: str) -> Optional[EvolutionProposal]:

@@ -18,3 +18,5 @@ class EvolutionProposal:
     approval_status: Optional[str] = None
     failure_reason: Optional[str] = None
     rollback_ref: Optional[str] = None
+    fingerprint: Optional[str] = None
+    target: Optional[str] = None

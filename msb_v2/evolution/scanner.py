@@ -86,6 +86,29 @@ class OuroborosScanner:
         return dead[:20]
 
     def propose(self, proposal_id: str, title: str, affected_modules: List[str], rationale: str, risk: str = "medium", memory: Optional[EvolutionMemory] = None) -> EvolutionProposal:
+        payload = {
+            "proposal_id": proposal_id,
+            "title": title,
+            "affected_modules": affected_modules,
+            "rationale": rationale,
+            "risk": risk,
+        }
+        memory_fingerprint = hashlib.sha256(
+            json.dumps(payload, sort_keys=True).encode("utf-8")
+        ).hexdigest()
+        memory_target = affected_modules[0] if affected_modules else ""
+        if memory is not None:
+            if memory.should_skip(memory_target, memory_fingerprint):
+                return EvolutionProposal(
+                    proposal_id=proposal_id,
+                    title=title,
+                    affected_modules=affected_modules,
+                    rationale=rationale,
+                    risk=risk,
+                    status="skipped",
+                    failure_reason="blocked_by_evolution_memory",
+                    rollback_ref="evolution_memory",
+                )
         scan = self.scan()
         rationale_text = f"{rationale}\n\nScanner findings:\n{json.dumps(scan, indent=2)}"
         proposal = EvolutionProposal(
@@ -95,24 +118,8 @@ class OuroborosScanner:
             rationale=rationale_text,
             risk=risk,
         )
-        if memory is not None:
-            fingerprint = hashlib.sha256(
-                json.dumps(
-                    {
-                        "proposal_id": proposal_id,
-                        "title": title,
-                        "affected_modules": affected_modules,
-                        "rationale": rationale_text,
-                        "risk": risk,
-                    },
-                    sort_keys=True,
-                ).encode("utf-8")
-            ).hexdigest()
-            target = affected_modules[0] if affected_modules else ""
-            if memory.should_skip(target, fingerprint):
-                proposal.status = "skipped"
-                proposal.failure_reason = "blocked_by_evolution_memory"
-                proposal.rollback_ref = "evolution_memory"
+        proposal.fingerprint = memory_fingerprint
+        proposal.target = memory_target
         return proposal
 
     @staticmethod
