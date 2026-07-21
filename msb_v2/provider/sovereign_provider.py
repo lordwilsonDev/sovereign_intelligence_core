@@ -200,13 +200,13 @@ def _last_user_content(messages: List[Dict[str, str]]) -> str:
     return ""
 
 
-provider_status_router = APIRouter()
+provider_status_router = None
 
 
-@provider_status_router.get("/status")
 def provider_status() -> Dict[str, Any]:
     try:
         from msb_v2.api.deepseek import _sov_provider
+
         if _sov_provider is None:
             return {"enabled": False, "provider_trusted": None}
         payload = _sov_provider.status().model_dump()
