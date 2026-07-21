@@ -43,15 +43,13 @@ def audit_policies_falsification(engine: AuditEngine = Depends(_engine)) -> dict
 @router.post("/policies/falsification/advance")
 def audit_policies_falsification_advance(payload: dict[str, Any] | None = None, engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
     policy = ((payload or {}).get("policy") or "").strip() if isinstance(payload, dict) else ""
-    try:
-        raw_actions = AutoHealingPolicyEngine(audit=engine).evaluate()
-    except Exception:
-        raw_actions = []
+    raw_actions = AutoHealingPolicyEngine(audit=engine).evaluate() if policy else []
     actions: list[dict[str, Any]] = []
-    for action in raw_actions:
-        name = action.get("policy") if isinstance(action, dict) else None
-        if isinstance(name, str) and policy in name:
-            actions.append({"policy": name, "action": "advanced", "state": "advanced"})
+    if policy:
+        for action in raw_actions:
+            name = action.get("policy") if isinstance(action, dict) else None
+            if isinstance(name, str) and policy in name:
+                actions.append({"policy": name, "action": "advanced", "state": "advanced"})
     snapshot = engine.falsification_snapshot()
     records = snapshot.get("records", []) if isinstance(snapshot, dict) else []
     latest = records[-1:] if records else []
