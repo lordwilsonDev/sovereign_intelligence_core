@@ -182,3 +182,39 @@ class ResumePromptCompiler:
     @staticmethod
     def token_budget_check(prompt: str, limit: int = 2000) -> bool:
         return len(prompt.split()) <= limit
+
+    @staticmethod
+    def live_snapshot(store: AuditStore, engine: AuditEngine) -> dict[str, Any]:
+        merkle_root = ""
+        try:
+            from msb_v2.audit.sovereign.store import SovereignAuditStore
+            from msb_v2.audit.sovereign.metrics import compute_audit_sovereignty_score
+            sovereign = SovereignAuditStore()
+            merkle_root = str(sovereign.merkle.log_path)
+            if merkle_root:
+                merkle_root = merkle_root
+        except Exception:
+            pass
+        falsification = engine.falsification_snapshot()
+        fts = 0.0
+        if falsification.get("count", 0) > 0:
+            fts = falsification.get("falsified_count", 0) / falsification["count"]
+        assumption_debt = engine.assumption_debt_count()
+        try:
+            from msb_v2.audit.business_metrics import BusinessMetrics
+            snap = BusinessMetrics(audit=engine).snapshot()
+            imm = snap.get("immutable_record", {})
+            if imm.get("root_hash"):
+                merkle_root = imm["root_hash"]
+        except Exception:
+            pass
+        return {
+            "merkle_root_hash": merkle_root,
+            "policy_prediction_fts": fts,
+            "audit_sovereignty_score": compute_audit_sovereignty_score(
+                merkle_ok=bool(merkle_root),
+                fts=fts,
+                assumption_debt=assumption_debt,
+                veto_active=True,
+            ),
+        }
