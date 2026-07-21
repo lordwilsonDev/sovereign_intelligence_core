@@ -42,10 +42,67 @@ def test_pipeline_assess_rejects_degraded() -> None:
     assert data["reason"] is not None
 
 
+SOVEREIGN_METRIC_NAMES = [
+    "msb_audit_sovereign_fts",
+    "msb_audit_sovereign_assumption_debt",
+    "msb_audit_sovereign_score",
+    "msb_pipeline_sas_average",
+    "msb_pipeline_fts_average",
+    "msb_pipeline_decisions_total",
+    "msb_kb4_cycles_total",
+    "msb_kb4_mutations_total",
+    "msb_kb4_vetoes_total",
+    "msb_provider_sovereignty_score",
+    "msb_provider_vetoes_total",
+    "msb_provider_coherence_avg",
+    "msb_provider_trust_status",
+    "msb_provider_ouroboros_events_total",
+]
+
+
+# NOTE: These test families are gated by live /metrics evidence captured in
+# TestClient-backed tests through the app factory. Keep them grouped so missing
+# gauges stay isolated to their subsystem.
+_PIPELINE_METRICS = [
+    "msb_pipeline_sas_average",
+    "msb_pipeline_fts_average",
+    "msb_pipeline_decisions_total",
+]
+_PROVIDER_METRICS = [
+    "msb_provider_sovereignty_score",
+    "msb_provider_vetoes_total",
+    "msb_provider_trust_status",
+]
+_KB4_METRICS = [
+    "msb_kb4_cycles_total",
+    "msb_kb4_mutations_total",
+    "msb_kb4_vetoes_total",
+]
+
+
+def _client() -> TestClient:
+    return TestClient(create_app())
+
+
 def test_pipeline_metrics_exposed() -> None:
-    client = TestClient(create_app())
-    response = client.get("/metrics")
+    response = _client().get("/metrics")
     assert response.status_code == 200
     text = response.text
-    for name in ["msb_pipeline_sas_average", "msb_pipeline_fts_average", "msb_pipeline_decisions_total"]:
+    for name in _PIPELINE_METRICS:
+        assert name in text, f"missing_metric:{name}"
+
+
+def test_provider_metrics_exposed() -> None:
+    response = _client().get("/metrics")
+    assert response.status_code == 200
+    text = response.text
+    for name in _PROVIDER_METRICS:
+        assert name in text, f"missing_metric:{name}"
+
+
+def test_kb4_metrics_exposed() -> None:
+    response = _client().get("/metrics")
+    assert response.status_code == 200
+    text = response.text
+    for name in _KB4_METRICS:
         assert name in text, f"missing_metric:{name}"

@@ -138,6 +138,9 @@ def _load_routers() -> None:
     from msb_v2.api.continuity import router as continuity_router
     from msb_v2.api.pipeline import router as pipeline_router
 
+    from msb_v2.kernel import metrics as _kb4_metrics
+    from msb_v2.pipeline import metrics as _pipeline_metrics
+
     _register(health_router, "")
     _register(continuity_router, "/continuity")
     _register(pipeline_router, "/pipeline")
