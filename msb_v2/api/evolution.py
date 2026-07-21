@@ -43,18 +43,20 @@ def evolution_scan(auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSON
 
 @router.post("/evolution/propose")
 def evolution_propose(payload: EvolutionProposalRequest, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
-    proposal = EvolutionProposal(
+    proposal = _scanner.propose(
         proposal_id=payload.proposal_id,
         title=payload.title,
         affected_modules=payload.affected_modules,
         rationale=payload.rationale,
         risk=payload.risk,
+        memory=_memory,
     )
-    _memory.record(proposal)
+    _memory.record(proposal, target=payload.affected_modules[0] if payload.affected_modules else "")
     return JSONResponse({
         "proposal_id": proposal.proposal_id,
         "status": proposal.status,
         "risk": proposal.risk,
+        "failure_reason": proposal.failure_reason,
     })
 
 

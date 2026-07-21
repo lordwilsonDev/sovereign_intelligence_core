@@ -48,6 +48,18 @@ def verification_trace(trace_id: str) -> JSONResponse:
     return JSONResponse(_verifier.verify_trace(trace_id))
 
 
+@router.get("/verification/integrity/hardware")
+def verification_hardware_attestation() -> JSONResponse:
+    from pathlib import Path
+    from msb_v2.verification.hardware_attestation import HardwareAttestation
+    try:
+        binary_path = Path(__file__).resolve().parents[2] / "msb_v2" / "api" / "verification.py"
+        attestation = HardwareAttestation(binary_path=binary_path).verify()
+    except Exception as exc:
+        attestation = {"verdict": "ERROR", "error": str(exc)}
+    return JSONResponse(attestation)
+
+
 @router.get("/verification/integrity/decision/{decision_id}")
 def verification_decision(decision_id: str) -> JSONResponse:
     check = _verifier.verify_decision(decision_id)

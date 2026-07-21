@@ -101,9 +101,16 @@ def _memory_summary() -> Dict[str, Any]:
 
 
 def _verification_summary() -> Dict[str, Any]:
+    from msb_v2.reasoning.integrity import EventStreamStore
+    from msb_v2.verification.hardware_attestation import HardwareAttestation
     stream = EventStreamStore()
     verifier = IntegrityVerifier(stream=stream)
-    return verifier.verify_trace("studio")
+    trace = verifier.verify_trace("studio")
+    try:
+        attestation = HardwareAttestation(binary_path=Path(__file__).resolve().parents[2] / "msb_v2" / "api" / "verification.py").verify()
+    except Exception as exc:
+        attestation = {"verdict": "ERROR", "error": str(exc)}
+    return {"trace": trace, "hardware_attestation": attestation}
 
 
 def _evolution_summary() -> Dict[str, Any]:

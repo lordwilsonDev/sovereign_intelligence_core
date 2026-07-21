@@ -4,7 +4,9 @@ import ast
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+
+from msb_v2.evolution.memory import EvolutionMemory
 
 from msb_v2.evolution.proposal import EvolutionProposal
 
@@ -83,15 +85,35 @@ class OuroborosScanner:
                         dead.append({"file": str(path.relative_to(self.root)), "symbol": symbol})
         return dead[:20]
 
-    def propose(self, proposal_id: str, title: str, affected_modules: List[str], rationale: str, risk: str = "medium") -> EvolutionProposal:
+    def propose(self, proposal_id: str, title: str, affected_modules: List[str], rationale: str, risk: str = "medium", memory: Optional[EvolutionMemory] = None) -> EvolutionProposal:
         scan = self.scan()
-        return EvolutionProposal(
+        rationale_text = f"{rationale}\n\nScanner findings:\n{json.dumps(scan, indent=2)}"
+        proposal = EvolutionProposal(
             proposal_id=proposal_id,
             title=title,
             affected_modules=affected_modules,
-            rationale=f"{rationale}\n\nScanner findings:\n{json.dumps(scan, indent=2)}",
+            rationale=rationale_text,
             risk=risk,
         )
+        if memory is not None:
+            fingerprint = hashlib.sha256(
+                json.dumps(
+                    {
+                        "proposal_id": proposal_id,
+                        "title": title,
+                        "affected_modules": affected_modules,
+                        "rationale": rationale_text,
+                        "risk": risk,
+                    },
+                    sort_keys=True,
+                ).encode("utf-8")
+            ).hexdigest()
+            target = affected_modules[0] if affected_modules else ""
+            if memory.should_skip(target, fingerprint):
+                proposal.status = "skipped"
+                proposal.failure_reason = "blocked_by_evolution_memory"
+                proposal.rollback_ref = "evolution_memory"
+        return proposal
 
     @staticmethod
     def _func_loc(text: str, node: ast.AST) -> int:
