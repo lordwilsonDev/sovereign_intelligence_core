@@ -119,6 +119,7 @@ def _load_routers() -> None:
     from msb_v2.api.desktop import router as desktop_router
     from msb_v2.api.career import router as career_router
     from msb_v2.api.system import router as system_router
+    from msb_v2.api.local_ai import router as local_ai_router
     from msb_v2.api.policy import router as policy_router
     from msb_v2.api.scheduler import router as scheduler_router
     from msb_v2.api.knowledge import router as knowledge_router
@@ -208,6 +209,7 @@ def _load_routers() -> None:
     _register(fine_tune_router, "")
     _register(interfaces_router, "")
     _register(transport_router, "")
+    _register(local_ai_router, "/local-ai")
     _register(v3_router.router, "")
     _register(v3_inversion_router.router, "")
     _register(v3_deliberation_router.router, "")
