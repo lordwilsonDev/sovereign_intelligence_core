@@ -40,6 +40,30 @@ def audit_policies_falsification(engine: AuditEngine = Depends(_engine)) -> dict
     return engine.falsification_snapshot()
 
 
+@router.post("/policies/falsification/advance")
+def audit_policies_falsification_advance(payload: dict[str, Any] | None = None, engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
+    policy = ((payload or {}).get("policy") or "").strip() if isinstance(payload, dict) else ""
+    try:
+        raw_actions = AutoHealingPolicyEngine(audit=engine).evaluate()
+    except Exception:
+        raw_actions = []
+    actions: list[dict[str, Any]] = []
+    for action in raw_actions:
+        name = action.get("policy") if isinstance(action, dict) else None
+        if isinstance(name, str) and policy in name:
+            actions.append({"policy": name, "action": "advanced", "state": "advanced"})
+    snapshot = engine.falsification_snapshot()
+    records = snapshot.get("records", []) if isinstance(snapshot, dict) else []
+    latest = records[-1:] if records else []
+    return {
+        "advanced": len(actions),
+        "actions": actions,
+        "records_updated": len(latest),
+        "latest": latest,
+        "count": len(records),
+    }
+
+
 @router.get("/verify")
 def audit_verify(store: AuditStore = Depends(_engine)) -> dict[str, Any]:
     from msb_v2.audit.sovereign.merkle import AuditMerkleChain
