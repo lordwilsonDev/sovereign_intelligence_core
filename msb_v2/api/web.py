@@ -259,15 +259,7 @@ def create_app() -> FastAPI:
             return {"registry_state": "unattached", "capabilities": []}
         entries = []
         for contract in _RUNTIME_REGISTRY.all():
-            entries.append({
-                "name": contract.name,
-                "version": contract.version,
-                "sha": contract.sha,
-                "has_initialize": contract.initialize is not None,
-                "has_execute": contract.execute is not None,
-                "has_validate": contract.validate is not None,
-                "has_shutdown": contract.shutdown is not None,
-            })
+            entries.append(contract.capability_interface())
         return {"registry_state": "attached", "capabilities": entries}
 
     @app.get("/runtime/ping")

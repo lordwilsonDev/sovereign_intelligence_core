@@ -20,3 +20,6 @@ class EvolutionProposal:
     rollback_ref: Optional[str] = None
     fingerprint: Optional[str] = None
     target: Optional[str] = None
+
+
+EvolutionProposal = EvolutionProposal

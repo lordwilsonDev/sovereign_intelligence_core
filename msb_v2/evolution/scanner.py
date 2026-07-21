@@ -135,3 +135,6 @@ class OuroborosScanner:
             if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler, ast.Assert, ast.BoolOp)):
                 branches += 1
         return branches
+
+
+OuroborosScanner = OuroborosScanner
