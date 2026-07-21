@@ -129,7 +129,18 @@ def _load_routers() -> None:
     from msb_v2.api.fine_tune import router as fine_tune_router
     from msb_v2.api.interfaces import router as interfaces_router
     from msb_v2.api.transport import router as transport_router
+    from msb_v2.api.star import router as star_router
+    from msb_v2.api.scth import router as scth_router
+    from msb_v2.api.sn import router as sn_router
+    from msb_v2.v3.policy import register_dispatch_contracts as _register_dispatch_contracts
     from msb_v2.api import v3 as v3_router
+    _register(star_router, "/star")
+    _register(scth_router, "/scth")
+    _register(sn_router, "/sn")
+    _register_dispatch_contracts()
+
+    from msb_v2.api.governor import router as governor_router
+    _register(governor_router, "/governor")
     from msb_v2.api import v3_inversion as v3_inversion_router
     from msb_v2.api import v3_deliberation as v3_deliberation_router
     from msb_v2.api import v3_knowledge as v3_knowledge_router
@@ -209,7 +220,8 @@ def _load_routers() -> None:
     _register(fine_tune_router, "")
     _register(interfaces_router, "")
     _register(transport_router, "")
-    _register(local_ai_router, "/local-ai")
+    _register(local_ai_router, "")
+    from msb_v2.api import v3 as v3_router
     _register(v3_router.router, "")
     _register(v3_inversion_router.router, "")
     _register(v3_deliberation_router.router, "")
@@ -218,7 +230,13 @@ def _load_routers() -> None:
     _register(v3_tools_router.router, "")
     _register(v3_tasks_router.router, "")
     _register(v3_crew_router.router, "")
-
+    from msb_v2.api.scth import router as scth_router
+    _register(scth_router, "/scth")
+    try:
+        from msb_v2.api.sn import router as sn_router
+        _register(sn_router, "/sn")
+    except Exception:
+        pass
     try:
         from msb_v2.v3.policy import register_dispatch_contracts as _register_dispatch_contracts
         _register_dispatch_contracts()

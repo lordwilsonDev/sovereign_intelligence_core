@@ -42,6 +42,12 @@ class GovernorEngine:
             self._health.setdefault(name, HarnessHealth(name=name))
         return {"status": "registered", "name": name}
 
+    def register_defaults(self) -> None:
+        self.register_harness("star", "/star", "/star/status", metadata={"surface": "internal"})
+        self.register_harness("scth", "/scth", "/scth/status", metadata={"surface": "internal"})
+        self.register_harness("sn", "/sn", "/sn/templates", metadata={"surface": "internal"})
+        self.register_harness("local_ai", "/local-ai", "/local-ai/models", metadata={"surface": "api"})
+
     def unregister_harness(self, name: str) -> Dict[str, Any]:
         with self._lock:
             if name in self._harnesses:

@@ -12,6 +12,7 @@ from msb_v2.governor.policy_engine import PolicyEngine, PolicyRule
 router = APIRouter()
 
 _governor = GovernorEngine()
+_governor.register_defaults()
 _policy_engine = PolicyEngine()
 _orchestrator = WorkflowOrchestrator(_governor)
 _governor._orchestrator = _orchestrator  # type: ignore[attr-defined]

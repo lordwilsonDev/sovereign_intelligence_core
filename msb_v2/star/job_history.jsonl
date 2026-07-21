@@ -1,0 +1,91 @@
+run_id,job_id,status,started_at,finished_at,duration_ms,attempt,output_summary
+ebe0f551,bb32f062,SUCCESS,2026-07-21T22:40:15.163202+00:00,2026-07-21T22:40:15.163211+00:00,0,1,app action executed
+02ca0948,10abeb60,SUCCESS,2026-07-21T22:40:54.186971+00:00,2026-07-21T22:40:54.186975+00:00,0,1,app action executed
+0b075505,8ce95dec,FAILED,2026-07-21T22:41:15.337094+00:00,2026-07-21T22:41:15.337269+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 80, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+88bd2fd6,041290a1,FAILED,2026-07-21T22:41:31.646772+00:00,2026-07-21T22:41:31.646951+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 80, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+f3526c22,e949ffcc,FAILED,2026-07-21T22:43:36.082504+00:00,2026-07-21T22:43:36.082737+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 105, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+5ba333ab,318fe109,FAILED,2026-07-21T22:44:15.856535+00:00,2026-07-21T22:44:15.856855+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 127, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+d323110e,57479169,FAILED,2026-07-21T22:45:31.089820+00:00,2026-07-21T22:45:31.090266+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 127, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+fbeb9154,8dc0a549,FAILED,2026-07-21T22:45:39.824397+00:00,2026-07-21T22:45:39.824736+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 127, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+f3ead53e,2025ee95,FAILED,2026-07-21T22:45:57.717231+00:00,2026-07-21T22:45:57.717625+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 127, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+341c6bc7,7f9aca30,FAILED,2026-07-21T22:46:14.202527+00:00,2026-07-21T22:46:14.202896+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 127, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+1a486690,8bd65c1b,FAILED,2026-07-21T22:46:42.829238+00:00,2026-07-21T22:46:42.829817+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 127, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+b9e23e27,ba01eb9f,FAILED,2026-07-21T22:47:16.738710+00:00,2026-07-21T22:47:16.739027+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 127, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
+bc76685b,0582cca3,FAILED,2026-07-21T22:48:09.286868+00:00,2026-07-21T22:48:09.287237+00:00,0,1,Traceback (most recent call last):
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 31, in run
+    output_summary = self._execute(job)
+                     ^^^^^^^^^^^^^^^^^^
+  File "/Users/lordwilson/msb-v2/msb_v2/star/runner.py", line 127, in _execute
+    raise RuntimeError("forced failure")
+RuntimeError: forced failure
+
