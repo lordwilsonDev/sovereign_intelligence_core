@@ -71,13 +71,16 @@ class SovereignProviderWrapper:
 
     def _check_coherence(self, response: Dict[str, Any]) -> float:
         text = (response or {}).get("content", "") or ""
-        answer = "yes"
+        answer = "no"
         try:
             coherence_prompt = (
                 "Answer only with yes or no.\n"
                 "Is the following response internally consistent and factually plausible?\n"
                 f"{text}"
             )
+            coherence_risk = self._classify_risk(coherence_prompt)
+            if coherence_risk == "HIGH":
+                return 0.0
             result = self.provider.chat([{"role": "user", "content": coherence_prompt}], max_tokens=16)
             answer = ((result or {}).get("content", "") or "").strip().lower()
         except Exception:
