@@ -80,6 +80,8 @@ class AutoHealingPolicyEngine:
         blocked = veto.required_justification or not veto.weight_override_allowed
         action["status"] = "blocked" if blocked else "allowed"
         action["quarantine_checksum"] = veto.checksum
+        if blocked:
+            self._audit.record_assumption_debt(1)
         action["falsification"] = self._audit.record_policy_falsification(
             policy=label,
             detected_rate=rate,
