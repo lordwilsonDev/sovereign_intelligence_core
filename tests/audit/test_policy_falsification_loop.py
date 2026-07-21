@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-from msb_v2.api.main import create_app
-from msb_v2.api.middleware import set_local_bypass
 from msb_v2.audit.audit_engine import AuditEngine
 from msb_v2.audit.storage import AuditStore
 from msb_v2.api import audit as audit_api
-from fastapi.testclient import TestClient
 
 
-def test_falsification_loop_reflected_in_snapshot():
+def test_falsification_loop_endpoint_reflects_live_state():
     store = AuditStore()
     engine = AuditEngine(store=store)
     engine.record_policy_falsification(
@@ -16,25 +13,26 @@ def test_falsification_loop_reflected_in_snapshot():
         detected_rate=0.40,
         sample_count=40,
         blocked=True,
-        checksum="loop2",
+        checksum="loop-1",
     )
-    app = create_app()
-    app.dependency_overrides[audit_api._engine] = lambda: engine
-    set_local_bypass(True)
-    client = TestClient(app)
-    try:
-        response = client.get("/audit/policies/falsification")
-        assert response.status_code == 200
-        body = response.json()
-        assert body["count"] >= 1
-        assert isinstance(body["records"], list)
-        response = client.get("/audit/sovereignty")
-        assert response.status_code == 200
-        data = response.json()
-        assert "falsification_records" in data
-        assert isinstance(data["falsification_records"], list)
-        assumption_debt = data.get("assumption_debt")
-        assert assumption_debt >= 0
-    finally:
-        app.dependency_overrides.pop(audit_api._engine, None)
-        set_local_bypass(None)
+    engine.record_assumption_debt(1)
+    engine.record_policy_falsification(
+        policy="cache_miss_rate",
+        detected_rate=0.10,
+        sample_count=40,
+        blocked=False,
+        checksum="loop-2",
+    )
+
+    body = audit_api.audit_policies_falsification(engine=engine)
+    assert isinstance(body, dict)
+    assert body["count"] >= 2
+    assert isinstance(body["records"], list)
+    assert engine.assumption_debt_count() == 1
+
+    sovereignty = audit_api.audit_sovereignty(engine=engine)
+    assert isinstance(sovereignty, dict)
+    assert "falsification" in sovereignty
+    assert isinstance(sovereignty["falsification"], dict)
+    assert sovereignty["falsification"]["count"] >= 2
+    assert sovereignty["assumption_debt"] >= 0

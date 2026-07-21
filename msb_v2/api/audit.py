@@ -46,11 +46,21 @@ def audit_verify(store: AuditStore = Depends(_engine)) -> dict[str, Any]:
     from msb_v2.audit.sovereign.store import SovereignAuditStore
     sovereign = SovereignAuditStore()
     valid = sovereign.merkle.verify_chain()
+    falsification = store.falsification_snapshot() if hasattr(store, "falsification_snapshot") else {}
+    fts = 0.0
+    if isinstance(falsification, dict) and falsification.get("count", 0) > 0:
+        fts = falsification.get("falsified_count", 0) / falsification["count"]
     return {
         "verified": valid,
         "chain_valid": valid,
         "chain_root_hash": getattr(sovereign.merkle, "root_hash", ""),
         "log": str(sovereign.merkle.log_path),
+        "falsification_feedback": {
+            "enabled": True,
+            "fts": fts,
+            "falsified_count": falsification.get("falsified_count", 0) if isinstance(falsification, dict) else 0,
+            "latest_policy": ((falsification.get("records") or [{}])[-1].get("policy") if isinstance(falsification, dict) and falsification.get("records") else None),
+        },
     }
 
 
@@ -88,5 +98,10 @@ def audit_sovereignty(
         "fts": fts,
         "assumption_debt": assumption_debt,
         "audit_sovereignty_score": score,
-        "falsification_records": falsification.get("records", []),
+        "falsification": {
+            "count": falsification.get("count", 0),
+            "falsified_count": falsification.get("falsified_count", 0),
+            "fts": fts,
+            "records": falsification.get("records", []),
+        },
     }

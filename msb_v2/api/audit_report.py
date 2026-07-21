@@ -32,7 +32,7 @@ def _escape(value: str) -> str:
 
 def _falsification_trend_table(snapshot: dict[str, Any]) -> str:
     sovereign = snapshot.get("sovereign") if isinstance(snapshot.get("sovereign"), dict) else {}
-    records = sovereign.get("records") or []
+    records = (sovereign.get("falsification") or {}).get("records") or []
     if not records:
         return ""
     rows = "".join(
