@@ -40,3 +40,12 @@ def test_pipeline_assess_rejects_degraded() -> None:
     data = response.json()
     assert data["verdict"] == "REJECT"
     assert data["reason"] is not None
+
+
+def test_pipeline_metrics_exposed() -> None:
+    client = TestClient(create_app())
+    response = client.get("/metrics")
+    assert response.status_code == 200
+    text = response.text
+    for name in ["msb_pipeline_sas_average", "msb_pipeline_fts_average", "msb_pipeline_decisions_total"]:
+        assert name in text, f"missing_metric:{name}"
