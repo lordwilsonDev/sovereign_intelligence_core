@@ -28,6 +28,7 @@ _provider_sovereignty_score = Gauge("msb_provider_sovereignty_score", "Composite
 _provider_vetoes_total = Gauge("msb_provider_vetoes_total", "Total provider veto events")
 _provider_coherence_avg = Gauge("msb_provider_coherence_avg", "Average coherence score")
 _provider_trust_status = Gauge("msb_provider_trust_status", "Provider trust status: 1 trusted, 0 untrusted")
+_provider_ouroboros_events_total = Gauge("msb_provider_ouroboros_events_total", "Total provider wrapper governance events", ["event"])
 
 
 class ProviderVetoException(Exception):
@@ -55,6 +56,7 @@ class SovereignProviderWrapper:
         self._coherence_samples = 0
         self.jitter_min_ms = float(os.getenv("MSB_PROVIDER_JITTER_MIN_MS", "5"))
         self.jitter_max_ms = float(os.getenv("MSB_PROVIDER_JITTER_MAX_MS", "50"))
+        self._ouroboros_last_event = None
         _provider_trust_status.set(1.0 if self.provider_trusted else 0.0)
 
     def chat(self, messages: List[Dict[str, str]], max_tokens: int = 256, **kwargs: Any) -> Dict[str, Any]:
@@ -129,6 +131,13 @@ class SovereignProviderWrapper:
         except Exception:
             pass
 
+    def _emit_ouroboros(self, event: str) -> None:
+        try:
+            self._ouroboros_last_event = event
+            _provider_ouroboros_events_total.labels(event=event).inc()
+        except Exception:
+            pass
+
     def _update_score(self) -> None:
         try:
             veto_component = max(0.0, 1.0 - (self._veto_count / max(self._coherence_samples, 1)))
@@ -200,6 +209,8 @@ def provider_status() -> Dict[str, Any]:
         from msb_v2.api.deepseek import _sov_provider
         if _sov_provider is None:
             return {"enabled": False, "provider_trusted": None}
-        return {"enabled": True, **dict(_sov_provider.status().model_dump())}
+        payload = _sov_provider.status().model_dump()
+        payload["enabled"] = True
+        return payload
     except Exception:
         return {"enabled": False, "provider_trusted": None}

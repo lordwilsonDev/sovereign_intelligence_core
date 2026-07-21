@@ -40,9 +40,12 @@ export MSB_SOVEREIGN_PROVIDER=1
   - `jitter_min_ms`, `jitter_max_ms`
 
 ## Attestation
-- Script: `scripts/setup_ollama_attestation.sh`
-- Stores Ollama binary SHA-256 in macOS Keychain (`security` CLI).
+- Setup script: `scripts/setup_ollama_attestation.sh`
+- Update protocol: `scripts/update_trusted_ollama_hash.sh`
+- Both use macOS Keychain (`security` CLI).
 - Wrapper verifies at startup; mismatch -> `provider_trusted=False`.
+- Update requires `APPROVAL_SIGNATURE` for human-in-the-loop approval; without it the script exits non-zero.
+- If current hash already matches, update is a no-op.
 
 ## AIL Notes
 - Coherence checker prompts now pass through quarantine; returns `coherence=0.0` if blocked.
