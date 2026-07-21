@@ -83,6 +83,30 @@ class IntegrityReportPDF:
             styles["Normal"],
         ))
         story.append(Spacer(1, 0.1 * inch))
+        records = sovereign.get("records") or []
+        if records:
+            story.append(Paragraph("Falsification Trend", styles["Heading2"]))
+            story.append(Spacer(1, 0.05 * inch))
+            trend_data = [["Policy", "Outcome", "Improvement"]]
+            for record in records[:20]:
+                trend_data.append([
+                    str(record.get("policy", "")),
+                    str(record.get("outcome", "")),
+                    str(record.get("improvement", "")),
+                ])
+            trend_table = Table(trend_data, colWidths=[2.5 * inch, 1.2 * inch, 1.2 * inch])
+            trend_table.setStyle(TableStyle([
+                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1a3a5c")),
+                ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+                ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+                ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+                ("FONTSIZE", (0, 0), (-1, 0), 10),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+                ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+                ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ]))
+            story.append(trend_table)
+            story.append(Spacer(1, 0.1 * inch))
 
         story.append(Paragraph("Immutable Record", styles["Heading2"]))
         story.append(Paragraph(

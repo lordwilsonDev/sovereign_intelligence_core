@@ -30,6 +30,22 @@ def _escape(value: str) -> str:
     )
 
 
+def _falsification_trend_table(snapshot: dict[str, Any]) -> str:
+    sovereign = snapshot.get("sovereign") if isinstance(snapshot.get("sovereign"), dict) else {}
+    records = sovereign.get("records") or []
+    if not records:
+        return ""
+    rows = "".join(
+        f"<tr><td>{_escape(r.get('policy', ''))}</td><td>{_escape(str(r.get('outcome', '')))}</td>"
+        f"<td>{_escape(str(r.get('improvement', '')))}</td></tr>"
+        for r in records[:20]
+    )
+    return f"""<table>
+      <tr><th>Policy</th><th>Outcome</th><th>Improvement</th></tr>
+      {rows}
+    </table>"""
+
+
 def _render_report(client_name: str, snapshot: dict[str, Any]) -> str:
     summary = snapshot.get("summary", {})
     impact = snapshot.get("business_impact", {})
@@ -108,6 +124,7 @@ def _render_report(client_name: str, snapshot: dict[str, Any]) -> str:
       <tr><td>Falsification Trend Score</td><td class="metric-value">{snapshot.get('sovereign', {}).get('fts', 0) * 100:.1f}%</td></tr>
       <tr><td>Assumption Debt</td><td class="metric-value">{snapshot.get('sovereign', {}).get('assumption_debt', 0)}</td></tr>
     </table>
+    {_falsification_trend_table(snapshot)}
   </section>''' if isinstance(snapshot.get('sovereign'), dict) else ''}
   <section>
     <h2>Immutable Record</h2>

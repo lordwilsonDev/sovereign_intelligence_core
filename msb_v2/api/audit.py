@@ -45,7 +45,13 @@ def audit_verify(store: AuditStore = Depends(_engine)) -> dict[str, Any]:
     from msb_v2.audit.sovereign.merkle import AuditMerkleChain
     from msb_v2.audit.sovereign.store import SovereignAuditStore
     sovereign = SovereignAuditStore()
-    return {"verified": sovereign.merkle.verify_chain(), "log": str(sovereign.merkle.log_path)}
+    valid = sovereign.merkle.verify_chain()
+    return {
+        "verified": valid,
+        "chain_valid": valid,
+        "chain_root_hash": getattr(sovereign.merkle, "root_hash", ""),
+        "log": str(sovereign.merkle.log_path),
+    }
 
 
 @router.get("/sovereignty")
@@ -71,7 +77,7 @@ def audit_sovereignty(
         merkle_ok=merkle_ok,
         fts=fts,
         assumption_debt=assumption_debt,
-        veto_active=blocked == 0,
+        veto_active=bool(blocked),
     )
     return {
         "merkle_ok": merkle_ok,
@@ -82,4 +88,5 @@ def audit_sovereignty(
         "fts": fts,
         "assumption_debt": assumption_debt,
         "audit_sovereignty_score": score,
+        "falsification_records": falsification.get("records", []),
     }
