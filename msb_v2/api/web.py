@@ -57,6 +57,7 @@ _register_contract(HarnessContract(route="/deepseek/provider/status", method="ge
 _ROUTER_REGISTRY: List[Tuple[Any, str]] = []
 _HEALTH_MANAGER: Any = None
 _RUNTIME_REGISTRY: Any = None
+_POLICY_ENGINE: Any = None
 
 
 class OrchestrateRequest(BaseModel):
@@ -261,6 +262,43 @@ def create_app() -> FastAPI:
         for contract in _RUNTIME_REGISTRY.all():
             entries.append(contract.capability_interface())
         return {"registry_state": "attached", "capabilities": entries}
+
+    @app.get("/runtime/policies")
+    def runtime_policies() -> dict:
+        if _POLICY_ENGINE is None:
+            return {"registry_state": "unattached", "policies": []}
+        entries = []
+        for rule in _POLICY_ENGINE._rules.values():
+            entries.append({
+                "rule_id": rule.rule_id,
+                "name": rule.name,
+                "category": rule.category,
+                "enforcement": rule.enforcement.value,
+                "owner": rule.owner,
+                "rationale": rule.rationale,
+            })
+        return {"registry_state": "attached", "policies": entries}
+
+    @app.post("/runtime/policies/evaluate")
+    def runtime_policies_evaluate(payload: dict) -> dict:
+        if _POLICY_ENGINE is None:
+            return {"registry_state": "unattached", "results": []}
+        context = payload if isinstance(payload, dict) else {}
+        return {"registry_state": "attached", "results": _POLICY_ENGINE.evaluate(context)}
+
+    @app.post("/runtime/mutation/request")
+    def runtime_mutation_request(payload: dict) -> dict:
+        intent = str(payload.get("intent", "")).strip()
+        actor = str(payload.get("actor", "")).strip()
+        if not intent or not actor:
+            return {"status": "error", "detail": "intent and actor are required"}
+        from msb_v2.runtime.mutation_guard import guard as _mutation_guard
+        return _mutation_guard().request(
+            intent=intent,
+            actor=actor,
+            payload=payload if isinstance(payload, dict) else {},
+            signature=payload.get("signature"),
+        )
 
     @app.get("/runtime/ping")
     def runtime_ping() -> dict:
@@ -475,7 +513,7 @@ def ensure_factory_registry() -> None:
 
 
 def _attach_runtime() -> None:
-    global _HEALTH_MANAGER, _RUNTIME_REGISTRY
+    global _HEALTH_MANAGER, _RUNTIME_REGISTRY, _POLICY_ENGINE
     try:
         from msb_v2.runtime.lifecycle import LifecycleManager
         from msb_v2.runtime.health import HealthManager
@@ -486,5 +524,11 @@ def _attach_runtime() -> None:
         HealthManager().record("ok", detail="from _attach_runtime")
         from msb_v2.runtime.governor import register_runtime_capabilities
         register_runtime_capabilities()
+    except Exception:
+        pass
+    try:
+        from msb_v2.runtime.policy import policy_engine, register_default_rules
+        _POLICY_ENGINE = policy_engine()
+        register_default_rules()
     except Exception:
         pass
