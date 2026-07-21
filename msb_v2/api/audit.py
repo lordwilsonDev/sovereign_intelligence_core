@@ -41,6 +41,12 @@ def audit_policies(engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
     return {"actions": actions, "count": len(actions)}
 
 
+@router.get("/policies/falsification")
+def audit_policies_falsification(engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
+    policy = AutoHealingPolicyEngine(audit=engine)
+    return policy.falsification_snapshot()
+
+
 @router.get("/verify")
 def audit_verify(store: SovereignAuditStore = Depends(_sovereign_store)) -> dict[str, Any]:
     return {"verified": store.merkle.verify_chain(), "log": str(store.merkle.log_path)}
