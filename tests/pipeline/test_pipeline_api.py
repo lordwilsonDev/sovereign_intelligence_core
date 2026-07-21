@@ -100,6 +100,24 @@ def test_provider_metrics_exposed() -> None:
         assert name in text, f"missing_metric:{name}"
 
 
+def test_pipeline_metrics_move_after_assess() -> None:
+    client = _client()
+    before = client.get("/metrics").text
+    payload = {
+        "artifact_id": "metrics-movement",
+        "sas": 91.0,
+        "rnr": 0.9,
+        "fts": 0.12,
+        "sas_a": 91.0,
+    }
+    response = client.post("/pipeline/assess", json=payload, headers={"Authorization": "Bearer test"})
+    assert response.status_code == 200
+    after = client.get("/metrics").text
+    assert 'msb_pipeline_sas_average{stage="gate"} 91.0' in after
+    assert 'msb_pipeline_fts_average{stage="gate"} 0.12' in after
+    assert before != after
+
+
 def test_kb4_metrics_exposed() -> None:
     response = _client().get("/metrics")
     assert response.status_code == 200
