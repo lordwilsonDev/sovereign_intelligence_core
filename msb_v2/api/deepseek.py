@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from typing import Any, Dict, List, Optional
 
@@ -17,8 +18,9 @@ from msb_v2.v3.contracts import HarnessContract
 from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _provider = DeepSeekProvider()
-_sov_provider = SovereignProviderWrapper(_provider) if os.getenv("DEEPSEEK_SOVEREIGN_WRAPPER", "0").lower() in ("1", "true", "yes") else None
 SCORER_ENABLED = os.getenv("MSB_REASONING_SCORER", "0").lower() in ("1", "true", "yes")
+_SOV_WRAP_DEFAULT = os.getenv("MSB_SOVEREIGN_PROVIDER", "0").lower() in ("1", "true", "yes")
+_sov_provider = SovereignProviderWrapper(_provider) if _SOV_WRAP_DEFAULT else None
 
 
 class DeepSeekChatRequest(BaseModel):
@@ -46,7 +48,8 @@ def deepseek_chat(payload: DeepSeekChatRequest, auth: Dict[str, Any] = Depends(r
         trace_id = None
 
     if payload.goal:
-        result = _provider.plan(payload.goal, context=None)
+        service = _sov_provider or _provider
+        result = service.plan(payload.goal, context=None)
         if SCORER_ENABLED:
             _stream.append(ExecutionEvent(
                 event_id=f"{trace_id}-2",
