@@ -13,6 +13,28 @@ export MSB_SOVEREIGN_PROVIDER=1
 ```
 - Default behavior: legacy provider path remains active when unset.
 
+## Artifacts
+- `msb_v2/provider/sovereign_provider.py`
+  - `SovereignProviderWrapper.chat()` with quarantine, coherence check, bounded jitter, and veto gating
+  - Prometheus gauges: `msb_provider_*`
+  - Ouroboros event metric: `msb_provider_ouroboros_events_total`
+  - Status snapshot: mounted at `/provider/status`
+- `msb_v2/provider/__init__.py`
+  - Public exports: `SovereignProviderWrapper`, `ProviderStatus`, `provider_status_router`, `ProviderContract`
+- `msb_v2/provider/contract.py`
+  - `ProviderContract(extends HarnessContract)`
+- `msb_v2/api/web.py`
+  - Registers `ProviderContract` in HCL contract table.
+  - Mounts `/provider/status` via `_register(provider_status_router, "/provider")`.
+- `msb_v2/engine/neuralagent.py`
+  - Backend dispatch stub executed for actionless orchestration tasks
+- `msb_v2/engine/orchestrator.py`
+  - Calls `_dispatch_neuralagent(...)` when a task has no explicit action
+- `scripts/setup_ollama_attestation.sh`
+  - Initial Ollama binary SHA-256 trust setup
+- `scripts/update_trusted_ollama_hash.sh`
+  - Human-in-the-loop hash update protocol with `APPROVAL_SIGNATURE`
+
 ## Components
 - `msb_v2/provider/sovereign_provider.py`
   - `SovereignProviderWrapper.chat()`
