@@ -300,6 +300,11 @@ def create_app() -> FastAPI:
             signature=payload.get("signature"),
         )
 
+    @app.get("/runtime/governance/state")
+    def runtime_governance_state() -> dict:
+        from msb_v2.runtime.state import governance_state as _governance_state
+        return _governance_state()
+
     @app.get("/runtime/ping")
     def runtime_ping() -> dict:
         return {"status": "ok", "module": "runtime"}
