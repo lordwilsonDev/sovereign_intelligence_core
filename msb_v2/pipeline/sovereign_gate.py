@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from msb_v2.audit.sovereign.merkle import AuditMerkleChain
+from msb_v2.pipeline.metrics import PIPELINE_DECISIONS_TOTAL, PIPELINE_FTS_AVERAGE, PIPELINE_SAS_AVERAGE
 from msb_v2.pipeline.sovereign_artifact_quarantine import SovereignArtifactQuarantine
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,12 @@ class SovereignGate:
             "fts": fts,
             "reason": reason,
         }
+        try:
+            PIPELINE_SAS_AVERAGE.labels(stage="gate").set(sas_a)
+            PIPELINE_FTS_AVERAGE.labels(stage="gate").set(fts)
+            PIPELINE_DECISIONS_TOTAL.labels(verdict=verdict).inc()
+        except Exception:
+            pass
         try:
             receipt = self.audit_chain.append(event)
         except Exception:
