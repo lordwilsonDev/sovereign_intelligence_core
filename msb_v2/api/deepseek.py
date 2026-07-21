@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.provider import DeepSeekProvider
-from msb_v2.provider.sovereign_provider import SovereignProviderWrapper
+from msb_v2.provider.sovereign_provider import SovereignProviderWrapper, ProviderVetoException, ProviderStatus
 from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.reasoning.scorer import score_from_events
 from msb_v2.api.reasoning_integrity import _stream
@@ -104,5 +104,20 @@ def deepseek_chat(payload: DeepSeekChatRequest, auth: Dict[str, Any] = Depends(r
         response["confidence_assessment"] = assessment_payload
 
     return {**response, "result": result}
+
+
+@router.get("/provider/status", dependencies=[Depends(require_bearer_token)])
+def deepseek_provider_status() -> Dict[str, Any]:
+    service = _sov_provider or _provider
+    if isinstance(service, SovereignProviderWrapper):
+        status = service.status()
+        return dict(status.model_dump())
+    return {
+        "provider": "deepseek-legacy",
+        "msb_sov_provider": False,
+    }
+
+
 # HCL contract registration
 _register_contract(HarnessContract(route="/deepseek/chat", method="post", allow_anonymous=False))
+_register_contract(HarnessContract(route="/deepseek/provider/status", method="get", allow_anonymous=False))

@@ -18,9 +18,9 @@ export MSB_SOVEREIGN_PROVIDER=1
   - `SovereignProviderWrapper.chat()` with quarantine, coherence check, bounded jitter, and veto gating
   - Prometheus gauges: `msb_provider_*`
   - Ouroboros event metric: `msb_provider_ouroboros_events_total`
-  - Status snapshot: mounted at `/provider/status`
+  - Status snapshot is exposed from DeepSeek router via `GET /deepseek/provider/status`
 - `msb_v2/provider/__init__.py`
-  - Public exports: `SovereignProviderWrapper`, `ProviderStatus`, `provider_status_router`, `ProviderContract`
+  - Public exports: `SovereignProviderWrapper`, `ProviderStatus`, `ProviderContract`
 - `msb_v2/provider/contract.py`
   - `ProviderContract(extends HarnessContract)`
 - `msb_v2/api/web.py`
@@ -53,13 +53,14 @@ export MSB_SOVEREIGN_PROVIDER=1
 
 ## Observability
 - `/metrics` exposes provider gauges.
-- `/provider/status` exposes runtime wrapper state:
-  - `enabled`
+- `GET /deepseek/provider/status` exposes runtime wrapper state under the authenticated DeepSeek router:
+  - `source_label`
   - `provider_trusted`
   - `veto_count`
   - `coherence_avg`
   - `sovereignty_score`
   - `jitter_min_ms`, `jitter_max_ms`
+  - When wrapper is disabled: `{"provider":"deepseek-legacy","msb_sov_provider":false}`
 
 ## Attestation
 - Setup script: `scripts/setup_ollama_attestation.sh`
