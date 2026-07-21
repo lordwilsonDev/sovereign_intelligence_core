@@ -11,8 +11,9 @@ import os
 from msb_v2.v3.contracts import HarnessContract, register as _register_contract
 from fastapi import APIRouter, Body, Depends, Query
 from msb_v2.api.middleware import require_bearer_token
-from memory.honcho_router import HonchoMemoryRouter, PeerCard
-
+from msb_v2.audit.audit_engine import AuditEngine
+from msb_v2.audit.business_metrics import BusinessMetrics
+from msb_v2.audit.storage import AuditStore
 MAGIC_HEADER = "### MSB_SESSION_CONTINUITY_V1 ###"
 
 
@@ -33,6 +34,9 @@ class ResumeBlob:
     recent_tool_calls: List[str] = field(default_factory=list)
     active_harness: str = ""
     memory_pointer: str = ""
+    merkle_root_hash: str = ""
+    policy_prediction_fts: float = 0.0
+    audit_sovereignty_score: float = 0.0
 
     @staticmethod
     def _escape(value: str) -> str:
@@ -61,6 +65,9 @@ class ResumeBlob:
             f"recent_tool_calls={';'.join(self.recent_tool_calls) or 'none'}",
             f"memory_pointer={self.memory_pointer or 'none'}",
             f"active_harness={self.active_harness or 'none'}",
+            f"merkle_root_hash={self.merkle_root_hash or 'none'}",
+            f"policy_prediction_fts={self.policy_prediction_fts}",
+            f"audit_sovereignty_score={self.audit_sovereignty_score}",
         ]
         return "\n".join(values)
 
@@ -117,9 +124,36 @@ class ResumePromptCompiler:
         self._checkpoint_dir = Path("/private/var/folders/_0/1fjsnc_n747c32_7t8s014c40000gn/T/msb-checkpoints")
         self._checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
+    def _live_snapshot(self) -> dict[str, Any]:
+        try:
+            engine = AuditEngine(store=AuditStore())
+            snap = BusinessMetrics(audit=engine).snapshot()
+            immutable = snap.get("immutable_record") or {}
+            merkle_root_hash = immutable.get("root_hash") or ""
+            falsification = engine.falsification_snapshot()
+            fts = 0.0
+            if falsification.get("count", 0) > 0:
+                fts = falsification.get("falsified_count", 0) / falsification["count"]
+            assumption_debt = engine.assumption_debt_count()
+            from msb_v2.audit.sovereign.metrics import compute_audit_sovereignty_score
+            score = compute_audit_sovereignty_score(
+                merkle_ok=bool(merkle_root_hash),
+                fts=fts,
+                assumption_debt=assumption_debt,
+                veto_active=True,
+            )
+            return {
+                "merkle_root_hash": merkle_root_hash,
+                "policy_prediction_fts": fts,
+                "audit_sovereignty_score": score,
+            }
+        except Exception as exc:
+            return {"error": str(exc)}
+
     def compile(self, recent_tool_calls: Optional[List[str]] = None) -> str:
         if recent_tool_calls is not None:
             self.recent_tool_calls = list(recent_tool_calls)[-8:]
+        snapshot = self._live_snapshot()
         blob = ResumeBlob(
             project=self.project,
             version=self.version,
@@ -136,6 +170,9 @@ class ResumePromptCompiler:
             recent_tool_calls=self.recent_tool_calls,
             active_harness=self.active_harness,
             memory_pointer=self.memory_pointer,
+            merkle_root_hash=snapshot.get("merkle_root_hash", ""),
+            policy_prediction_fts=float(snapshot.get("policy_prediction_fts", 0.0)),
+            audit_sovereignty_score=float(snapshot.get("audit_sovereignty_score", 0.0)),
         )
         prompt = blob.to_prompt()
         try:
@@ -149,6 +186,7 @@ class ResumePromptCompiler:
         Path(path).write_text(self.compile(), encoding="utf-8")
 
     def compact_text(self) -> str:
+        snapshot = self._live_snapshot()
         blob = ResumeBlob(
             project=self.project,
             version=self.version,
@@ -165,6 +203,9 @@ class ResumePromptCompiler:
             recent_tool_calls=self.recent_tool_calls,
             active_harness=self.active_harness,
             memory_pointer=self.memory_pointer,
+            merkle_root_hash=snapshot.get("merkle_root_hash", ""),
+            policy_prediction_fts=float(snapshot.get("policy_prediction_fts", 0.0)),
+            audit_sovereignty_score=float(snapshot.get("audit_sovereignty_score", 0.0)),
         )
         return blob.compact_text()
 
@@ -216,9 +257,13 @@ def continuity_fidelity(auth: Dict[str, Any] = Depends(require_bearer_token)) ->
     except Exception:
         events = []
     event_count = len(events or [])
+    snapshot = _compiler._live_snapshot()
     return {
         "event_count": event_count,
         "continuity_fidelity": 1.0 if event_count > 0 else 0.0,
         "source": "runtime.replay_events",
         "head": events[-1] if events else None,
+        "merkle_root_hash": snapshot.get("merkle_root_hash", ""),
+        "audit_sovereignty_score": snapshot.get("audit_sovereignty_score", 0.0),
+        "policy_prediction_fts": snapshot.get("policy_prediction_fts", 0.0),
     }
