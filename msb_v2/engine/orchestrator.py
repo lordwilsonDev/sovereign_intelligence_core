@@ -6,9 +6,10 @@ execution contract that future prompt, memory, tool, and model nodes can use.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Dict
 
 
 PENDING = "pending"
@@ -38,6 +39,28 @@ def _safe(value: Any) -> Any:
         return value if isinstance(value, (bool, int, float, str)) else str(value)
     except Exception:
         return None
+
+
+def _dispatch_neuralagent(task: Task, hook: Callable[[str, str, Dict[str, Any] | None, str | None], Dict[str, Any]] | None) -> Any:
+    try:
+        from msb_v2.engine.neuralagent import execute_neuralagent
+    except Exception:
+        return None
+    payload = {
+        "task_id": task.id,
+        "status": task.status,
+        "result": _safe(task.result),
+        "action": repr(task.action),
+    }
+    try:
+        result = execute_neuralagent(payload)
+        if hook:
+            hook("neuralagent/result", task.id, result, None)
+    except Exception as exc:
+        if hook:
+            hook("neuralagent/error", task.id, {"error": str(exc)}, None)
+        return None
+    return result
 
 
 def orchestrate(
@@ -88,7 +111,7 @@ def orchestrate(
             if hook:
                 hook("dispatch", task.id, {"action": bool(task.action)}, None)
             try:
-                task.result = task.action() if task.action else None
+                task.result = task.action() if task.action else _dispatch_neuralagent(task, hook)
             except Exception as error:
                 task.status = FAILED
                 task.result = error
