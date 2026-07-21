@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from msb_v2.api.middleware import require_bearer_token
 from msb_v2.provider import DeepSeekProvider
+from msb_v2.provider.sovereign_provider import SovereignProviderWrapper
 from msb_v2.reasoning.integrity import EventKind, ExecutionEvent
 from msb_v2.reasoning.scorer import score_from_events
 from msb_v2.api.reasoning_integrity import _stream
@@ -16,6 +17,7 @@ from msb_v2.v3.contracts import HarnessContract
 from msb_v2.v3.contracts import register as _register_contract
 router = APIRouter()
 _provider = DeepSeekProvider()
+_sov_provider = SovereignProviderWrapper(_provider) if os.getenv("DEEPSEEK_SOVEREIGN_WRAPPER", "0").lower() in ("1", "true", "yes") else None
 SCORER_ENABLED = os.getenv("MSB_REASONING_SCORER", "0").lower() in ("1", "true", "yes")
 
 
