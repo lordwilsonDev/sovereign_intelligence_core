@@ -141,6 +141,7 @@ def _load_routers() -> None:
     from msb_v2.api.pipeline import router as pipeline_router
     from msb_v3.validation.api.router import router as validation_router
     from msb_v3.validation.api.ail import router as validation_ail_router
+    from msb_v3.validation.api.propulsion import router as validation_propulsion_router
 
     from msb_v2.kernel import metrics as _kb4_metrics
     from msb_v2.pipeline import metrics as _pipeline_metrics
@@ -150,6 +151,7 @@ def _load_routers() -> None:
     _register(pipeline_router, "/pipeline")
     _register(validation_router, "/validation")
     _register(validation_ail_router, "/validation")
+    _register(validation_propulsion_router, "/validation")
     _register(cognitive_router, "/cognitive")
     _register(imagination_router, "/imagination")
     _register(moie_router, "/moie")
