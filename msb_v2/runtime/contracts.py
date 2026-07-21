@@ -16,6 +16,22 @@ class RuntimeContract:
     shutdown: Optional[Callable[[], None]] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+    def capability_interface(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "version": self.version,
+            "sha": self.sha,
+            "initialize": self.initialize is not None,
+            "execute": self.execute is not None,
+            "validate": self.validate is not None,
+            "shutdown": self.shutdown is not None,
+        }
+
+    def validate_capability(self) -> bool:
+        if self.validate is None:
+            return True
+        return bool(self.validate())
+
 
 class ContractRegistry:
     def __init__(self) -> None:
@@ -39,7 +55,7 @@ class ContractRegistry:
                 if contract.initialize is not None:
                     contract.initialize()
                 results[name] = True
-            except Exception as exc:
+            except Exception:
                 results[name] = False
         return results
 
@@ -50,7 +66,7 @@ class ContractRegistry:
                 if contract.shutdown is not None:
                     contract.shutdown()
                 results[name] = True
-            except Exception as exc:
+            except Exception:
                 results[name] = False
         return results
 
