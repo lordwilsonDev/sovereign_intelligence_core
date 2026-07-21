@@ -364,14 +364,38 @@ def create_app() -> FastAPI:
         from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
         from msb_v2.audit.audit_engine import AuditEngine
         from msb_v2.audit.storage import AuditStore
-        from msb_v2.audit.telemetry import _update_policy_metrics
+        from msb_v2.audit.telemetry import _update_policy_metrics, update_sovereign_metrics
+        from msb_v2.audit.sovereign.metrics import compute_audit_sovereignty_score
+        from msb_v2.audit.sovereign.store import SovereignAuditStore
 
         _policy_engine = AutoHealingPolicyEngine(audit=AuditEngine(store=AuditStore()))
 
         def _policy_engine_loop() -> None:
             while True:
                 try:
-                    _update_policy_metrics(_policy_engine.evaluate())
+                    actions = _policy_engine.evaluate()
+                    _update_policy_metrics(actions)
+                    engine = _policy_engine._audit
+                    falsification = engine.falsification_snapshot()
+                    fts = 0.0
+                    if falsification.get("count", 0) > 0:
+                        fts = falsification.get("falsified_count", 0) / falsification["count"]
+                    assumption_debt = engine.assumption_debt_count()
+                    try:
+                        merkle_ok = SovereignAuditStore().merkle.verify_chain()
+                    except Exception:
+                        merkle_ok = False
+                    score = compute_audit_sovereignty_score(
+                        merkle_ok=merkle_ok,
+                        fts=fts,
+                        assumption_debt=assumption_debt,
+                        veto_active=any(a.get("status") == "blocked" for a in actions),
+                    )
+                    update_sovereign_metrics(
+                        fts=fts,
+                        assumption_debt=assumption_debt,
+                        audit_sovereignty_score=score,
+                    )
                 except Exception:
                     pass
                 time.sleep(1800)

@@ -8,7 +8,7 @@ from prometheus_client import Counter, Gauge, Histogram  # type: ignore[import]
 
 from msb_v2.audit.audit_engine import AuditEngine
 from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
-from msb_v2.audit.events import AuditEvent, EventType
+from msb_v2.audit.events import EventType
 from msb_v2.audit.schemas import stable_workflow
 
 _workflow_total = Counter("msb_audit_workflow_total", "Workflow events by workflow and status", ["workflow", "status"])
@@ -19,6 +19,9 @@ _event_total = Counter("msb_audit_event_total", "Audit events by event_type and 
 _workflow_success_rate = Gauge("msb_audit_workflow_success_rate", "Success rate by workflow", ["workflow"])
 _policy_action_total = Counter("msb_audit_policy_action_total", "Auto-healing policy actions by policy", ["policy"])
 _policy_actions_current = Gauge("msb_audit_policy_actions_current", "Current detected policy actions", ["policy"])
+_sovereign_fts = Gauge("msb_audit_sovereign_fts", "Policy falsification trend score")
+_sovereign_assumption_debt = Gauge("msb_audit_sovereign_assumption_debt", "Assumption debt count")
+_sovereign_score = Gauge("msb_audit_sovereign_score", "Audit sovereignty score")
 
 
 def _update_from_events(events: list[dict[str, Any]]) -> None:
@@ -52,6 +55,16 @@ def _update_policy_metrics(actions: list[dict[str, Any]]) -> None:
     for policy, count in counts.items():
         _policy_action_total.labels(policy=policy).inc(count)
         _policy_actions_current.labels(policy=policy).set(count)
+
+
+def update_sovereign_metrics(
+    fts: float = 0.0,
+    assumption_debt: int = 0,
+    audit_sovereignty_score: float = 0.0,
+) -> None:
+    _sovereign_fts.set(float(fts))
+    _sovereign_assumption_debt.set(max(int(assumption_debt), 0))
+    _sovereign_score.set(float(audit_sovereignty_score))
 
 
 class AuditTelemetry:
