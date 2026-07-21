@@ -17,9 +17,11 @@ from msb_v2.engine.orchestrator import Task, orchestrate
 
 from cognitive_compiler.sovereign_autonomy_core import SovereignAutonomyCore
 from cognitive_compiler.sac_self_audit import SacSelfAuditor, get_auditor, set_app_factory
+from msb_v2.provider.contract import ProviderContract
 from msb_v2.transport.compression import compress_content
 
 _register_contract(HarnessContract(route="/orchestrate", method="post", allow_anonymous=False, max_body_bytes=65536))
+_register_contract(ProviderContract())
 _register_contract(HarnessContract(route="/audit/recent", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/audit/summary", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/audit/policies", method="get", allow_anonymous=True, max_body_bytes=65536))
