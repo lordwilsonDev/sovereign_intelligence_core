@@ -475,5 +475,7 @@ def _attach_runtime() -> None:
         _HEALTH_MANAGER = LifecycleManager()
         _HEALTH_MANAGER.initialize()
         HealthManager().record("ok", detail="from _attach_runtime")
+        from msb_v2.runtime.governor import register_runtime_capabilities
+        register_runtime_capabilities()
     except Exception:
         pass
