@@ -17,21 +17,27 @@ export MSB_SOVEREIGN_PROVIDER=1
 - `msb_v2/provider/sovereign_provider.py`
   - `SovereignProviderWrapper.chat()`
   - Quarantine via `QuarantineInversionAgent`
-  - Coherence stub via lightweight follow-up prompt
-  - Bounded jitter: `random.uniform(0.005, 0.05)`
+  - Coherence stub via lightweight follow-up prompt; coherence prompt itself is quarantined
+  - Configurable jitter via `MSB_PROVIDER_JITTER_MIN_MS` / `MSB_PROVIDER_JITTER_MAX_MS`
   - `ProviderVetoException` on HIGH risk
   - Prometheus gauges: `msb_provider_*`
+  - Status snapshot: `GET /provider/status`
 - `msb_v2/provider/contract.py`
   - `ProviderContract(extends HarnessContract)`
   - `ProviderIOContract`
 - `msb_v2/api/web.py`
   - Registries `ProviderContract` in HCL contract table.
+  - Mounts `/provider/status` route.
 
-## Metrics
-- `msb_provider_sovereignty_score`
-- `msb_provider_vetoes_total`
-- `msb_provider_coherence_avg`
-- `msb_provider_trust_status`
+## Observability
+- `/metrics` exposes provider gauges.
+- `/provider/status` exposes runtime wrapper state:
+  - `enabled`
+  - `provider_trusted`
+  - `veto_count`
+  - `coherence_avg`
+  - `sovereignty_score`
+  - `jitter_min_ms`, `jitter_max_ms`
 
 ## Attestation
 - Script: `scripts/setup_ollama_attestation.sh`
@@ -39,12 +45,13 @@ export MSB_SOVEREIGN_PROVIDER=1
 - Wrapper verifies at startup; mismatch -> `provider_trusted=False`.
 
 ## AIL Notes
-- Quarantine prompts for coherence checker are not yet wrapped; remains future hardening.
-- Jitter budget is currently fixed; no latency-sensitive disable path implemented.
+- Coherence checker prompts now pass through quarantine; returns `coherence=0.0` if blocked.
+- Jitter budget is configurable; no latency-sensitive disable path implemented yet.
 - `get_auditor()` attribute typing is conservative because `SacSelfAuditor` does not declare `record_policy_falsification`.
 
 ## Success Criteria
 - All existing tests pass.
 - Adversarial prompt blocked in provider wrapper path.
 - Provider metrics visible on `/metrics`.
+- Provider state visible on `/provider/status`.
 - HCL contract registry contains provider interface contract.

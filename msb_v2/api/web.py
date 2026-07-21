@@ -52,6 +52,7 @@ _register_contract(HarnessContract(route="/continuity/resume-prompt", method="ge
 _register_contract(HarnessContract(route="/metrics", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/memory/add", method="post", allow_anonymous=False, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/memory/search", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/provider/status", method="get", allow_anonymous=True, max_body_bytes=65536))
 
 _ROUTER_REGISTRY: List[Tuple[Any, str]] = []
 
@@ -87,6 +88,7 @@ def _load_routers() -> None:
     from msb_v2.api.reasoning_integrity import router as reasoning_integrity_router
     from msb_v2.api.consciousness import router as consciousness_router
     from msb_v2.api.demo import router as demo_router
+    from msb_v2.provider.sovereign_provider import provider_status_router
     from msb_v2.api.counterfactual import router as counterfactual_router
     from msb_v2.api.reasoning_drift import router as reasoning_drift_router
     from msb_v2.api.observability import router as observability_router
@@ -134,9 +136,11 @@ def _load_routers() -> None:
     from msb_v2.api import v3_crew as v3_crew_router
     from msb_v2.api.health import router as health_router
     from msb_v2.api.continuity import router as continuity_router
+    from msb_v2.provider.sovereign_provider import provider_status_router
 
     _register(health_router, "")
     _register(continuity_router, "/continuity")
+    _register(provider_status_router, "/provider")
     _register(cognitive_router, "/cognitive")
     _register(imagination_router, "/imagination")
     _register(moie_router, "/moie")

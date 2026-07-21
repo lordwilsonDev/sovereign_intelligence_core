@@ -8,6 +8,9 @@ import subprocess
 import time
 from typing import Any, Dict, List, Optional
 
+from fastapi import APIRouter
+from pydantic import BaseModel
+
 from prometheus_client import Gauge  # type: ignore[import]
 
 try:
@@ -31,6 +34,16 @@ class ProviderVetoException(Exception):
     pass
 
 
+class ProviderStatus(BaseModel):
+    source_label: str
+    provider_trusted: bool
+    veto_count: int
+    coherence_avg: float
+    sovereignty_score: float
+    jitter_min_ms: float
+    jitter_max_ms: float
+
+
 class SovereignProviderWrapper:
     def __init__(self, provider: Any, source_label: str = "neuralagent-ollama") -> None:
         self.provider = provider
@@ -40,6 +53,8 @@ class SovereignProviderWrapper:
         self._veto_count = 0
         self._coherence_sum = 0.0
         self._coherence_samples = 0
+        self.jitter_min_ms = float(os.getenv("MSB_PROVIDER_JITTER_MIN_MS", "5"))
+        self.jitter_max_ms = float(os.getenv("MSB_PROVIDER_JITTER_MAX_MS", "50"))
         _provider_trust_status.set(1.0 if self.provider_trusted else 0.0)
 
     def chat(self, messages: List[Dict[str, str]], max_tokens: int = 256, **kwargs: Any) -> Dict[str, Any]:
@@ -59,6 +74,27 @@ class SovereignProviderWrapper:
         self._apply_jitter()
         self._update_score()
         return dict(response or {}, provider_metadata=self._metadata(risk, coherence))
+
+    def status(self) -> ProviderStatus:
+        score = 0.0
+        try:
+            veto_component = max(0.0, 1.0 - (self._veto_count / max(self._coherence_samples, 1)))
+            coherence_component = self._coherence_sum / max(self._coherence_samples, 1)
+            trust_component = 1.0 if self.provider_trusted else 0.0
+            jitter_component = 1.0
+            score = (trust_component * 0.4) + (veto_component * 0.3) + (coherence_component * 0.2) + (jitter_component * 0.1)
+            score = float(score)
+        except Exception:
+            pass
+        return ProviderStatus(
+            source_label=self.source_label,
+            provider_trusted=self.provider_trusted,
+            veto_count=self._veto_count,
+            coherence_avg=self._coherence_sum / max(self._coherence_samples, 1),
+            sovereignty_score=score,
+            jitter_min_ms=self.jitter_min_ms,
+            jitter_max_ms=self.jitter_max_ms,
+        )
 
     def _classify_risk(self, prompt: str) -> str:
         if self._quarantine is None:
@@ -89,7 +125,7 @@ class SovereignProviderWrapper:
 
     def _apply_jitter(self) -> None:
         try:
-            time.sleep(random.uniform(0.005, 0.05))
+            time.sleep(random.uniform(self.jitter_min_ms / 1000.0, self.jitter_max_ms / 1000.0))
         except Exception:
             pass
 
@@ -153,3 +189,17 @@ def _last_user_content(messages: List[Dict[str, str]]) -> str:
         if item.get("role") == "user":
             return item.get("content", "") or ""
     return ""
+
+
+provider_status_router = APIRouter()
+
+
+@provider_status_router.get("/provider/status")
+def provider_status() -> Dict[str, Any]:
+    try:
+        from msb_v2.api.deepseek import _sov_provider
+        if _sov_provider is None:
+            return {"enabled": False, "provider_trusted": None}
+        return {"enabled": True, **dict(_sov_provider.status().model_dump())}
+    except Exception:
+        return {"enabled": False, "provider_trusted": None}

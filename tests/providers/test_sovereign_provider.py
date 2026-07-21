@@ -5,7 +5,7 @@ from typing import Any, Dict, List
 import pytest
 
 from msb_v2.provider.contract import ProviderContract, ProviderIOContract
-from msb_v2.provider.sovereign_provider import SovereignProviderWrapper, ProviderVetoException
+from msb_v2.provider.sovereign_provider import SovereignProviderWrapper, ProviderVetoException, ProviderStatus
 
 
 class DummyProvider:
@@ -76,3 +76,45 @@ def test_provider_contract_exposes_interface():
     assert isinstance(io_contract, ProviderIOContract)
     assert "prompt" in io_contract.input_schema["properties"]
     assert "response" in io_contract.output_schema["properties"]
+
+
+def test_status_returns_model():
+    provider = DummyProvider(["ok", "yes"])
+    wrapper = SovereignProviderWrapper(provider, source_label="test")
+    wrapper._quarantine = None
+
+    wrapper.chat([{"role": "user", "content": "hello"}])
+    status = wrapper.status()
+    assert isinstance(status, ProviderStatus)
+    assert status.source_label == "test"
+    assert status.veto_count == 0
+    assert status.coherence_avg in (0.0, 1.0)
+    assert status.sovereignty_score >= 0.0
+
+
+def test_jitter_budget_configurable(monkeypatch):
+    provider = DummyProvider(["ok"])
+    wrapper = SovereignProviderWrapper(provider, source_label="test")
+    wrapper._quarantine = None
+    wrapper.jitter_min_ms = 10.0
+    wrapper.jitter_max_ms = 20.0
+
+    sleeps = []
+    monkeypatch.setattr(
+        "msb_v2.provider.sovereign_provider.time.sleep",
+        lambda s: sleeps.append(s),
+    )
+
+    wrapper.chat([{"role": "user", "content": "hello"}])
+    assert len(sleeps) == 1
+    assert 0.010 <= sleeps[0] <= 0.020
+
+
+def test_coherence_high_risk_returns_zero(monkeypatch):
+    provider = DummyProvider(["ok"])
+    wrapper = SovereignProviderWrapper(provider, source_label="test")
+    wrapper._quarantine = None
+
+    monkeypatch.setattr(wrapper, "_classify_risk", lambda prompt: "HIGH")
+    coherence = wrapper._check_coherence({"role": "assistant", "content": "text"})
+    assert coherence == 0.0
