@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from fastapi import FastAPI, Depends, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
 from msb_v2.api.middleware import hcl_contract_middleware, require_bearer_token
@@ -307,12 +307,14 @@ def create_app() -> FastAPI:
 
     try:
         from prometheus_client import generate_latest, REGISTRY
-        from fastapi.responses import Response as FastAPIResponse
 
         @app.get("/metrics")
-        def prometheus_metrics() -> FastAPIResponse:
+        def prometheus_metrics() -> Response:
             data = generate_latest(REGISTRY)
-            return FastAPIResponse(content=data, media_type="text/plain; version=0.0.4")
+            return Response(
+                content=data,
+                media_type="text/plain; version=0.0.4; charset=utf-8",
+            )
     except Exception:
         pass
 
