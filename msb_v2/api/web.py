@@ -136,9 +136,11 @@ def _load_routers() -> None:
     from msb_v2.api import v3_crew as v3_crew_router
     from msb_v2.api.health import router as health_router
     from msb_v2.api.continuity import router as continuity_router
+    from msb_v2.api.pipeline import router as pipeline_router
 
     _register(health_router, "")
     _register(continuity_router, "/continuity")
+    _register(pipeline_router, "/pipeline")
     _register(cognitive_router, "/cognitive")
     _register(imagination_router, "/imagination")
     _register(moie_router, "/moie")
