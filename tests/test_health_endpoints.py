@@ -6,7 +6,11 @@ from starlette.testclient import TestClient
 
 def test_health_baseline():
     client = TestClient(create_app())
-    assert client.get("/health").json() == {"status": "ok"}
+    response = client.get("/health").json()
+    assert response["status"] == "ok"
+    assert response["runtime"]["state"] == "running"
+    assert isinstance(response["contracts"]["registered"], int)
+    assert isinstance(response["contracts"]["names"], list)
     assert client.get("/runtime/ping").json() == {"status": "ok", "module": "runtime"}
 
 

@@ -55,6 +55,8 @@ _register_contract(HarnessContract(route="/memory/search", method="get", allow_a
 _register_contract(HarnessContract(route="/deepseek/provider/status", method="get", allow_anonymous=False, max_body_bytes=65536))
 
 _ROUTER_REGISTRY: List[Tuple[Any, str]] = []
+_HEALTH_MANAGER: Any = None
+_RUNTIME_REGISTRY: Any = None
 
 
 class OrchestrateRequest(BaseModel):
@@ -219,6 +221,8 @@ def create_app() -> FastAPI:
     app = FastAPI(title="MSB v2.0")
     app.middleware("http")(hcl_contract_middleware)
 
+    _attach_runtime()
+
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         status_code = getattr(exc, 'status_code', None)
@@ -237,7 +241,17 @@ def create_app() -> FastAPI:
 
     @app.get("/health")
     def health() -> dict:
-        return {"status": "ok"}
+        return {
+            "status": "ok",
+            "runtime": {
+                "state": _HEALTH_MANAGER.state.value if _HEALTH_MANAGER is not None else "unknown",
+                "uptime_seconds": _HEALTH_MANAGER.uptime if _HEALTH_MANAGER is not None else 0.0,
+            },
+            "contracts": {
+                "registered": len(_RUNTIME_REGISTRY.all()) if _RUNTIME_REGISTRY is not None else 0,
+                "names": [c.name for c in (_RUNTIME_REGISTRY.all() or [])],
+            },
+        }
 
     @app.get("/runtime/ping")
     def runtime_ping() -> dict:
@@ -449,3 +463,17 @@ def ensure_factory_registry() -> None:
             globals()['app'].include_router(router, prefix=prefix)
     finally:
         _app_factory_lock = False
+
+
+def _attach_runtime() -> None:
+    global _HEALTH_MANAGER, _RUNTIME_REGISTRY
+    try:
+        from msb_v2.runtime.lifecycle import LifecycleManager
+        from msb_v2.runtime.health import HealthManager
+        from msb_v2.runtime.contracts import registry as _runtime_registry
+        _RUNTIME_REGISTRY = _runtime_registry()
+        _HEALTH_MANAGER = LifecycleManager()
+        _HEALTH_MANAGER.initialize()
+        HealthManager().record("ok", detail="from _attach_runtime")
+    except Exception:
+        pass
