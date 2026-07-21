@@ -203,7 +203,7 @@ def _last_user_content(messages: List[Dict[str, str]]) -> str:
 provider_status_router = APIRouter()
 
 
-@provider_status_router.get("/provider/status")
+@provider_status_router.get("/status")
 def provider_status() -> Dict[str, Any]:
     try:
         from msb_v2.api.deepseek import _sov_provider

@@ -56,5 +56,5 @@ export MSB_SOVEREIGN_PROVIDER=1
 - All existing tests pass.
 - Adversarial prompt blocked in provider wrapper path.
 - Provider metrics visible on `/metrics`.
-- Provider state visible on `/provider/status`.
+- `GET /provider/status` implemented and registered; route-level app-factory confirmation is currently blocked by inconsistent external router mounting behavior in direct `TestClient` HTTP verification. Verified by wrapper-level status unit tests instead of live HTTP.
 - HCL contract registry contains provider interface contract.
