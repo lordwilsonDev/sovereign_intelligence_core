@@ -44,3 +44,4 @@ memory_store.db
 runtime_events.db
 runtime/
 :memory:
+.pipeline/
