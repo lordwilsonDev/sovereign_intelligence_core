@@ -23,7 +23,6 @@ class ValidationResultResponse(BaseModel):
 
 router = APIRouter()
 
-
 @router.post("/run")
 def run_validation(payload: RunValidationRequest) -> ValidationResultResponse:
     from msb_v3.validation.core.scoring import scoring_engine
