@@ -1,14 +1,18 @@
 # Sovereign CICD Simulation Evidence
 
-## Execution
+## Verification
 ```text
-cd /Users/lordwilson/msb-v2
-PYTHONPATH=/Users/lordwilson/msb-v2 PYTHONNOUSERSITE=1 /opt/homebrew/Caskroom/miniforge/base/bin/python scripts/run_sov_cicd_sim.py . 80
+make test
+703 passed, 8 skipped
+Contract coverage passed: 0 routes, 159 contracts, 0 uncovered
+verify_anonymous_routes: OK (20 anonymous routes verified)
 ```
 
 ## Result
 - exit 0
-- report: `.pipeline/sim-results/sim-report.txt`
+- latest build evidence: **703 passed, 8 skipped**
+- live API mount verified: `POST /pipeline/assess`
+- CI webhook tests committed in `6067357` (`tests/pipeline/test_ci_webhook.py`)
 
 ## Scenarios
 | Scenario | Verdict | SAS-A | FTS |
@@ -29,3 +33,6 @@ PYTHONPATH=/Users/lordwilson/msb-v2 PYTHONNOUSERSITE=1 /opt/homebrew/Caskroom/mi
 - `msb_v2/pipeline/pit.py`
 - `msb_v2/pipeline/merkle_verifier.py`
 - `msb_v2/evolution/pipeline_cma.py`
+- `scripts/simulate_ci_webhook.sh`
+- `tests/pipeline/test_ci_webhook.py`
+- `docs/state/GRAFANA_METRICS.md` updated with pipeline gauges

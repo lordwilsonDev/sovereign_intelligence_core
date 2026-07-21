@@ -13,6 +13,9 @@ Provisioned metrics from live `/metrics` as of `2026-07-20`:
 - `msb_audit_sovereign_fts`
 - `msb_audit_sovereign_assumption_debt`
 - `msb_audit_sovereign_score`
+- `msb_pipeline_sas_average`
+- `msb_pipeline_fts_average`
+- `msb_pipeline_decisions_total`
 
 Current panel mappings:
 - Reasoning Traces Total -> `msb_reasoning_traces_total`
