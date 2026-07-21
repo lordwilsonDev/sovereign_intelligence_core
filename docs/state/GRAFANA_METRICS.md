@@ -27,3 +27,9 @@ Current panel mappings:
 - Sovereignty Score -> `msb_audit_sovereign_score`
 
 Status: Panel targets aligned; visualization still pending manual UI confirmation because Grafana instance permissions block automated dashboard updates.
+## Pipeline metrics
+Added panels for:
+- `msb_pipeline_sas_average`
+- `msb_pipeline_fts_average`
+- `msb_pipeline_decisions_total`
+Backup: `/opt/homebrew/var/lib/grafana/dashboards/msb-cognitive-ops.json.bak`
