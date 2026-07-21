@@ -100,6 +100,15 @@ def _render_report(client_name: str, snapshot: dict[str, Any]) -> str:
     <ul>{recommendation_rows}</ul>
   </section>''' if recommendation_rows else ''}
 
+  {f'''<section>
+    <h2>Sovereign Audit</h2>
+    <table>
+      <tr><th>Metric</th><th>Value</th></tr>
+      <tr><td>Falsified Policy Actions</td><td class="metric-value">{snapshot.get('sovereign', {}).get('falsified_count', 0)}</td></tr>
+      <tr><td>Falsification Trend Score</td><td class="metric-value">{snapshot.get('sovereign', {}).get('fts', 0) * 100:.1f}%</td></tr>
+      <tr><td>Assumption Debt</td><td class="metric-value">{snapshot.get('sovereign', {}).get('assumption_debt', 0)}</td></tr>
+    </table>
+  </section>''' if isinstance(snapshot.get('sovereign'), dict) else ''}
   <section>
     <h2>Immutable Record</h2>
     <p class="immutable">Root Hash: <code>{immutable.get('root_hash', 'N/A')}</code></p>

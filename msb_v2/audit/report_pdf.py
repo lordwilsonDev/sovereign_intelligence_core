@@ -74,6 +74,16 @@ class IntegrityReportPDF:
         story.append(Spacer(1, 0.2 * inch))
 
         immutable = snapshot.get("immutable_record", {})
+        sovereign = snapshot.get("sovereign", {})
+        story.append(Paragraph("Sovereign Audit", styles["Heading2"]))
+        story.append(Paragraph(
+            f"Falsified Policy Actions: {sovereign.get('falsified_count', 0)} "
+            f"| FTS: {sovereign.get('fts', 0) * 100:.1f}% "
+            f"| Assumption Debt: {sovereign.get('assumption_debt', 0)}",
+            styles["Normal"],
+        ))
+        story.append(Spacer(1, 0.1 * inch))
+
         story.append(Paragraph("Immutable Record", styles["Heading2"]))
         story.append(Paragraph(
             f"Root Hash: {immutable.get('root_hash', 'N/A')}",

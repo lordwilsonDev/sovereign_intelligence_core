@@ -47,3 +47,8 @@ def test_audit_sovereignty_endpoint():
         assert data["audit_sovereignty_score"] >= 0
         assert "blocked_actions" in data
         assert "merkle_ok" in data
+        assert "fts" in data
+        assert "assumption_debt" in data
+        assert "falsified_count" in data
+        assert isinstance(data["fts"], (int, float))
+        assert isinstance(data["assumption_debt"], int)

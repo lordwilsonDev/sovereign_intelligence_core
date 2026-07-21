@@ -7,7 +7,6 @@ from fastapi import APIRouter, Depends
 from msb_v2.audit.audit_engine import AuditEngine
 from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
 from msb_v2.audit.business_metrics import BusinessMetrics
-from msb_v2.audit.events import EventType, Status
 from msb_v2.audit.storage import AuditStore
 
 
@@ -38,28 +37,7 @@ def audit_policies(engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
 
 @router.get("/policies/falsification")
 def audit_policies_falsification(engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
-    events = engine.events()
-    policy_events: list[dict[str, Any]] = []
-    for event in events:
-        event_type = event.get("event_type")
-        if event_type not in {EventType.SELF_CORRECTION.value, EventType.SELF_CORRECTION_BLOCKED.value}:
-            continue
-        metadata = event.get("metadata") or {}
-        policy = metadata.get("policy")
-        if not policy:
-            continue
-        policy_events.append(
-            {
-                "policy": policy,
-                "detected_rate": metadata.get("detected_rate"),
-                "sample_count": metadata.get("sample_count"),
-                "blocked": event_type == EventType.SELF_CORRECTION_BLOCKED.value,
-                "suggestion": metadata.get("suggestion"),
-                "quarantine": metadata.get("quarantine", {}),
-                "action_feedback": "pending",
-            }
-        )
-    return {"records": policy_events, "count": len(policy_events), "falsified_count": 0}
+    return engine.falsification_snapshot()
 
 
 @router.get("/verify")
@@ -84,10 +62,15 @@ def audit_sovereignty(
     total_blocks = immutable_record.get("total_blocks", 0)
     actions = AutoHealingPolicyEngine(audit=engine).evaluate()
     blocked = sum(1 for a in actions if a.get("status") == "blocked")
+    falsification = engine.falsification_snapshot()
+    fts = 0.0
+    if falsification.get("count", 0) > 0:
+        fts = falsification.get("falsified_count", 0) / falsification["count"]
+    assumption_debt = engine.assumption_debt_count()
     score = compute_audit_sovereignty_score(
         merkle_ok=merkle_ok,
-        fts=0.0,
-        assumption_debt=0,
+        fts=fts,
+        assumption_debt=assumption_debt,
         veto_active=blocked == 0,
     )
     return {
@@ -95,5 +78,8 @@ def audit_sovereignty(
         "root_hash": root_hash,
         "total_blocks": total_blocks,
         "blocked_actions": blocked,
+        "falsified_count": falsification.get("falsified_count", 0),
+        "fts": fts,
+        "assumption_debt": assumption_debt,
         "audit_sovereignty_score": score,
     }

@@ -26,6 +26,10 @@ class BusinessMetrics:
         business = self._business_impact(recent)
         recommendations = self._recommendations(errors, business)
         cypher = self._immutability_record(recent)
+        falsification = self._audit.falsification_snapshot()
+        fts = 0.0
+        if falsification.get("count", 0) > 0:
+            fts = falsification.get("falsified_count", 0) / falsification["count"]
         return {
             "generated_at": now.isoformat(),
             "summary": {
@@ -39,6 +43,11 @@ class BusinessMetrics:
             "business_impact": business,
             "recommendations": recommendations,
             "immutable_record": cypher,
+            "sovereign": {
+                "falsified_count": falsification.get("falsified_count", 0),
+                "fts": fts,
+                "assumption_debt": self._audit.assumption_debt_count(),
+            },
         }
 
     def _recent(self, events: list[dict[str, Any]], now: datetime) -> list[dict[str, Any]]:

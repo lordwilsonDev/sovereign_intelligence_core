@@ -12,6 +12,7 @@ class AuditEngine:
         self._store = store or AuditStore()
         self._validator = validator or AuditValidator()
         self._falsification: dict[str, dict[str, Any]] = {}
+        self._assumption_debt_count: int = 0
 
     def record(self, event: AuditEvent) -> AuditEvent:
         self._validator.validate(event)
@@ -42,6 +43,13 @@ class AuditEngine:
         falsified_count = sum(1 for r in records if r["outcome"] == "falsified")
         return {"records": records, "count": len(records), "falsified_count": falsified_count}
 
+    def record_assumption_debt(self, count: int = 1) -> None:
+        self._assumption_debt_count += max(int(count), 0)
+
+    def assumption_debt_count(self) -> int:
+        return self._assumption_debt_count
+
     def clear(self) -> None:
         self._store.clear()
         self._falsification.clear()
+        self._assumption_debt_count = 0
