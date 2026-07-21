@@ -38,7 +38,16 @@
 - End-to-end local simulation completes.
 
 ## Acceptance evidence
-- Full suite: 693 passed, 8 skipped
+- Full suite: 698 passed, 8 skipped
 - Contracts: 159/159, 0 uncovered
 - Anonymous routes: 20 verified
-- Phase tests: 20 passed in `tests/pipeline` and `tests/evolution`
+- Live API: `POST /pipeline/assess` mounted under `/pipeline` with bearer auth
+- `/metrics` exposes:
+  - `msb_pipeline_sas_average`
+  - `msb_pipeline_fts_average`
+  - `msb_pipeline_decisions_total`
+- Simulation: `scripts/run_sov_cicd_sim.py` completed scenarios:
+  - good_artifact → PASS
+  - degraded_artifact → REJECT
+  - high_fts_artifact → REJECT
+- Evidence doc: `docs/state/SOVEREIGN_CICD_SIM_EVIDENCE.md`
