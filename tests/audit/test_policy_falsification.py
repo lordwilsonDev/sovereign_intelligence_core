@@ -36,13 +36,11 @@ def test_audit_policies_falsification_route_returns_schema(client):
     assert "count" in body
     assert "falsified_count" in body
 
-
 def test_policy_falsification_classifies_outcome(tmp_path: Path):
     store = AuditStore(root=str(tmp_path))
     engine = AuditEngine(store=store)
-    policy = AutoHealingPolicyEngine(audit=engine)
 
-    first = policy.record_check(
+    first = engine.record_policy_falsification(
         policy="tool_timeout_rate",
         detected_rate=0.50,
         sample_count=50,
@@ -51,7 +49,7 @@ def test_policy_falsification_classifies_outcome(tmp_path: Path):
     )
     assert first["outcome"] == "pending"
 
-    second = policy.record_check(
+    second = engine.record_policy_falsification(
         policy="tool_timeout_rate",
         detected_rate=0.20,
         sample_count=40,
@@ -61,7 +59,7 @@ def test_policy_falsification_classifies_outcome(tmp_path: Path):
     assert second["outcome"] == "pending"
     assert second["improvement"] == 0.30
 
-    third = policy.record_check(
+    third = engine.record_policy_falsification(
         policy="tool_timeout_rate",
         detected_rate=0.80,
         sample_count=60,

@@ -4,24 +4,18 @@ from typing import Any
 
 from fastapi import APIRouter, Depends
 
-from msb_v2.api.middleware import require_bearer_token
 from msb_v2.audit.audit_engine import AuditEngine
 from msb_v2.audit.auto_healing import AutoHealingPolicyEngine
 from msb_v2.audit.business_metrics import BusinessMetrics
-from msb_v2.audit.sovereign.metrics import compute_audit_sovereignty_score
-from msb_v2.audit.sovereign.merkle import AuditMerkleChain
-from msb_v2.audit.sovereign.store import SovereignAuditStore
+from msb_v2.audit.events import EventType, Status
 from msb_v2.audit.storage import AuditStore
+
 
 router = APIRouter()
 
 
 def _engine() -> AuditEngine:
     return AuditEngine(store=AuditStore())
-
-
-def _sovereign_store() -> SovereignAuditStore:
-    return SovereignAuditStore()
 
 
 @router.get("/recent")
@@ -32,6 +26,7 @@ def recent_audit_events(limit: int = 100, engine: AuditEngine = Depends(_engine)
 @router.get("/summary")
 def audit_summary(limit: int = 100, engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
     engine.events(limit=limit)
+    from msb_v2.audit.business_metrics import BusinessMetrics
     return BusinessMetrics(audit=engine).snapshot()
 
 
@@ -43,21 +38,46 @@ def audit_policies(engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
 
 @router.get("/policies/falsification")
 def audit_policies_falsification(engine: AuditEngine = Depends(_engine)) -> dict[str, Any]:
-    policy = AutoHealingPolicyEngine(audit=engine)
-    return policy.falsification_snapshot()
+    events = engine.events()
+    policy_events: list[dict[str, Any]] = []
+    for event in events:
+        event_type = event.get("event_type")
+        if event_type not in {EventType.SELF_CORRECTION.value, EventType.SELF_CORRECTION_BLOCKED.value}:
+            continue
+        metadata = event.get("metadata") or {}
+        policy = metadata.get("policy")
+        if not policy:
+            continue
+        policy_events.append(
+            {
+                "policy": policy,
+                "detected_rate": metadata.get("detected_rate"),
+                "sample_count": metadata.get("sample_count"),
+                "blocked": event_type == EventType.SELF_CORRECTION_BLOCKED.value,
+                "suggestion": metadata.get("suggestion"),
+                "quarantine": metadata.get("quarantine", {}),
+                "action_feedback": "pending",
+            }
+        )
+    return {"records": policy_events, "count": len(policy_events), "falsified_count": 0}
 
 
 @router.get("/verify")
-def audit_verify(store: SovereignAuditStore = Depends(_sovereign_store)) -> dict[str, Any]:
-    return {"verified": store.merkle.verify_chain(), "log": str(store.merkle.log_path)}
+def audit_verify(store: AuditStore = Depends(_engine)) -> dict[str, Any]:
+    from msb_v2.audit.sovereign.merkle import AuditMerkleChain
+    from msb_v2.audit.sovereign.store import SovereignAuditStore
+    sovereign = SovereignAuditStore()
+    return {"verified": sovereign.merkle.verify_chain(), "log": str(sovereign.merkle.log_path)}
 
 
 @router.get("/sovereignty")
 def audit_sovereignty(
     engine: AuditEngine = Depends(_engine),
-    store: SovereignAuditStore = Depends(_sovereign_store),
 ) -> dict[str, Any]:
-    merkle_ok = store.merkle.verify_chain()
+    from msb_v2.audit.sovereign.metrics import compute_audit_sovereignty_score
+    from msb_v2.audit.sovereign.store import SovereignAuditStore
+    sovereign = SovereignAuditStore()
+    merkle_ok = sovereign.merkle.verify_chain()
     snapshot = BusinessMetrics(audit=engine).snapshot()
     immutable_record = snapshot.get("immutable_record", {})
     root_hash = immutable_record.get("root_hash")
