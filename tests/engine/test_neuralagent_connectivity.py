@@ -42,3 +42,20 @@ def test_execute_neuralagent_dispatches_backend() -> None:
     result = execute_neuralagent({"prompt": "ping", "provider": "ollama"})
     assert captured.get("called") is True
     assert result.get("ok") is True
+
+
+def test_orchestrator_dispatches_default_backend_when_provider_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.engine.orchestrator import Task, orchestrate
+
+    captured: dict[str, Any] = {}
+
+    def fake_backend(task: Task, hook) -> dict[str, Any]:  # type: ignore[no-untyped-def]
+        captured["task_id"] = task.id
+        return {"backend": "neuralagent", "task_id": task.id}
+
+    monkeypatch.setattr("msb_v2.engine.orchestrator._dispatch_neuralagent", fake_backend)
+    tasks = [Task(id="t1")]
+    results = orchestrate(tasks)
+    assert captured["task_id"] == "t1"
+    assert results[0].status == "succeeded"
+    assert str(results[0].result.get("backend")) == "neuralagent"
