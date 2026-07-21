@@ -29,6 +29,9 @@ class ResumeBlob:
     recent_tool_calls: list[str] = field(default_factory=list)
     active_harness: str = ""
     memory_pointer: str = ""
+    merkle_root_hash: str = ""
+    policy_prediction_fts: float = 0.0
+    audit_sovereignty_score: float = 0.0
 
     def compact_text(self) -> str:
         if None in (self.project, self.version):
@@ -54,6 +57,9 @@ class ResumeBlob:
             f"recent_tool_calls={';'.join(self.recent_tool_calls) or 'none'}",
             f"memory_pointer={self.memory_pointer or 'none'}",
             f"active_harness={self.active_harness or 'none'}",
+            f"merkle_root_hash={self.merkle_root_hash or 'none'}",
+            f"policy_prediction_fts={self.policy_prediction_fts}",
+            f"audit_sovereignty_score={self.audit_sovereignty_score}",
         ]
         return "\n".join(values)
 
@@ -91,6 +97,9 @@ class ResumePromptCompiler:
         recent_tool_calls: Optional[list[str]] = None,
         active_harness: str = "",
         memory_pointer: str = "",
+        merkle_root_hash: str = "",
+        policy_prediction_fts: float = 0.0,
+        audit_sovereignty_score: float = 0.0,
     ) -> None:
         self.project = project or "MSB v2"
         self.version = version or "v2"
@@ -107,6 +116,9 @@ class ResumePromptCompiler:
         self.recent_tool_calls = list(recent_tool_calls or [])
         self.active_harness = active_harness or ""
         self.memory_pointer = memory_pointer or ""
+        self.merkle_root_hash = merkle_root_hash or ""
+        self.policy_prediction_fts = float(policy_prediction_fts)
+        self.audit_sovereignty_score = float(audit_sovereignty_score)
         self._checkpoint_dir = Path("/private/var/folders/_0/1fjsnc_n747c32_7t8s014c40000gn/T/msb-checkpoints")
         self._checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -129,6 +141,9 @@ class ResumePromptCompiler:
             recent_tool_calls=self.recent_tool_calls,
             active_harness=self.active_harness,
             memory_pointer=self.memory_pointer,
+            merkle_root_hash=self.merkle_root_hash,
+            policy_prediction_fts=self.policy_prediction_fts,
+            audit_sovereignty_score=self.audit_sovereignty_score,
         )
         prompt = blob.to_prompt()
         try:
@@ -158,6 +173,9 @@ class ResumePromptCompiler:
             recent_tool_calls=self.recent_tool_calls,
             active_harness=self.active_harness,
             memory_pointer=self.memory_pointer,
+            merkle_root_hash=self.merkle_root_hash,
+            policy_prediction_fts=self.policy_prediction_fts,
+            audit_sovereignty_score=self.audit_sovereignty_score,
         )
         return blob.compact_text()
 
