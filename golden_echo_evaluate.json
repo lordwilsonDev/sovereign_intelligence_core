@@ -1,0 +1,183 @@
+[
+  {
+    "input": {
+      "intent": {
+        "action": "query",
+        "targets": [
+          "workloads"
+        ]
+      },
+      "blast_analysis": null,
+      "cognitive_state": null,
+      "temporal_context": null
+    },
+    "output": {
+      "should_echo": false,
+      "severity": "normal",
+      "reasons": [],
+      "echo_message": "",
+      "alternatives": [],
+      "vetoed": false,
+      "raw": {
+        "intent": {
+          "action": "query",
+          "targets": [
+            "workloads"
+          ]
+        },
+        "blast_analysis": null,
+        "cognitive_state": null,
+        "temporal_context": null
+      }
+    }
+  },
+  {
+    "input": {
+      "intent": {
+        "action": "shutdown",
+        "targets": [
+          "database"
+        ],
+        "is_destructive": true,
+        "has_universal_quantifier": true
+      },
+      "blast_analysis": {
+        "score": 0.9,
+        "affected": 15,
+        "total": 20,
+        "stateful_at_risk": 3
+      },
+      "cognitive_state": {
+        "fatigue": 0.8,
+        "frustration": 0.2
+      },
+      "temporal_context": {
+        "risk_multiplier": 2.0
+      }
+    },
+    "output": {
+      "should_echo": true,
+      "severity": "critical",
+      "reasons": [
+        "Blast radius: 15/20 workloads affected",
+        "3 stateful services at risk",
+        "Destructive action with universal scope",
+        "Operator fatigue detected (80%)",
+        "Elevated temporal risk (x2.0)"
+      ],
+      "echo_message": "I heard: \"your command\" That would affect 15 workloads, including 3 databases. (I also notice your voice pattern suggests fatigue.)",
+      "alternatives": [],
+      "vetoed": false,
+      "raw": {
+        "intent": {
+          "action": "shutdown",
+          "targets": [
+            "database"
+          ],
+          "is_destructive": true,
+          "has_universal_quantifier": true
+        },
+        "blast_analysis": {
+          "score": 0.9,
+          "affected": 15,
+          "total": 20,
+          "stateful_at_risk": 3
+        },
+        "cognitive_state": {
+          "fatigue": 0.8,
+          "frustration": 0.2
+        },
+        "temporal_context": {
+          "risk_multiplier": 2.0
+        }
+      }
+    }
+  },
+  {
+    "input": {
+      "intent": {
+        "action": "scale",
+        "targets": [
+          "gpu"
+        ],
+        "is_reversible": false,
+        "target_criticality": 0.8
+      },
+      "blast_analysis": null,
+      "cognitive_state": {
+        "fatigue": 0.7
+      },
+      "temporal_context": null
+    },
+    "output": {
+      "should_echo": true,
+      "severity": "critical",
+      "reasons": [
+        "Irreversible action on critical target",
+        "Operator fatigue detected (70%)"
+      ],
+      "echo_message": "I heard: \"your command\" (I also notice your voice pattern suggests fatigue.)",
+      "alternatives": [],
+      "vetoed": false,
+      "raw": {
+        "intent": {
+          "action": "scale",
+          "targets": [
+            "gpu"
+          ],
+          "is_reversible": false,
+          "target_criticality": 0.8
+        },
+        "blast_analysis": null,
+        "cognitive_state": {
+          "fatigue": 0.7
+        },
+        "temporal_context": null
+      }
+    }
+  },
+  {
+    "input": {
+      "intent": {
+        "action": "update",
+        "targets": [
+          "web"
+        ],
+        "specificity": 0.2
+      },
+      "blast_analysis": {
+        "score": 0.3
+      },
+      "cognitive_state": null,
+      "temporal_context": {
+        "risk_multiplier": 1.2
+      }
+    },
+    "output": {
+      "should_echo": true,
+      "severity": "normal",
+      "reasons": [
+        "Low specificity (20%) \u2014 command may be vague"
+      ],
+      "echo_message": "I heard: \"your command\" That would affect 0 workloads.",
+      "alternatives": [],
+      "vetoed": false,
+      "raw": {
+        "intent": {
+          "action": "update",
+          "targets": [
+            "web"
+          ],
+          "specificity": 0.2
+        },
+        "blast_analysis": {
+          "score": 0.3
+        },
+        "cognitive_state": null,
+        "temporal_context": {
+          "risk_multiplier": 1.2
+        }
+      }
+    }
+  }
+]

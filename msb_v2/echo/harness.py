@@ -51,7 +51,76 @@ class SovereignEcho:
             return 0.0
         return self.echoes_triggered / self.total_commands
 
-    def evaluate(self, intent: Dict[str, Any], blast_analysis: Optional[Dict[str, Any]] = None, cognitive_state: Optional[Dict[str, Any]] = None, temporal_context: Optional[Dict[str, Any]] = None) -> EchoDecision:
+    def _assess_blast_radius(self, blast_analysis, decision):
+        if not blast_analysis:
+            return
+        score = blast_analysis.get("score", 0)
+        if score > self.BLAST_RADIUS_THRESHOLD:
+            decision.should_echo = True
+            affected = blast_analysis.get("affected", 0)
+            total = blast_analysis.get("total", 0)
+            decision.reasons.append(f"Blast radius: {affected}/{total} workloads affected")
+            if blast_analysis.get("stateful_at_risk", 0) > 0:
+                decision.severity = "critical"
+                decision.reasons.append(f"{blast_analysis['stateful_at_risk']} stateful services at risk")
+
+    def _assess_destructive_quantifier(self, intent, decision):
+        if intent.get("is_destructive") and intent.get("has_universal_quantifier"):
+            decision.should_echo = True
+            decision.reasons.append("Destructive action with universal scope")
+            decision.severity = max(
+                decision.severity,
+                "elevated",
+                key=lambda x: ["normal", "elevated", "critical"].index(x),
+            )
+
+    def _assess_irreversible_critical(self, intent, decision):
+        if intent.get("is_reversible") is False and intent.get("target_criticality", 0) > 0.7:
+            decision.should_echo = True
+            decision.reasons.append("Irreversible action on critical target")
+            decision.severity = "critical"
+
+    def _assess_low_specificity(self, intent, decision):
+        specificity = intent.get("specificity")
+        if specificity is not None and specificity < self.SPECIFICITY_THRESHOLD:
+            decision.should_echo = True
+            decision.reasons.append(f"Low specificity ({specificity:.0%}) — command may be vague")
+
+    def _assess_cognitive_state(self, cognitive_state, decision):
+        if not cognitive_state:
+            return
+        fatigue = float(cognitive_state.get("fatigue", 0))
+        frustration = float(cognitive_state.get("frustration", 0))
+        if fatigue > self.FATIGUE_THRESHOLD:
+            decision.should_echo = True
+            decision.reasons.append(f"Operator fatigue detected ({fatigue:.0%})")
+        if frustration > self.FRUSTRATION_THRESHOLD:
+            decision.should_echo = True
+            decision.reasons.append(f"Operator frustration detected ({frustration:.0%})")
+
+    def _assess_temporal_risk(self, temporal_context, decision):
+        if not temporal_context:
+            return
+        mult = temporal_context.get("risk_multiplier", 1.0)
+        if mult > 1.5:
+            decision.should_echo = True
+            decision.reasons.append(f"Elevated temporal risk (x{mult})")
+
+    def _finalize_decision(self, intent, blast_analysis, cognitive_state, decision):
+        if decision.should_echo:
+            decision.echo_message = _generate_echo(intent, blast_analysis, cognitive_state)
+            decision.alternatives = _suggest_alternatives(intent, blast_analysis)
+            self.echoes_triggered += 1
+        self.history.append({
+            "command": intent.get("raw_text", str(intent)),
+            "echoed": decision.should_echo,
+            "severity": decision.severity,
+            "reasons": decision.reasons,
+            "timestamp": _utcnow(),
+        })
+        return decision
+
+    def evaluate(self, intent, blast_analysis=None, cognitive_state=None, temporal_context=None):
         self.total_commands += 1
         decision = EchoDecision()
         decision.raw = {
@@ -72,67 +141,13 @@ class SovereignEcho:
             })
             return decision
 
-        # blast radius
-        if blast_analysis:
-            score = blast_analysis.get("score", 0)
-            if score > self.BLAST_RADIUS_THRESHOLD:
-                decision.should_echo = True
-                affected = blast_analysis.get("affected", 0)
-                total = blast_analysis.get("total", 0)
-                decision.reasons.append(f"Blast radius: {affected}/{total} workloads affected")
-                if blast_analysis.get("stateful_at_risk", 0) > 0:
-                    decision.severity = "critical"
-                    decision.reasons.append(f"{blast_analysis['stateful_at_risk']} stateful services at risk")
-
-        # destructive universal quantifier
-        if intent.get("is_destructive") and intent.get("has_universal_quantifier"):
-            decision.should_echo = True
-            decision.reasons.append("Destructive action with universal scope")
-            decision.severity = max(decision.severity, "elevated", key=lambda x: ["normal", "elevated", "critical"].index(x))
-
-        # irreversible + critical
-        if intent.get("is_reversible") is False and intent.get("target_criticality", 0) > 0.7:
-            decision.should_echo = True
-            decision.reasons.append("Irreversible action on critical target")
-            decision.severity = "critical"
-
-        # low specificity
-        specificity = intent.get("specificity")
-        if specificity is not None and specificity < self.SPECIFICITY_THRESHOLD:
-            decision.should_echo = True
-            decision.reasons.append(f"Low specificity ({specificity:.0%}) — command may be vague")
-
-        # cognitive state
-        if cognitive_state:
-            fatigue = float(cognitive_state.get("fatigue", 0))
-            frustration = float(cognitive_state.get("frustration", 0))
-            if fatigue > self.FATIGUE_THRESHOLD:
-                decision.should_echo = True
-                decision.reasons.append(f"Operator fatigue detected ({fatigue:.0%})")
-            if frustration > self.FRUSTRATION_THRESHOLD:
-                decision.should_echo = True
-                decision.reasons.append(f"Operator frustration detected ({frustration:.0%})")
-
-        # temporal risk
-        if temporal_context:
-            mult = temporal_context.get("risk_multiplier", 1.0)
-            if mult > 1.5:
-                decision.should_echo = True
-                decision.reasons.append(f"Elevated temporal risk (x{mult})")
-
-        if decision.should_echo:
-            decision.echo_message = _generate_echo(intent, blast_analysis, cognitive_state)
-            decision.alternatives = _suggest_alternatives(intent, blast_analysis)
-            self.echoes_triggered += 1
-
-        self.history.append({
-            "command": intent.get("raw_text", str(intent)),
-            "echoed": decision.should_echo,
-            "severity": decision.severity,
-            "reasons": decision.reasons,
-            "timestamp": _utcnow(),
-        })
-        return decision
+        self._assess_blast_radius(blast_analysis, decision)
+        self._assess_destructive_quantifier(intent, decision)
+        self._assess_irreversible_critical(intent, decision)
+        self._assess_low_specificity(intent, decision)
+        self._assess_cognitive_state(cognitive_state, decision)
+        self._assess_temporal_risk(temporal_context, decision)
+        return self._finalize_decision(intent, blast_analysis, cognitive_state, decision)
 
     def summary(self) -> Dict[str, Any]:
         return {
