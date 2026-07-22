@@ -1,0 +1,108 @@
+[
+  {
+    "input": [
+      {
+        "kind": "tool",
+        "payload": {
+          "verdict": "accepted"
+        }
+      }
+    ],
+    "output": {
+      "trace_id": null,
+      "statement_id": null,
+      "score": 0.65,
+      "confidence": 0.6,
+      "concurrence": 0.0,
+      "dissent": 0.0,
+      "entropy": 0.0
+    }
+  },
+  {
+    "input": [
+      {
+        "kind": "tool",
+        "payload": {
+          "verdict": "accepted"
+        }
+      },
+      {
+        "kind": "memory_read",
+        "payload": {
+          "verdict": "accepted"
+        }
+      },
+      {
+        "kind": "human",
+        "payload": {
+          "verdict": "accepted"
+        }
+      }
+    ],
+    "output": {
+      "trace_id": null,
+      "statement_id": null,
+      "score": 1.0,
+      "confidence": 0.97,
+      "concurrence": 1.0,
+      "dissent": 0.0,
+      "entropy": 0.0
+    }
+  },
+  {
+    "input": [
+      {
+        "kind": "error",
+        "payload": {}
+      },
+      {
+        "kind": "tool",
+        "payload": {
+          "verdict": "rejected"
+        }
+      }
+    ],
+    "output": {
+      "trace_id": null,
+      "statement_id": null,
+      "score": 0.0,
+      "confidence": 0.04999999999999993,
+      "concurrence": 0.0,
+      "dissent": 1.5,
+      "entropy": 0.75
+    }
+  },
+  {
+    "input": [],
+    "output": {
+      "trace_id": null,
+      "statement_id": null,
+      "score": 0.5,
+      "confidence": 0.6,
+      "concurrence": 0.0,
+      "dissent": 0.0,
+      "entropy": 0.0
+    }
+  },
+  {
+    "input": [
+      {
+        "trace_id": "t1",
+        "event_id": "s1",
+        "kind": "tool",
+        "payload": {
+          "verdict": "accepted"
+        }
+      }
+    ],
+    "output": {
+      "trace_id": "t1",
+      "statement_id": "s1",
+      "score": 0.65,
+      "confidence": 0.6,
+      "concurrence": 0.0,
+      "dissent": 0.0,
+      "entropy": 0.0
+    }
+  }
+]
