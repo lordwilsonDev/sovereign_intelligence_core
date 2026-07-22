@@ -595,7 +595,7 @@ class MetaIntelligenceCoordinator:
 
         try:
             # ---- 1. Epistemic Filter (Eyes) ----
-            passes_filter, reason, cleaned_params = self.epistemic_filter.check(query.parameters)
+            passes_filter, reason, cleaned_params = self._run_epistemic_filter(query)
             if not passes_filter:
                 result = IntelligenceResult(
                     query_id=query.query_id,
@@ -609,77 +609,30 @@ class MetaIntelligenceCoordinator:
                 return
 
             # ---- 2. Axiom Inversion (Brain) ----
-            # If this is a complex decision or synthesis, run inversion
-            inverted_hypotheses = []
-            if query.query_type in (QueryType.DECIDE, QueryType.SYNTHESIZE):
-                goal = query.parameters.get("goal", query.parameters.get("query", ""))
-                if goal:
-                    inverted_hypotheses = self.axiom_engine.invert(goal, goal)
+            inverted_hypotheses = self._run_axiom_inversion(query)
 
             # ---- 3. Execute Layers (Synchronous part) ----
-            if query.query_type == QueryType.SYNTHESIZE:
-                raw_data = self._synthesize_query(query, inverted_hypotheses)
-            else:
-                raw_data = self._execute_single_query(query)
+            raw_data = self._dispatch_query(query, inverted_hypotheses)
 
             # ---- 4. Thermodynamic Heart (Love Alignment) ----
-            # Simulate embedding extraction (in prod, use ONNX/Transformers)
-            intent_vec = [1.0, 0.0, 0.0]  # Mock intent
-            response_vec = [0.5, 0.5, 0.0] if raw_data else [0.0, 0.0, 0.0]
-            heart_output = self.heart.steer(response_vec, intent_vec, self.metabolism.empathy_baseline)
+            heart_output = self._compute_heart(query, raw_data)
 
             # ---- 5. Outcome Verifier (Impact vs Technical) ----
-            verification = self.verifier.verify(
-                query.parameters.get("goal", ""),
-                raw_data if isinstance(raw_data, dict) else {"success": True, "data": raw_data}
-            )
+            verification = self._verify_outcome(query, raw_data)
 
             # ---- 6. Prepare Result ----
-            result = IntelligenceResult(
-                query_id=query.query_id,
-                success=True,
-                data=raw_data,
-                layers_used=query.layers,
-                execution_time=time.time() - start_time,
-                cache_hit=False,
-                torsion_level=heart_output["torsion_level"],
-                technical_success=verification["technical_success"],
-                impact_success=verification["impact_success"],
-                true_success=verification["true_success"],
-                metadata={
-                    "hypotheses_considered": len(inverted_hypotheses),
-                    "heart_correction_applied": heart_output["projection_removed"] > 0.01
-                }
+            result = self._build_result(
+                query, raw_data, start_time, heart_output, verification, inverted_hypotheses
             )
 
             # ---- 7. Update Metabolism ----
-            with self._results_condition:
-                self.metabolism.total_queries += 1
-                if verification["true_success"]:
-                    self.metabolism.successful_impacts += 1
-
-            # Update trust score for layers used
-            for layer in query.layers:
-                if result.true_success:
-                    self.metabolism.trust_scores[layer.value] = self.metabolism.trust_scores.get(layer.value, 0.5) + 0.05
-                else:
-                    self.metabolism.trust_scores[layer.value] = self.metabolism.trust_scores.get(layer.value, 0.5) - 0.02
+            self._update_metabolism(query, result)
 
             # ---- 8. Ouroboros Evolver (Self-Pruning) ----
-            adapter_names = [l.value for l in self.layers.keys()]
-            evolver_output = self.evolver.evolve(self.metabolism, adapter_names)
-            if evolver_output["pruned"]:
-                for removed in evolver_output["removed_adapters"]:
-                    # Disable the adapter in the layer map
-                    for layer, adapter in self.layers.items():
-                        if layer.value == removed:
-                            adapter.available = False
-                            print(f"🧬 Pruned stale adapter: {removed} (VDR={evolver_output['vdr']:.2f})")
-                self.metabolism.last_prune = time.time()
+            self._run_evolver()
 
             # ---- 9. Cache the result ----
-            cache_key = self._get_cache_key(query)
-            self._add_to_cache(cache_key, raw_data)
+            self._cache_query_result(query, raw_data)
 
         except Exception as e:
             result = IntelligenceResult(
@@ -696,6 +649,103 @@ class MetaIntelligenceCoordinator:
             # Persist metabolism periodically or on every query? Do it on every query for safety.
             if self.metabolism.total_queries % 5 == 0:
                 self._save_metabolism()
+
+    # ----------------------------------------------------------------
+    # Epistemic Helpers
+    # ----------------------------------------------------------------
+    def _run_epistemic_filter(self, query: IntelligenceQuery) -> Tuple[bool, str, Optional[Dict]]:
+        return self.epistemic_filter.check(query.parameters)
+
+    # ----------------------------------------------------------------
+    # Axiom Inversion Helpers
+    # ----------------------------------------------------------------
+    def _run_axiom_inversion(self, query: IntelligenceQuery) -> List[Dict[str, Any]]:
+        inverted_hypotheses: List[Dict[str, Any]] = []
+        if query.query_type in (QueryType.DECIDE, QueryType.SYNTHESIZE):
+            goal = query.parameters.get("goal", query.parameters.get("query", ""))
+            if goal:
+                inverted_hypotheses = self.axiom_engine.invert(goal, goal)
+        return inverted_hypotheses
+
+    # ----------------------------------------------------------------
+    # Dispatch Helpers
+    # ----------------------------------------------------------------
+    def _dispatch_query(self, query: IntelligenceQuery, hypotheses: List[Dict[str, Any]]) -> Any:
+        if query.query_type == QueryType.SYNTHESIZE:
+            return self._synthesize_query(query, hypotheses)
+        return self._execute_single_query(query)
+
+    # ----------------------------------------------------------------
+    # Thermodynamic Heart Helpers
+    # ----------------------------------------------------------------
+    def _compute_heart(self, query: IntelligenceQuery, raw_data: Any) -> Dict[str, Any]:
+        intent_vec = [1.0, 0.0, 0.0]
+        response_vec = [0.5, 0.5, 0.0] if raw_data else [0.0, 0.0, 0.0]
+        return self.heart.steer(response_vec, intent_vec, self.metabolism.empathy_baseline)
+
+    # ----------------------------------------------------------------
+    # Outcome Verification Helpers
+    # ----------------------------------------------------------------
+    def _verify_outcome(self, query: IntelligenceQuery, raw_data: Any) -> Dict[str, bool]:
+        goal = query.parameters.get("goal", "")
+        execution_result = raw_data if isinstance(raw_data, dict) else {"success": True, "data": raw_data}
+        return self.verifier.verify(goal, execution_result)
+
+    # ----------------------------------------------------------------
+    # Result Construction Helper
+    # ----------------------------------------------------------------
+    def _build_result(self, query: IntelligenceQuery, raw_data: Any, start_time: float,
+                      heart_output: Dict[str, Any], verification: Dict[str, bool],
+                      inverted_hypotheses: List[Dict[str, Any]]) -> IntelligenceResult:
+        return IntelligenceResult(
+            query_id=query.query_id,
+            success=True,
+            data=raw_data,
+            layers_used=query.layers,
+            execution_time=time.time() - start_time,
+            cache_hit=False,
+            torsion_level=heart_output["torsion_level"],
+            technical_success=verification["technical_success"],
+            impact_success=verification["impact_success"],
+            true_success=verification["true_success"],
+            metadata={
+                "hypotheses_considered": len(inverted_hypotheses),
+                "heart_correction_applied": heart_output["projection_removed"] > 0.01
+            }
+        )
+
+    # ----------------------------------------------------------------
+    # Metabolism Update Helper
+    # ----------------------------------------------------------------
+    def _update_metabolism(self, query: IntelligenceQuery, result: IntelligenceResult) -> None:
+        with self._results_condition:
+            self.metabolism.total_queries += 1
+            if result.true_success:
+                self.metabolism.successful_impacts += 1
+
+        for layer in query.layers:
+            if result.true_success:
+                self.metabolism.trust_scores[layer.value] = self.metabolism.trust_scores.get(layer.value, 0.5) + 0.05
+            else:
+                self.metabolism.trust_scores[layer.value] = self.metabolism.trust_scores.get(layer.value, 0.5) - 0.02
+
+    # ----------------------------------------------------------------
+    # Evolver & Cache Helpers
+    # ----------------------------------------------------------------
+    def _run_evolver(self) -> None:
+        adapter_names = [l.value for l in self.layers.keys()]
+        evolver_output = self.evolver.evolve(self.metabolism, adapter_names)
+        if evolver_output["pruned"]:
+            for removed in evolver_output["removed_adapters"]:
+                for layer, adapter in self.layers.items():
+                    if layer.value == removed:
+                        adapter.available = False
+                        print(f"🧬 Pruned stale adapter: {removed} (VDR={evolver_output['vdr']:.2f})")
+            self.metabolism.last_prune = time.time()
+
+    def _cache_query_result(self, query: IntelligenceQuery, raw_data: Any) -> None:
+        cache_key = self._get_cache_key(query)
+        self._add_to_cache(cache_key, raw_data)
 
     # ----------------------------------------------------------------
     # Internal Execution Logic
