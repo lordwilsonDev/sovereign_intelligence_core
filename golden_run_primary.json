@@ -1,0 +1,561 @@
+[
+  {
+    "input": {
+      "primary": "research",
+      "query": "run full test suite",
+      "context": {}
+    },
+    "output": {
+      "question": "run full test suite",
+      "assumptions": [
+        {
+          "id": "A1",
+          "text": "Dominant paradigm is applicable to this exact context",
+          "validity": 0.7
+        },
+        {
+          "id": "A2",
+          "text": "Current measurement instruments capture the key construct",
+          "validity": 0.6
+        },
+        {
+          "id": "A3",
+          "text": "The system is stationary or evolves slowly enough for study",
+          "validity": 0.5
+        }
+      ],
+      "evidence": [
+        {
+          "id": "S1",
+          "description": "Foundational work supports 'run full test suite' directly",
+          "category": "supporting",
+          "weight": 0.8,
+          "quality": 0.7,
+          "replication": "high"
+        },
+        {
+          "id": "S2",
+          "description": "Corroborating meta-analysis (2022) strengthens dominant model",
+          "category": "supporting",
+          "weight": 0.7,
+          "quality": 0.6,
+          "replication": "medium"
+        },
+        {
+          "id": "A1",
+          "description": "Edge-case study contradicts core assumption (n=42, p<0.05)",
+          "category": "anomaly",
+          "weight": 0.5,
+          "quality": 0.8,
+          "replication": "medium"
+        },
+        {
+          "id": "A2",
+          "description": "Replication failure in adjacent field suggests boundary conditions",
+          "category": "anomaly",
+          "weight": 0.4,
+          "quality": 0.9,
+          "replication": "low"
+        },
+        {
+          "id": "G1",
+          "description": "No studies manipulate the key mediator directly",
+          "category": "gap",
+          "weight": 0.6,
+          "quality": 0.5,
+          "replication": "unknown"
+        },
+        {
+          "id": "G2",
+          "description": "Longitudinal data completely absent",
+          "category": "gap",
+          "weight": 0.7,
+          "quality": 0.4,
+          "replication": "unknown"
+        }
+      ],
+      "hypotheses": [
+        {
+          "id": "H-001",
+          "text": "Inverted: Dominant paradigm is applicable to this exact context via Dominant paradigm is applicable to this exact context via parallel exploration",
+          "prior": 0.45,
+          "conditions": [
+            "Condition enabling: Dominant paradigm is applicable to this exact context via parallel exploration"
+          ],
+          "missing": [
+            "Temporal dynamics",
+            "Boundary conditions"
+          ]
+        },
+        {
+          "id": "H-002",
+          "text": "Inverted: Dominant paradigm is applicable to this exact context via Dominant paradigm is applicable to this exact context via distributed consensus",
+          "prior": 0.45,
+          "conditions": [
+            "Condition enabling: Dominant paradigm is applicable to this exact context via distributed consensus"
+          ],
+          "missing": [
+            "Temporal dynamics",
+            "Boundary conditions"
+          ]
+        },
+        {
+          "id": "H-003",
+          "text": "Inverted: Current measurement instruments capture the key construct via Current measurement instruments capture the key construct via parallel exploration",
+          "prior": 0.45,
+          "conditions": [
+            "Condition enabling: Current measurement instruments capture the key construct via parallel exploration"
+          ],
+          "missing": [
+            "Temporal dynamics",
+            "Boundary conditions"
+          ]
+        },
+        {
+          "id": "H-004",
+          "text": "Inverted: Current measurement instruments capture the key construct via Current measurement instruments capture the key construct via distributed consensus",
+          "prior": 0.45,
+          "conditions": [
+            "Condition enabling: Current measurement instruments capture the key construct via distributed consensus"
+          ],
+          "missing": [
+            "Temporal dynamics",
+            "Boundary conditions"
+          ]
+        },
+        {
+          "id": "H-005",
+          "text": "Inverted: The system is stationary or evolves slowly enough for study via The system is stationary or evolves slowly enough for study via parallel exploration",
+          "prior": 0.45,
+          "conditions": [
+            "Condition enabling: The system is stationary or evolves slowly enough for study via parallel exploration"
+          ],
+          "missing": [
+            "Temporal dynamics",
+            "Boundary conditions"
+          ]
+        },
+        {
+          "id": "H-006",
+          "text": "Inverted: The system is stationary or evolves slowly enough for study via The system is stationary or evolves slowly enough for study via distributed consensus",
+          "prior": 0.45,
+          "conditions": [
+            "Condition enabling: The system is stationary or evolves slowly enough for study via distributed consensus"
+          ],
+          "missing": [
+            "Temporal dynamics",
+            "Boundary conditions"
+          ]
+        }
+      ],
+      "causal_diagram": {
+        "nodes": [
+          {
+            "id": "N1",
+            "label": "Context / Inputs",
+            "type": "cause"
+          },
+          {
+            "id": "N2",
+            "label": "Key Construct",
+            "type": "mediator"
+          },
+          {
+            "id": "N3",
+            "label": "Observed Outcome",
+            "type": "effect"
+          }
+        ],
+        "links": [
+          {
+            "source": "N1",
+            "target": "N2",
+            "relation": "causes",
+            "feedback": false
+          },
+          {
+            "source": "N2",
+            "target": "N3",
+            "relation": "causes",
+            "feedback": true
+          }
+        ],
+        "phase_transition": "Outcome saturates when mediator reaches capacity."
+      },
+      "predictions": [
+        {
+          "hypothesis_id": "H-001",
+          "outcome": "Outcome increases with mediator magnitude",
+          "probability": 0.7,
+          "effect_size": "medium",
+          "direction": "positive"
+        },
+        {
+          "hypothesis_id": "H-001",
+          "outcome": "Feedback causes non-linear amplification at high mediator levels",
+          "probability": 0.4,
+          "effect_size": "large",
+          "direction": "positive"
+        }
+      ],
+      "experiments": [
+        {
+          "id": "EXP-01",
+          "hypothesis_id": "H-001",
+          "ivs": [
+            "construct_level",
+            "context_variation"
+          ],
+          "dvs": [
+            "outcome_score"
+          ],
+          "controls": [
+            "baseline_measurement",
+            "random_assignment"
+          ],
+          "confounds": [
+            "prior_experience",
+            "time_of_day"
+          ],
+          "n": 128,
+          "test": "ANOVA with post-hoc Tukey HSD",
+          "expected": {
+            "H_true": 0.78,
+            "null_true": 0.22
+          }
+        }
+      ],
+      "risks": [
+        {
+          "id": "RR1",
+          "category": "statistical",
+          "severity": "HIGH",
+          "description": "Low power due to small sample size",
+          "mitigation": "Increase N via multi-site recruitment"
+        },
+        {
+          "id": "RR2",
+          "category": "confound",
+          "severity": "MEDIUM",
+          "description": "Unmeasured confound may mimic treatment effect",
+          "mitigation": "Add secondary manipulation check"
+        },
+        {
+          "id": "RR3",
+          "category": "logical",
+          "severity": "HIGH",
+          "description": "Affirming the consequent if only correlational data",
+          "mitigation": "Design causal manipulation, not just observation"
+        }
+      ],
+      "overall_confidence": 0.65,
+      "falsification_conditions": [
+        "Primary outcome effect size d < 0.2 under high-construct condition",
+        "Mediator shows no modulation across context levels",
+        "Feedback loop absent in time-series mediation analysis"
+      ],
+      "next_actions": [
+        "Run pilot (n=20) to verify measurement reliability.",
+        " preregister primary experiment and analysis plan.",
+        "Recruit 3 sites to reach target N=128 within 6 months."
+      ],
+      "elapsed_s": 0.0001
+    }
+  },
+  {
+    "input": {
+      "primary": "building",
+      "query": "build REST API",
+      "context": {
+        "language": "python"
+      }
+    },
+    "output": {
+      "goal": "build REST API",
+      "requirements": [
+        {
+          "id": "REQ-001",
+          "text": "build REST API",
+          "category": "functional",
+          "assumptions": [
+            "Belief: 'build REST API' maps to real user need.",
+            "Belief: current tech can satisfy 'build REST API' within constraints."
+          ]
+        }
+      ],
+      "assumptions": [
+        "Belief: 'build REST API' maps to real user need.",
+        "Belief: current tech can satisfy 'build REST API' within constraints."
+      ],
+      "scout_map": {
+        "standard": [
+          "REST/HTTP",
+          "gRPC",
+          "event-driven",
+          "GraphQL"
+        ],
+        "anomalous": [
+          "CRDT-based coordination",
+          "Bittorrent-style swarms"
+        ],
+        "failures": [
+          "Chatty microservices in low-bandwidth environments"
+        ]
+      },
+      "concepts": [
+        {
+          "name": "Standard Approach",
+          "source": "standard",
+          "feasibility": 0.9,
+          "upside": 0.4
+        },
+        {
+          "name": "build REST API via parallel exploration",
+          "source": "inverted",
+          "feasibility": 0.44999999999999996,
+          "upside": 0.5249999999999999
+        },
+        {
+          "name": "build REST API via distributed consensus",
+          "source": "inverted",
+          "feasibility": 0.44999999999999996,
+          "upside": 0.5249999999999999
+        },
+        {
+          "name": "build REST API via adaptive feedback loops",
+          "source": "inverted",
+          "feasibility": 0.39999999999999997,
+          "upside": 0.5
+        }
+      ],
+      "architecture": {
+        "components": [
+          "Ingress",
+          "Core",
+          "State",
+          "Egress"
+        ],
+        "flows": [
+          "Request \u2192 Core \u2192 State \u2192 Response",
+          "Event \u2192 Core \u2192 State"
+        ],
+        "interfaces": [
+          "REST: /v1/*",
+          "Event: topic.system.*"
+        ],
+        "traceability_count": 2,
+        "primitives": [
+          "Actor per component",
+          "CBF guard on State"
+        ],
+        "phase_transition_risk": "Shared State may serialize under >10k RPS; shard State before that threshold."
+      },
+      "prototype": {
+        "name": "Spike-v1",
+        "targets": [
+          "Belief: 'build REST API' maps to real user need.",
+          "Belief: current tech can satisfy 'build REST API' within constraints."
+        ],
+        "build": "Build one-path mock implementation against a fixed dataset.",
+        "success": [
+          "latency p99 < 200ms",
+          "error rate < 0.1%"
+        ],
+        "metrics": [
+          "p50_latency_ms",
+          "p99_latency_ms",
+          "error_rate",
+          "throughput_rps"
+        ]
+      },
+      "risks": [
+        {
+          "id": "R1",
+          "category": "logical",
+          "severity": "HIGH",
+          "description": "Circular dependency between Core and State",
+          "mitigation": "Introduce explicit command/query separation"
+        },
+        {
+          "id": "R2",
+          "category": "scaling",
+          "severity": "MEDIUM",
+          "description": "Single State becomes bottleneck",
+          "mitigation": "Partition State by key prefix when QPS > 10k"
+        },
+        {
+          "id": "R3",
+          "category": "coordination",
+          "severity": "HIGH",
+          "description": "Actor failure cascade",
+          "mitigation": "Add supervisor with restart/backoff policy"
+        }
+      ],
+      "plan": {
+        "confidence": 0.72,
+        "phases": [
+          "Spike",
+          "Hardening",
+          "Integration",
+          "Observability"
+        ],
+        "gates": [
+          "Gate 1: Spike metrics within SLA",
+          "Gate 2: <5% error in load test",
+          "Gate 3: On-call runbook"
+        ],
+        "resources": [
+          "1 backend engineer",
+          "1 SRE for 2 weeks"
+        ],
+        "falsifications": [
+          "p99 latency > 500ms under 2x expected load",
+          "memory growth > 1GB/24h without leak"
+        ],
+        "next_action": "Implement Spike-v1 against synthetic dataset and run the success criteria benchmark."
+      },
+      "elapsed_s": 0.0,
+      "artifact": {
+        "artifact_id": "cb-build-dbb65d6c4d",
+        "kind": "build",
+        "title": "build REST API",
+        "body": "{\"goal\": \"build REST API\", \"requirements\": [\"Requirement(id='REQ-001', text='build REST API', explicit=True, category='functional', assumptions=[\\\"Belief: 'build REST API' maps to real user need.\\\", \\\"Belief: current tech can satisfy 'build REST API' within constraints.\\\"], assumption_confidence=[0.7, 0.6])\"], \"assumptions\": [\"Belief: 'build REST API' maps to real user need.\", \"Belief: current tech can satisfy 'build REST API' within constraints.\"]}",
+        "tags": [],
+        "metrics": {
+          "normalizer_backend": "generic",
+          "normalizer_fallback_reason": "swift backend unavailable"
+        },
+        "relations": [],
+        "created_at": "2026-07-22T15:15:50.345603+00:00",
+        "source": "artifact_normalizer"
+      }
+    }
+  },
+  {
+    "input": {
+      "primary": "base_are",
+      "query": "deploy canary",
+      "context": {
+        "env": "staging"
+      }
+    },
+    "output": {
+      "query_id": "bde70300-d326-471c-864b-900426bd4f8f",
+      "success": true,
+      "data": {
+        "query_id": "bde70300-d326-471c-864b-900426bd4f8f",
+        "synthesis_type": "axiom_guided",
+        "hypotheses_used": [
+          {
+            "original_assumption": "deploy canary",
+            "inverted_assumption": "deploy canary",
+            "mechanism": "deploy canary via parallel exploration",
+            "evidence": [
+              "Parallel processing reduces latency by 40% (KG:n123)"
+            ],
+            "counterexamples": [
+              "Overhead of context switching degrades performance (KG:n789)"
+            ],
+            "constraints": [],
+            "confidence": 0.44999999999999996,
+            "timestamp": 1784733350.345809
+          },
+          {
+            "original_assumption": "deploy canary",
+            "inverted_assumption": "deploy canary",
+            "mechanism": "deploy canary via distributed consensus",
+            "evidence": [
+              "No direct evidence found."
+            ],
+            "counterexamples": [
+              "No direct counterexamples found."
+            ],
+            "constraints": [],
+            "confidence": 0.44999999999999996,
+            "timestamp": 1784733350.345811
+          },
+          {
+            "original_assumption": "deploy canary",
+            "inverted_assumption": "deploy canary",
+            "mechanism": "deploy canary via adaptive feedback loops",
+            "evidence": [
+              "Adaptive systems outperform static by 25% (Memory:evt_456)"
+            ],
+            "counterexamples": [
+              "No direct counterexamples found."
+            ],
+            "constraints": [
+              "Monitor oscillation before scaling"
+            ],
+            "confidence": 0.39999999999999997,
+            "timestamp": 1784733350.34581
+          }
+        ],
+        "layers_queried": [
+          "graph",
+          "memory",
+          "decision"
+        ],
+        "results": {
+          "graph": {
+            "layer": "graph",
+            "data": "Retrieved data for {'query': 'deploy canary', 'env': 'staging'}",
+            "status": "success"
+          },
+          "memory": {
+            "layer": "memory",
+            "data": "Retrieved data for {'query': 'deploy canary', 'env': 'staging'}",
+            "status": "success"
+          },
+          "decision": {
+            "layer": "decision",
+            "data": "Retrieved data for {'query': 'deploy canary', 'env': 'staging'}",
+            "status": "success"
+          }
+        },
+        "confidence": 1.0,
+        "timestamp": 1784733350.3458219
+      },
+      "layers_used": [
+        "graph",
+        "memory",
+        "decision"
+      ],
+      "execution_time": 3.504753112792969e-05,
+      "cache_hit": false,
+      "torsion_level": 0.0,
+      "true_success": false,
+      "metadata": {
+        "hypotheses_considered": 3,
+        "heart_correction_applied": true
+      }
+    }
+  },
+  {
+    "input": {
+      "primary": "empirical-grounding",
+      "query": "validate assumptions",
+      "context": {}
+    },
+    "output": {
+      "assumption_debt": 0,
+      "high_risk_untested": 0,
+      "predictions_generated": 0,
+      "predictions_tested": 0,
+      "fts": 1.0,
+      "edi": "Low",
+      "drift_severity": "unknown",
+      "escalation_triggered": true,
+      "guardrail_violations": [
+        "no_source_payload"
+      ],
+      "confirmed": [],
+      "refuted": [],
+      "open_items": [
+        "No empirical connection available. All predictions are untested."
+      ],
+      "updated_confidence": 0.0,
+      "summary": "Empty input; no grounding possible."
+    }
+  }
+]

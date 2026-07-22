@@ -213,6 +213,21 @@ class HarnessDispatcher:
                 pass
         return result
 
+    def _post_process(self, result: Dict[str, Any], meta: MetaRoutingResult) -> Dict[str, Any]:
+        core = getattr(self, "_sac", None) or SovereignAutonomyCore()
+        result.setdefault("sac", {}).update(
+            SovereignAutonomyCore.to_dict(
+                self._run_post_sac(result, query=result.get("query", ""), context=result.get("context", {}), core=core)
+            )
+        )
+        if "memory_bytes" not in result["telemetry"]["primary"]:
+            try:
+                import sys as _sys
+                result["telemetry"]["primary"]["memory_bytes"] = _sys.getsizeof(result)
+            except Exception:
+                pass
+        return result
+
     def _base_are(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
         try:
             layer_map = {
@@ -247,72 +262,80 @@ class HarnessDispatcher:
         }
         return mapping.get(harness, [harness])
 
-    def _run_primary(self, primary: Optional[str], query: str, context: Dict[str, Any]) -> Any:
+    def _select_primary_handler(self, primary: str):
         if primary == "research":
-            return self.research.execute(query)
+            return lambda q, c: self.research.execute(q)
         if primary == "building":
-            return self.building.execute(query, constraints=context.get("constraints", []))
+            return lambda q, c: self.building.execute(q, constraints=c.get("constraints", []))
         if primary == "desktop":
             from cognitive_compiler.desktop_harness_v1 import DesktopHarness
-            return DesktopHarness().execute(query, timeout_s=float(context.get("timeout_s", 600.0)))
+            return lambda q, c: DesktopHarness().execute(q, timeout_s=float(c.get("timeout_s", 600.0)))
         if primary == "career":
             from cognitive_compiler.career_harness_v1 import CareerHarness
-            project_root = context.get("career_project_root")
-            return CareerHarness(project_root=project_root).execute(
-                query,
+            return lambda q, c: CareerHarness(project_root=c.get("career_project_root")).execute(
+                q,
                 context={
-                    "career_company": context.get("career_company", "Unknown"),
-                    "career_role": context.get("career_role", "Unknown"),
-                    "career_jd": context.get("career_jd", query),
-                    "career_score": context.get("career_score"),
-                    "confidence": context.get("confidence", 0.0),
+                    "career_company": c.get("career_company", "Unknown"),
+                    "career_role": c.get("career_role", "Unknown"),
+                    "career_jd": c.get("career_jd", q),
+                    "career_score": c.get("career_score"),
+                    "confidence": c.get("confidence", 0.0),
                 },
             ).payload
         if primary == "telegram":
             from cognitive_compiler.telegram_artifact_harness_v1 import TelegramArtifactHarness
-            return TelegramArtifactHarness().execute(query, context=context).payload
+            return lambda q, c: TelegramArtifactHarness().execute(q, context=c).payload
         if primary == "agentic-dev":
             from cognitive_compiler.agentic_software_development_harness_v1 import AgenticSoftwareDevelopmentHarness
-            return AgenticSoftwareDevelopmentHarness().execute(query, context=context).payload
+            return lambda q, c: AgenticSoftwareDevelopmentHarness().execute(q, context=c).payload
         if primary == "empirical-grounding":
             from cognitive_compiler.empirical_grounding_harness_v1 import EmpiricalGroundingHarness
-            return EmpiricalGroundingHarness().execute(query, context=context).payload
+            return lambda q, c: EmpiricalGroundingHarness().execute(q, context=c).payload
         if primary == "sovereign-finetune":
-            action = context.get("finetune_action", "scan")
-            repo = context.get("repo_path", "/tmp")
-            handler = getattr(self, "finetune", None)
-            if handler is None:
-                raise RuntimeError("Sovereign fine-tune harness is not initialized on dispatcher")
-            setattr(handler, "repo_path", repo)
-            if action == "scan":
-                return handler.scan_documents()
-            if action == "distill":
-                pairs = handler.synthesize_pairs(max_pairs=int(context.get("max_pairs", 64)))
-                validation = handler.validate_pairs()
-                return {"action": "distill", "pairs": len(pairs), "validation": validation, "privacy_boundary": handler.privacy_boundary}
-            if action == "train":
-                handler.repo_path = repo
-                handler.scan_documents()
-                handler.synthesize_pairs()
-                job = handler.create_training_job(base_model=context.get("base_model", "local-base"))
-                baseline = handler.validate_baseline_coherence()
-                report = handler.run_post_training_validation(job_id=job.job_id)
-                return {
-                    "action": "train",
-                    "job_id": job.job_id,
-                    "status": job.status,
-                    "dataset_size": job.dataset_size,
-                    "baseline_coherence": baseline,
-                    "integration_report": {
-                        "model_name": report.model_name,
-                        "validation_passed": report.validation_passed,
-                        "coherence_score": report.coherence_score,
-                        "confidence_score": report.confidence_score,
-                        "recommendation": report.recommendation,
-                        "falsification_condition": report.falsification_condition,
-                    },
-                }
+            return lambda q, c: self._run_primary_finetune(q, c)
+        return None
+
+    def _run_primary_finetune(self, query: str, context: Dict[str, Any]) -> Any:
+        action = context.get("finetune_action", "scan")
+        repo = context.get("repo_path", "/tmp")
+        handler = getattr(self, "finetune", None)
+        if handler is None:
+            raise RuntimeError("Sovereign fine-tune harness is not initialized on dispatcher")
+        setattr(handler, "repo_path", repo)
+        if action == "scan":
             return handler.scan_documents()
+        if action == "distill":
+            pairs = handler.synthesize_pairs(max_pairs=int(context.get("max_pairs", 64)))
+            validation = handler.validate_pairs()
+            return {"action": "distill", "pairs": len(pairs), "validation": validation, "privacy_boundary": handler.privacy_boundary}
+        if action == "train":
+            handler.repo_path = repo
+            handler.scan_documents()
+            handler.synthesize_pairs()
+            job = handler.create_training_job(base_model=context.get("base_model", "local-base"))
+            baseline = handler.validate_baseline_coherence()
+            report = handler.run_post_training_validation(job_id=job.job_id)
+            return {
+                "action": "train",
+                "job_id": job.job_id,
+                "status": job.status,
+                "dataset_size": job.dataset_size,
+                "baseline_coherence": baseline,
+                "integration_report": {
+                    "model_name": report.model_name,
+                    "validation_passed": report.validation_passed,
+                    "coherence_score": report.coherence_score,
+                    "confidence_score": report.confidence_score,
+                    "recommendation": report.recommendation,
+                    "falsification_condition": report.falsification_condition,
+                },
+            }
+        return handler.scan_documents()
+
+    def _run_primary(self, primary: Optional[str], query: str, context: Dict[str, Any]) -> Any:
+        handler = self._select_primary_handler(primary)
+        if handler is not None:
+            return handler(query, context)
         return self._base_are(query, context)
 
     def _run_secondary(self, secondary: Optional[str], query: str, context: Dict[str, Any], handoff_prompt: str) -> Any:
@@ -346,21 +369,6 @@ class HarnessDispatcher:
             from cognitive_compiler.empirical_grounding_harness_v1 import EmpiricalGroundingHarness
             return EmpiricalGroundingHarness().execute(query, context=context).payload
         return self._base_are(handoff_prompt, context)
-
-    def _post_process(self, result: Dict[str, Any], meta: MetaRoutingResult) -> Dict[str, Any]:
-        core = getattr(self, "_sac", None) or SovereignAutonomyCore()
-        result.setdefault("sac", {}).update(
-            SovereignAutonomyCore.to_dict(
-                self._run_post_sac(result, query=result.get("query", ""), context=result.get("context", {}), core=core)
-            )
-        )
-        if "memory_bytes" not in result["telemetry"]["primary"]:
-            try:
-                import sys as _sys
-                result["telemetry"]["primary"]["memory_bytes"] = _sys.getsizeof(result)
-            except Exception:
-                pass
-        return result
 
     def _run_post_sac(self, harness_output: Dict[str, Any], *, query: str, context: Dict[str, Any], core: Optional[SovereignAutonomyCore] = None) -> SACEnvelope:
         return (core or getattr(self, "_sac", SovereignAutonomyCore())).run_dispatch_gate(
