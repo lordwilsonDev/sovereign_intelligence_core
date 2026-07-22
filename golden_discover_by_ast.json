@@ -1,0 +1,23 @@
+[
+  {
+    "file_content": "\nfrom fastapi import APIRouter\nrouter = APIRouter()\n\n@router.get(\"/health\")\ndef health():\n    pass\n\n@router.post(\"/ingest\")\ndef ingest():\n    pass\n\nrouter.delete(\"/purge\")\n",
+    "output": [
+      [
+        "/ingest",
+        "POST"
+      ],
+      [
+        "/purge",
+        "DELETE"
+      ]
+    ]
+  },
+  {
+    "file_content": "x = 1",
+    "output": []
+  },
+  {
+    "file_content": "\nfrom fastapi import APIRouter\nrouter = APIRouter()\n\n@router.middleware(\"http\")\ndef middleware():\n    pass\n",
+    "output": []
+  }
+]

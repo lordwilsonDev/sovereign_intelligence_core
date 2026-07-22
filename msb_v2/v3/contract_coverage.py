@@ -5,6 +5,7 @@ across route-declaration styles without depending on exact AST names.
 """
 from __future__ import annotations
 
+import ast
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Sequence, Tuple
@@ -81,30 +82,47 @@ _MODULES = [
 _METHODS = {"post", "put", "patch", "delete"}
 
 
-def _discover_by_ast(module_path: Path) -> List[Tuple[str, str]]:
-    text = module_path.read_text(errors="ignore")
-    out: List[Tuple[str, str]] = []
+def _load_module_source(path: Path) -> str:
+    return path.read_text(errors="ignore")
+
+
+def _parse_ast(source: str):
     try:
-        tree = __import__("ast").parse(text)
+        return ast.parse(source)
     except Exception:
-        return out
-    for node in __import__("ast").walk(tree):
-        if not isinstance(node, __import__("ast").Call):
+        return None
+
+
+def _extract_route_from_call(node: ast.Call) -> str | None:
+    for child in ast.walk(node):
+        if isinstance(child, ast.Constant) and isinstance(child.value, str):
+            if child.value.startswith("/"):
+                return child.value
+    return None
+
+
+def _walk_for_routes(tree: ast.AST) -> List[Tuple[str, str]]:
+    out: List[Tuple[str, str]] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
             continue
         func = node.func
-        if not isinstance(func, __import__("ast").Attribute) or func.attr not in _METHODS:
+        if not isinstance(func, ast.Attribute) or func.attr not in _METHODS:
             continue
-        if not isinstance(func.value, __import__("ast").Name) or func.value.id != "router":
+        if not isinstance(func.value, ast.Name) or func.value.id != "router":
             continue
-        route = None
-        for child in __import__("ast").walk(node):
-            if isinstance(child, __import__("ast").Constant) and isinstance(child.value, str):
-                if child.value.startswith("/"):
-                    route = child.value
-                    break
+        route = _extract_route_from_call(node)
         if route:
             out.append((route, func.attr.upper()))
     return out
+
+
+def _discover_by_ast(module_path: Path) -> List[Tuple[str, str]]:
+    source = _load_module_source(module_path)
+    tree = _parse_ast(source)
+    if tree is None:
+        return []
+    return _walk_for_routes(tree)
 
 
 def _discover_by_regex(module_path: Path) -> List[Tuple[str, str]]:
