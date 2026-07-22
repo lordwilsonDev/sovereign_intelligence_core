@@ -1,0 +1,298 @@
+[
+  {
+    "input": {
+      "candidates": [
+        {
+          "id": "fcbbadca199548a0a7e7a150f8d3c250",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://a",
+          "available": true,
+          "health": "healthy",
+          "priority": 2,
+          "metadata": {
+            "priority": 2
+          },
+          "capabilities": [
+            "t"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "30ba04acb2b14d5294b71b6b6548aa97",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://b",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "priority": 1
+          },
+          "capabilities": [
+            "t"
+          ],
+          "last_checked": 0.0
+        }
+      ],
+      "flags": {
+        "large_context": false,
+        "fastest": false
+      }
+    },
+    "output": [
+      {
+        "id": "30ba04acb2b14d5294b71b6b6548aa97",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://b",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {
+          "priority": 1
+        },
+        "capabilities": [
+          "t"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "id": "fcbbadca199548a0a7e7a150f8d3c250",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://a",
+        "available": true,
+        "health": "healthy",
+        "priority": 2,
+        "metadata": {
+          "priority": 2
+        },
+        "capabilities": [
+          "t"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "candidates": [
+        {
+          "id": "4cd5cde87a9a451cbbc265d9e2bd1bdf",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://a",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "context_window": 100
+          },
+          "capabilities": [
+            "t"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "8238729d1b50463fa60600c23294f2bd",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://b",
+          "available": true,
+          "health": "healthy",
+          "priority": 2,
+          "metadata": {
+            "context_window": 500
+          },
+          "capabilities": [
+            "t"
+          ],
+          "last_checked": 0.0
+        }
+      ],
+      "flags": {
+        "large_context": true,
+        "fastest": false
+      }
+    },
+    "output": [
+      {
+        "id": "8238729d1b50463fa60600c23294f2bd",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://b",
+        "available": true,
+        "health": "healthy",
+        "priority": 2,
+        "metadata": {
+          "context_window": 500
+        },
+        "capabilities": [
+          "t"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "id": "4cd5cde87a9a451cbbc265d9e2bd1bdf",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://a",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {
+          "context_window": 100
+        },
+        "capabilities": [
+          "t"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "candidates": [
+        {
+          "id": "0242640783b64e0595071d5fd537e370",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://a",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "latency_ms": 200
+          },
+          "capabilities": [
+            "t"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "d3893cff165140ac8d616d4d5a0fdefb",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://b",
+          "available": true,
+          "health": "healthy",
+          "priority": 2,
+          "metadata": {
+            "latency_ms": 50
+          },
+          "capabilities": [
+            "t"
+          ],
+          "last_checked": 0.0
+        }
+      ],
+      "flags": {
+        "large_context": false,
+        "fastest": true
+      }
+    },
+    "output": [
+      {
+        "id": "d3893cff165140ac8d616d4d5a0fdefb",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://b",
+        "available": true,
+        "health": "healthy",
+        "priority": 2,
+        "metadata": {
+          "latency_ms": 50
+        },
+        "capabilities": [
+          "t"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "id": "0242640783b64e0595071d5fd537e370",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://a",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {
+          "latency_ms": 200
+        },
+        "capabilities": [
+          "t"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "candidates": [
+        {
+          "id": "e8955c93ae0f432dbbccd0862cbc18c1",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://a",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {},
+          "capabilities": [
+            "t"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "afb8c71384ff4939a00ad51895d4ac0b",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://b",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {},
+          "capabilities": [
+            "t"
+          ],
+          "last_checked": 0.0
+        }
+      ],
+      "flags": {
+        "large_context": false,
+        "fastest": false
+      }
+    },
+    "output": [
+      {
+        "id": "e8955c93ae0f432dbbccd0862cbc18c1",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://a",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {},
+        "capabilities": [
+          "t"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "id": "afb8c71384ff4939a00ad51895d4ac0b",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://b",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {},
+        "capabilities": [
+          "t"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  }
+]

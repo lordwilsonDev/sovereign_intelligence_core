@@ -83,12 +83,25 @@ class CapabilityRouter:
         return filtered
 
     @staticmethod
-    def _apply_sorting(candidates: List[InterfaceEntry], flags: Dict[str, bool]) -> List[InterfaceEntry]:
-        if flags["large_context"]:
-            return sorted(candidates, key=lambda e: (e.metadata or {}).get("context_window", 0), reverse=True)
-        if flags["fastest"]:
-            return sorted(candidates, key=lambda e: (e.metadata or {}).get("latency_ms", 999999))
+    def _sort_by_context_window(candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
+        return sorted(candidates, key=lambda e: (e.metadata or {}).get("context_window", 0), reverse=True)
+
+    @staticmethod
+    def _sort_by_lowest_latency(candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
+        return sorted(candidates, key=lambda e: (e.metadata or {}).get("latency_ms", 999999))
+
+    @staticmethod
+    def _sort_by_priority(candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
         return sorted(candidates, key=lambda e: e.priority)
+
+    @staticmethod
+    def _apply_sorting(candidates: List[InterfaceEntry], flags: Dict[str, bool]) -> List[InterfaceEntry]:
+        candidates = list(candidates)
+        if flags["large_context"]:
+            return CapabilityRouter._sort_by_context_window(candidates)
+        if flags["fastest"]:
+            return CapabilityRouter._sort_by_lowest_latency(candidates)
+        return CapabilityRouter._sort_by_priority(candidates)
 
     @staticmethod
     def _match(task: str, context: Dict[str, Any], candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
