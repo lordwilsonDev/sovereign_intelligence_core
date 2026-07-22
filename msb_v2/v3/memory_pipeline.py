@@ -85,33 +85,18 @@ class MemoryEnhancedPlanner:
         self.pipeline = pipeline
         self.learning_engine = learning_engine
 
-    def plan(self, task: str, context: Optional[str] = None) -> dict:
+    def _recall_from_terms(self, terms: list[str]) -> tuple[list, set]:
         seen: List[MemoryEntry] = []
         seen_ids: set[str] = set()
-        terms = [t for t in task.split() if t]
         for term in terms:
             for mem in self.pipeline.recall(term, limit=10):
                 mid = mem.memory_id
                 if mid not in seen_ids:
                     seen_ids.add(mid)
                     seen.append(mem)
-        if not seen and context:
-            terms_ctx = [t for t in context.split() if t]
-            for term in terms_ctx:
-                for mem in self.pipeline.recall(term, limit=10):
-                    mid = mem.memory_id
-                    if mid not in seen_ids:
-                        seen_ids.add(mid)
-                        seen.append(mem)
-        recent = self.pipeline.recent(limit=5)
-        scored = sorted(seen, key=lambda m: m.importance, reverse=True)
-        next_step = None
-        if self.learning_engine and scored:
-            try:
-                rec = self.learning_engine.recommend(scored[0].source)
-                next_step = rec.get("next")
-            except Exception:
-                next_step = None
+        return seen, seen_ids
+
+    def _build_plan_result(self, task, context, scored, recent, next_step):
         return {
             "task": task,
             "context": context,
@@ -121,6 +106,27 @@ class MemoryEnhancedPlanner:
             "next_step": next_step,
             "plan": self._synthesize(task, scored, recent, next_step),
         }
+
+    def plan(self, task: str, context: Optional[str] = None) -> dict:
+        terms = [t for t in task.split() if t]
+        seen, seen_ids = self._recall_from_terms(terms)
+
+        if not seen and context:
+            ctx_terms = [t for t in context.split() if t]
+            ctx_seen, ctx_ids = self._recall_from_terms(ctx_terms)
+            seen, seen_ids = ctx_seen, ctx_ids
+
+        recent = self.pipeline.recent(limit=5)
+        scored = sorted(seen, key=lambda m: m.importance, reverse=True)
+        next_step = None
+        if self.learning_engine and scored:
+            try:
+                rec = self.learning_engine.recommend(scored[0].source)
+                next_step = rec.get("next")
+            except Exception:
+                next_step = None
+
+        return self._build_plan_result(task, context, scored, recent, next_step)
 
     @staticmethod
     def _synthesize(task: str, memories: List[MemoryEntry], recent: List[MemoryEntry], next_step: Optional[str]) -> str:

@@ -1,0 +1,52 @@
+[
+  {
+    "input": [
+      "test task",
+      null
+    ],
+    "output": {
+      "task": "test task",
+      "context": null,
+      "recalled_count": 2,
+      "recalled_sources": [
+        "src1",
+        "src2"
+      ],
+      "recent_sources": [
+        "recent1"
+      ],
+      "next_step": "step1",
+      "plan": "Apply learned pattern from src1 to test task; next recommended step: step1"
+    }
+  },
+  {
+    "input": [
+      "rare term",
+      "additional context"
+    ],
+    "output": {
+      "task": "rare term",
+      "context": "additional context",
+      "recalled_count": 0,
+      "recalled_sources": [],
+      "recent_sources": [],
+      "next_step": null,
+      "plan": "Direct execution: rare term"
+    }
+  },
+  {
+    "input": [
+      "",
+      null
+    ],
+    "output": {
+      "task": "",
+      "context": null,
+      "recalled_count": 0,
+      "recalled_sources": [],
+      "recent_sources": [],
+      "next_step": null,
+      "plan": "Direct execution: "
+    }
+  }
+]
