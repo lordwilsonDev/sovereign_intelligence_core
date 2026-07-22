@@ -238,6 +238,8 @@ def _load_routers() -> None:
     _register(echo_router, "/echo")
     from msb_v2.api.systems_health import router as systems_health_router
     _register(systems_health_router, "/systems-health")
+    from msb_v2.api.soh import router as soh_router
+    _register(soh_router, "/soh")
     from msb_v2.api.optimize import router as optimize_router
     _register(optimize_router, "/optimize")
     from msb_v2.api.schh import router as schh_router
