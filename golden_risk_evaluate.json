@@ -1,0 +1,40 @@
+[
+  {
+    "input": "safe_query",
+    "output": {
+      "level": "low",
+      "score": 0.0,
+      "reasons": [],
+      "context": {}
+    }
+  },
+  {
+    "input": "destructive_blast",
+    "output": {
+      "level": "critical",
+      "score": 0.8999999999999999,
+      "reasons": [
+        "Blast radius elevated: 0.9",
+        "Destructive action",
+        "Low specificity"
+      ],
+      "context": {
+        "blast_score": 0.9
+      }
+    }
+  },
+  {
+    "input": "fatigued",
+    "output": {
+      "level": "medium",
+      "score": 0.3,
+      "reasons": [
+        "Operator fatigue: 80%"
+      ],
+      "context": {
+        "fatigue": 0.8,
+        "frustration": 0.1
+      }
+    }
+  }
+]
