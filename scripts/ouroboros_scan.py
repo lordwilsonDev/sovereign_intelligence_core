@@ -205,46 +205,68 @@ def _write_json(scorecards: List[Dict], out_path: str) -> None:
     Path(out_path).write_text(json.dumps(payload, indent=2))
 
 
-def main() -> int:
-    project_root = Path(__file__).resolve().parent.parent
-    os.chdir(project_root)
-
-    python_files = []
+def _collect_python_files(project_root: Path) -> list[str]:
+    """Walk msb_v2 and return a list of Python file paths."""
+    python_files: list[str] = []
     for root, dirs, files in os.walk(project_root / "msb_v2"):
         dirs[:] = [d for d in dirs if not d.startswith("__") and d != "tests"]
         for f in files:
             if f.endswith(".py"):
                 python_files.append(os.path.join(root, f))
+    return python_files
 
-    if not python_files:
-        print("No Python files found under msb_v2/.")
-        return 1
 
-    results = []
+def _rank_modules(python_files: list[str]) -> tuple[list[tuple], tuple | None]:
+    """Compute VDR for each file and return sorted results plus worst non-init module."""
+    results: list[tuple] = []
     for fp in python_files:
         vdr, metrics = compute_vdr(fp)
         results.append((fp, vdr, metrics))
-
     results.sort(key=lambda x: x[1])
-
     real = [x for x in results if x[0].endswith("__init__.py") is False]
-    worst = real[0] if real else results[0]
+    worst = real[0] if real else (results[0] if results else None)
+    return results, worst
 
-    if "--json" in sys.argv:
-        real = [x for x in results if not x[0].endswith("__init__.py")]
-        used = real or results
-        scorecards = [_scorecard(fp, vdr, m) for fp, vdr, m in used]
-        _write_json(scorecards, "ouroboros_proposal.json")
-        print(json.dumps(scorecards[0], indent=2))
-        return 0
 
+def _render_text_output(results: list[tuple], worst: tuple | None) -> None:
+    """Print the human-readable scan report."""
+    real = [x for x in results if x[0].endswith("__init__.py") is False]
+    used = real or results
     print("=== Ouroboros Scan: Lowest VDR Modules ===")
-    for fp, vdr, m in (real or results)[:5]:
+    for fp, vdr, m in used[:5]:
         print(f"{fp}: VDR={vdr:.4f}")
         print(f"  complexity={m['complexity']:.2f}, imports={int(m['imports'])}, "
               f"todos={int(m['todos'])}, coverage={m['coverage']:.1f}%")
     print()
-    print(f"Recommend refactoring: {worst[0]} (VDR={worst[1]:.4f})")
+    if worst:
+        print(f"Recommend refactoring: {worst[0]} (VDR={worst[1]:.4f})")
+
+
+def _render_json_output(results: list[tuple]) -> None:
+    """Write scorecards and print the first JSON entry."""
+    real = [x for x in results if not x[0].endswith("__init__.py")]
+    used = real or results
+    scorecards = [_scorecard(fp, vdr, m) for fp, vdr, m in used]
+    _write_json(scorecards, "ouroboros_proposal.json")
+    print(json.dumps(scorecards[0], indent=2))
+
+
+def main() -> int:
+    project_root = Path(__file__).resolve().parent.parent
+    os.chdir(project_root)
+
+    python_files = _collect_python_files(project_root)
+    if not python_files:
+        print("No Python files found under msb_v2/.")
+        return 1
+
+    results, worst = _rank_modules(python_files)
+
+    if "--json" in sys.argv:
+        _render_json_output(results)
+        return 0
+
+    _render_text_output(results, worst)
     return 0
 
 
