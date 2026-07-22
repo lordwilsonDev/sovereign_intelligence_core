@@ -80,6 +80,12 @@ class ResumeBlob:
 
 
 class ResumePromptCompiler:
+    def _init_checkpoint_dir(self) -> Path:
+        """Create and return the checkpoint directory."""
+        path = Path("/private/var/folders/_0/1fjsnc_n747c32_7t8s014c40000gn/T/msb-checkpoints")
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
     def __init__(
         self,
         project: str = "",
@@ -119,8 +125,7 @@ class ResumePromptCompiler:
         self.merkle_root_hash = merkle_root_hash or ""
         self.policy_prediction_fts = float(policy_prediction_fts)
         self.audit_sovereignty_score = float(audit_sovereignty_score)
-        self._checkpoint_dir = Path("/private/var/folders/_0/1fjsnc_n747c32_7t8s014c40000gn/T/msb-checkpoints")
-        self._checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        self._checkpoint_dir = self._init_checkpoint_dir()
 
     def compile(self, recent_tool_calls: Optional[list[str]] = None) -> str:
         if recent_tool_calls is not None:
