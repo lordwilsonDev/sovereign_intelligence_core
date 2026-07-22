@@ -16,65 +16,75 @@ def _inject_context(params: dict, tool: str, step_results: dict[int, str], goal:
     return params
 
 
-def execute(goal: str, cancel_flag: threading.Event | None = None, plan: Plan | None = None) -> str:
+def _prepare_plan(goal: str, plan: Plan | None) -> Plan:
     if plan is None:
-        plan = Plan(goal=goal, steps=[Step(step=1, tool="noop", description=goal, critical=True)])
+        return Plan(goal=goal, steps=[Step(step=1, tool="noop", description=goal, critical=True)])
+    return plan
 
+
+def _execute_step(step: Step, goal: str, step_results: dict[int, str], cancel_flag: threading.Event | None) -> str | None:
+    if cancel_flag and cancel_flag.is_set():
+        return "Task cancelled."
+
+    params = _inject_context(dict(step.parameters), step.tool, step_results, goal)
+    attempt = 1
+    step_ok = False
+
+    while attempt <= 2:
+        try:
+            result = _call_tool(step.tool, params)
+            step_results[step.step] = result
+            step_ok = True
+            break
+        except Exception as exc:
+            error_msg = str(exc)
+            step_dict = step.__dict__
+            recovery = analyze_error(step_dict, error_msg, attempt=attempt)
+            decision = recovery.decision
+
+            if decision == ErrorDecision.RETRY:
+                attempt += 1
+                continue
+            if decision == ErrorDecision.SKIP:
+                step_ok = True
+                break
+            if decision == ErrorDecision.REPLAN and recovery.fix_suggestion:
+                fix = generate_fix(step_dict, error_msg, recovery.fix_suggestion)
+                try:
+                    result = _call_tool(fix["tool"], fix.get("parameters", {}))
+                    step_results[step.step] = result
+                    step_ok = True
+                    break
+                except Exception:
+                    pass
+            if decision == ErrorDecision.ABORT:
+                return recovery.user_message or f"Task aborted: {error_msg}"
+            break
+
+    if not step_ok:
+        return f"Stopped at step {step.step}: {goal}"
+    return None
+
+
+def _summarize_result(goal: str, completed_steps: list[Step]) -> str:
+    if not completed_steps:
+        return f"No steps completed for: {goal}"
+    return f"Completed {len(completed_steps)} step(s) for: {goal}"
+
+
+def execute(goal: str, cancel_flag: threading.Event | None = None, plan: Plan | None = None) -> str:
+    plan = _prepare_plan(goal, plan)
     completed_steps: list[Step] = []
     step_results: dict[int, str] = {}
     steps = plan.steps[:]
 
     for step in steps:
-        if cancel_flag and cancel_flag.is_set():
-            return "Task cancelled."
+        terminal = _execute_step(step, goal, step_results, cancel_flag)
+        if terminal is not None:
+            return terminal
+        completed_steps.append(step)
 
-        params = _inject_context(dict(step.parameters), step.tool, step_results, goal)
-        attempt = 1
-        step_ok = False
-
-        while attempt <= 2:
-            try:
-                result = _call_tool(step.tool, params)
-                step_results[step.step] = result
-                completed_steps.append(step)
-                step_ok = True
-                break
-            except Exception as exc:
-                error_msg = str(exc)
-                recovery = analyze_error(step, error_msg, attempt=attempt)
-                decision = recovery.decision
-
-                if decision == ErrorDecision.RETRY:
-                    attempt += 1
-                    continue
-                if decision == ErrorDecision.SKIP:
-                    completed_steps.append(step)
-                    step_ok = True
-                    break
-                if decision == ErrorDecision.REPLAN and recovery.fix_suggestion:
-                    fix = generate_fix(step, error_msg, recovery.fix_suggestion)
-                    try:
-                        result = _call_tool(fix["tool"], fix.get("parameters", {}))
-                        step_results[step.step] = result
-                        completed_steps.append(step)
-                        step_ok = True
-                        break
-                    except Exception:
-                        pass
-                if decision == ErrorDecision.ABORT:
-                    return recovery.user_message or f"Task aborted: {error_msg}"
-                break
-
-        if not step_ok:
-            return f"Stopped at step {step.step}: {goal}"
-
-    return _summarize(goal, completed_steps)
-
-
-def _summarize(goal: str, completed_steps: list[Step]) -> str:
-    if not completed_steps:
-        return f"No steps completed for: {goal}"
-    return f"Completed {len(completed_steps)} step(s) for: {goal}"
+    return _summarize_result(goal, completed_steps)
 
 
 def _call_tool(tool: str, parameters: dict) -> str:

@@ -1,0 +1,40 @@
+[
+  {
+    "input": {
+      "goal": "noop task",
+      "plan": {
+        "goal": "noop task",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "noop",
+            "description": "noop",
+            "parameters": {},
+            "critical": true
+          }
+        ]
+      }
+    },
+    "output": "Completed 1 step(s) for: noop task"
+  },
+  {
+    "input": {
+      "goal": "retry then success",
+      "plan": {
+        "goal": "retry then success",
+        "steps": [
+          {
+            "step": 1,
+            "tool": "web_search",
+            "description": "retry",
+            "parameters": {
+              "query": "test"
+            },
+            "critical": true
+          }
+        ]
+      }
+    },
+    "output": "Completed 1 step(s) for: retry then success"
+  }
+]
