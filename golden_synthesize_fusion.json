@@ -1,0 +1,80 @@
+[
+  {
+    "input": [
+      {
+        "error_type": "ValueError",
+        "message": "v1",
+        "weight": 1.0,
+        "sovereign_alert": false,
+        "scope_source": false,
+        "payload_type": "generic"
+      },
+      {
+        "error_type": "RuntimeError",
+        "message": "r1",
+        "weight": 0.8,
+        "sovereign_alert": false,
+        "scope_source": false,
+        "payload_type": "generic"
+      }
+    ],
+    "output": {
+      "error_type": "ValueError",
+      "message": "v1",
+      "notes": [
+        "suppressed: RuntimeError: r1"
+      ],
+      "suppressed_types": [
+        "RuntimeError"
+      ]
+    }
+  },
+  {
+    "input": [
+      {
+        "error_type": "TypeError",
+        "message": "t1",
+        "weight": 0.5,
+        "sovereign_alert": false,
+        "scope_source": false,
+        "payload_type": "generic"
+      }
+    ],
+    "output": {
+      "error_type": "TypeError",
+      "message": "t1",
+      "notes": [],
+      "suppressed_types": []
+    }
+  },
+  {
+    "input": [
+      {
+        "error_type": "ValueError",
+        "message": "sac",
+        "weight": 1.0,
+        "sovereign_alert": true,
+        "scope_source": true,
+        "payload_type": "task"
+      },
+      {
+        "error_type": "RuntimeError",
+        "message": "minor",
+        "weight": 0.2,
+        "sovereign_alert": false,
+        "scope_source": false,
+        "payload_type": "generic"
+      }
+    ],
+    "output": {
+      "error_type": "ValueError",
+      "message": "sac",
+      "notes": [
+        "suppressed: RuntimeError: minor"
+      ],
+      "suppressed_types": [
+        "RuntimeError"
+      ]
+    }
+  }
+]

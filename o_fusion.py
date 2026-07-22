@@ -169,33 +169,45 @@ class Scope:
                 item.weight = max(item.weight, 0.25)
         return classified
 
+    def _select_primary_error(self, weighted: list[_ErrorClassification]) -> _ErrorClassification:
+        return max(weighted, key=lambda item: item.weight)
+
+    def _build_suppressed_list(self, weighted: list[_ErrorClassification], primary: _ErrorClassification) -> list[BaseException]:
+        return [item.error for item in weighted if item.error is not primary.error]
+
+    def _apply_first_wins(self, primary: _ErrorClassification, fused: list[BaseException]) -> BaseException:
+        if fused:
+            primary.error.__notes__ = getattr(primary.error, "__notes__", [])
+            for error in fused:
+                primary.error.__notes__.append(
+                    f"suppressed: {type(error).__name__}: {error}"
+                )
+            primary.error.__suppressed__ = fused
+        return primary.error
+
+    def _apply_aggregate(self, weighted: list[_ErrorClassification]) -> BaseException:
+        return ExceptionGroup("O_FUSION: multiple task failures", [item.error for item in weighted])
+
+    def _apply_tree(self, weighted: list[_ErrorClassification]) -> BaseException:
+        err = FusedError([item.error for item in weighted], FusionPolicy.TREE)
+        for task, name in self._task_names.items():
+            if task.done() and not task.cancelled():
+                task_exc = task.exception()
+                if task_exc is not None:
+                    err.tree[name] = task_exc
+        body_errors = [item.error for item in weighted if item.scope_source]
+        for i, error in enumerate(body_errors):
+            err.tree.setdefault(f"__scope__[{i}]", error)
+        return err
+
     def _synthesize_fusion(self, weighted: list[_ErrorClassification]) -> BaseException:
-        primary = max(weighted, key=lambda item: item.weight)
-        fused = [item.error for item in weighted if item.error is not primary.error]
+        primary = self._select_primary_error(weighted)
+        fused = self._build_suppressed_list(weighted, primary)
         policy = self.policy
         if policy is FusionPolicy.FIRST_WINS:
-            if fused:
-                primary.error.__notes__ = getattr(primary.error, "__notes__", [])
-                for error in fused:
-                    primary.error.__notes__.append(
-                        f"suppressed: {type(error).__name__}: {error}"
-                    )
-                primary.error.__suppressed__ = fused
-            return primary.error
-
+            return self._apply_first_wins(primary, fused)
         if policy is FusionPolicy.AGGREGATE:
-            return ExceptionGroup("O_FUSION: multiple task failures", [item.error for item in weighted])
-
+            return self._apply_aggregate(weighted)
         if policy is FusionPolicy.TREE:
-            err = FusedError([item.error for item in weighted], policy)
-            for task, name in self._task_names.items():
-                if task.done() and not task.cancelled():
-                    task_exc = task.exception()
-                    if task_exc is not None:
-                        err.tree[name] = task_exc
-            body_errors = [item.error for item in weighted if item.scope_source]
-            for i, error in enumerate(body_errors):
-                err.tree.setdefault(f"__scope__[{i}]", error)
-            return err
-
+            return self._apply_tree(weighted)
         raise ValueError(f"Unknown fusion policy: {policy}")
