@@ -40,8 +40,7 @@ class CapabilityRouter:
         self.registry = registry or InterfaceRegistry()
 
     @staticmethod
-    def _match(task: str, context: Dict[str, Any], candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
-        low = task.lower()
+    def _collect_context_flags(context: Dict[str, Any]) -> Dict[str, bool]:
         ctx = {str(k).lower(): v for k, v in context.items()}
         privacy_sensitive = str(ctx.get("privacy_sensitive", "")).lower() in {"1", "true", "yes"}
         offline = str(ctx.get("offline", "")).lower() in {"1", "true", "yes"}
@@ -49,21 +48,54 @@ class CapabilityRouter:
         tool_use = str(ctx.get("tool_use_required", "")).lower() in {"1", "true", "yes"}
         large_context = str(ctx.get("large_context", "")).lower() in {"1", "true", "yes"}
         fastest = str(ctx.get("lowest_latency", "")).lower() in {"1", "true", "yes"}
+        return {
+            "privacy_sensitive": privacy_sensitive,
+            "offline": offline,
+            "local_first": local_first,
+            "tool_use": tool_use,
+            "large_context": large_context,
+            "fastest": fastest,
+        }
 
+    @staticmethod
+    def _filter_local_first(candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
+        local = [e for e in candidates if (e.endpoint or "").startswith("http://127.0.0.1")]
+        return local or candidates
+
+    @staticmethod
+    def _filter_offline(candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
+        return [e for e in candidates if (e.endpoint or "").startswith("http://127.0.0.1")]
+
+    @staticmethod
+    def _filter_tool_use(candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
+        tool_capable = [e for e in candidates if "tool" in e.capabilities or "mcp" in (e.metadata or {}).get("types", [])]
+        return tool_capable or candidates
+
+    @staticmethod
+    def _apply_filters(candidates: List[InterfaceEntry], flags: Dict[str, bool]) -> List[InterfaceEntry]:
         filtered = list(candidates)
-        if local_first:
-            filtered = [e for e in filtered if (e.endpoint or "").startswith("http://127.0.0.1")] or filtered
-        if offline:
-            filtered = [e for e in filtered if (e.endpoint or "").startswith("http://127.0.0.1")] or []
-        if tool_use:
-            filtered = [e for e in filtered if "tool" in e.capabilities or "mcp" in e.metadata.get("types", [])] or filtered
-        if large_context:
-            filtered = sorted(filtered, key=lambda e: e.metadata.get("context_window", 0), reverse=True) or filtered
-        if fastest:
-            filtered = sorted(filtered, key=lambda e: e.metadata.get("latency_ms", 999999))
-        else:
-            filtered = sorted(filtered, key=lambda e: e.priority)
+        if flags["local_first"]:
+            filtered = CapabilityRouter._filter_local_first(filtered)
+        if flags["offline"]:
+            filtered = CapabilityRouter._filter_offline(filtered)
+        if flags["tool_use"]:
+            filtered = CapabilityRouter._filter_tool_use(filtered)
         return filtered
+
+    @staticmethod
+    def _apply_sorting(candidates: List[InterfaceEntry], flags: Dict[str, bool]) -> List[InterfaceEntry]:
+        if flags["large_context"]:
+            return sorted(candidates, key=lambda e: (e.metadata or {}).get("context_window", 0), reverse=True)
+        if flags["fastest"]:
+            return sorted(candidates, key=lambda e: (e.metadata or {}).get("latency_ms", 999999))
+        return sorted(candidates, key=lambda e: e.priority)
+
+    @staticmethod
+    def _match(task: str, context: Dict[str, Any], candidates: List[InterfaceEntry]) -> List[InterfaceEntry]:
+        candidates = list(candidates)
+        flags = CapabilityRouter._collect_context_flags(context)
+        candidates = CapabilityRouter._apply_filters(candidates, flags)
+        return CapabilityRouter._apply_sorting(candidates, flags)
 
     def route(self, task: str, context: Dict[str, Any]) -> Dict[str, Any]:
         candidates = self.registry.healthy()

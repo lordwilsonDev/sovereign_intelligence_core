@@ -1,0 +1,314 @@
+[
+  {
+    "input": {
+      "flags": {
+        "local_first": true,
+        "offline": false,
+        "tool_use": false,
+        "large_context": false,
+        "fastest": false,
+        "privacy_sensitive": false
+      },
+      "candidates": [
+        {
+          "id": "8ab28780a37242098cd1e2362d18b399",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://127.0.0.1/a",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {},
+          "capabilities": [
+            "tool"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "d124e521357e4573a3aa1594f7c4bd2c",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "https://remote/b",
+          "available": true,
+          "health": "healthy",
+          "priority": 2,
+          "metadata": {},
+          "capabilities": [
+            "mcp"
+          ],
+          "last_checked": 0.0
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "8ab28780a37242098cd1e2362d18b399",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://127.0.0.1/a",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {},
+        "capabilities": [
+          "tool"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "flags": {
+        "local_first": false,
+        "offline": true,
+        "tool_use": false,
+        "large_context": false,
+        "fastest": false,
+        "privacy_sensitive": false
+      },
+      "candidates": [
+        {
+          "id": "73aab7bc5ad941e7b7c363ca800b92f1",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://127.0.0.1/a",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {},
+          "capabilities": [],
+          "last_checked": 0.0
+        },
+        {
+          "id": "2b4bf0f7ef834092a15786e3ecded5fd",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "https://remote/b",
+          "available": true,
+          "health": "healthy",
+          "priority": 2,
+          "metadata": {},
+          "capabilities": [],
+          "last_checked": 0.0
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "73aab7bc5ad941e7b7c363ca800b92f1",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://127.0.0.1/a",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {},
+        "capabilities": [],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "flags": {
+        "local_first": false,
+        "offline": false,
+        "tool_use": true,
+        "large_context": false,
+        "fastest": false,
+        "privacy_sensitive": false
+      },
+      "candidates": [
+        {
+          "id": "3aa99a35e5214659802180578479a480",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "https://x",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {},
+          "capabilities": [
+            "plain"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "883c1f94fd8145d2bf3a5fba0265352e",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "https://y",
+          "available": true,
+          "health": "healthy",
+          "priority": 2,
+          "metadata": {},
+          "capabilities": [
+            "plain"
+          ],
+          "last_checked": 0.0
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "3aa99a35e5214659802180578479a480",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "https://x",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {},
+        "capabilities": [
+          "plain"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "id": "883c1f94fd8145d2bf3a5fba0265352e",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "https://y",
+        "available": true,
+        "health": "healthy",
+        "priority": 2,
+        "metadata": {},
+        "capabilities": [
+          "plain"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "flags": {
+        "local_first": false,
+        "offline": false,
+        "tool_use": true,
+        "large_context": false,
+        "fastest": false,
+        "privacy_sensitive": false
+      },
+      "candidates": [
+        {
+          "id": "8965d730b19647919dba47d90556dc57",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "https://x",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {},
+          "capabilities": [
+            "plain"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "4b0e9647f7eb4ae4b4e60413a7890321",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "https://y",
+          "available": true,
+          "health": "healthy",
+          "priority": 2,
+          "metadata": {},
+          "capabilities": [
+            "tool"
+          ],
+          "last_checked": 0.0
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "4b0e9647f7eb4ae4b4e60413a7890321",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "https://y",
+        "available": true,
+        "health": "healthy",
+        "priority": 2,
+        "metadata": {},
+        "capabilities": [
+          "tool"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "flags": {
+        "local_first": true,
+        "offline": false,
+        "tool_use": true,
+        "large_context": false,
+        "fastest": false,
+        "privacy_sensitive": false
+      },
+      "candidates": [
+        {
+          "id": "74770600d1404dec9f89e582dce1604d",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://127.0.0.1/a",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {},
+          "capabilities": [
+            "plain"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "84b35548c6c34ac5b757ff3b582928cf",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "http://127.0.0.1/b",
+          "available": true,
+          "health": "healthy",
+          "priority": 2,
+          "metadata": {},
+          "capabilities": [
+            "tool"
+          ],
+          "last_checked": 0.0
+        },
+        {
+          "id": "148a9d93ee8749469a683c05067e8aa5",
+          "plugin": "p",
+          "type": "t",
+          "endpoint": "https://remote/c",
+          "available": true,
+          "health": "healthy",
+          "priority": 3,
+          "metadata": {},
+          "capabilities": [
+            "tool"
+          ],
+          "last_checked": 0.0
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "84b35548c6c34ac5b757ff3b582928cf",
+        "plugin": "p",
+        "type": "t",
+        "endpoint": "http://127.0.0.1/b",
+        "available": true,
+        "health": "healthy",
+        "priority": 2,
+        "metadata": {},
+        "capabilities": [
+          "tool"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  }
+]
