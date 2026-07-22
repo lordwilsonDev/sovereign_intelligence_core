@@ -18,7 +18,10 @@ class ComponentHealth:
 @dataclass(frozen=True)
 class SystemReadiness:
     status: str
-    components: List[ComponentHealth]
+    healthy_count: int = 0
+    degraded_count: int = 0
+    unhealthy_count: int = 0
+    critical_unhealthy: List[str] = field(default_factory=list)
     updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
@@ -37,8 +40,9 @@ class HealthPrimitive:
         status = "GREEN"
         critical_unhealthy = [c.id for c in components if c.status == "unhealthy" and c.metadata.get("critical")]
         degraded = [c.id for c in components if c.status == "degraded"]
+        unhealthy = [c.id for c in components if c.status == "unhealthy"]
         if critical_unhealthy:
             status = "RED"
-        elif degraded:
+        elif unhealthy or degraded:
             status = "YELLOW"
-        return SystemReadiness(status=status, components=components)
+        return SystemReadiness(status=status, healthy_count=sum(1 for c in components if c.status not in ("degraded", "unhealthy")), degraded_count=len(degraded), unhealthy_count=len(unhealthy), critical_unhealthy=critical_unhealthy)

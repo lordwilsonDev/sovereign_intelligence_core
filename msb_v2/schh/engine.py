@@ -8,6 +8,8 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
+from msb_v2.core.health import SystemReadiness
+
 
 class ComponentType(str, Enum):
     harness = "harness"
@@ -52,16 +54,6 @@ class CheckResult:
     duration_ms: float
     detail: str = ""
     timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
-
-
-@dataclass(frozen=True)
-class SystemReadiness:
-    status: str
-    healthy_count: int
-    degraded_count: int
-    unhealthy_count: int
-    critical_unhealthy: List[str]
-    updated_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 logger = logging.getLogger(__name__)
