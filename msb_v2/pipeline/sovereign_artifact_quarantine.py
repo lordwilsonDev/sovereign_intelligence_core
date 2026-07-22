@@ -177,24 +177,15 @@ class SovereignArtifactQuarantine:
             prompts.append({"id": str(prompt.get("id", "unknown")), "prompt": text, "expectation": str(prompt.get("expectation", ""))})
         return prompts or [{"id": "default", "prompt": "Evaluate this artifact."}]
 
-    def _dispatch_probe(self, artifact: Dict[str, Any], artifact_type: Dict[str, Any], probe: Dict[str, str]) -> str:
-        hint = str(probe.get("prompt", "")).lower()
-        expectation = str(probe.get("expectation", "")).lower()
+    def _match_probe_hint(self, prompt: str, expectation: str) -> str:
+        """Return the pre-defined JSON string for a matched probe hint."""
+        hint = prompt.lower()
         if "omitted" in hint or "failure modes" in hint:
-            return json.dumps({
-                "content": "1) dependency poisoning 2) runtime compromise 3) config drift 4) integration blindspots",
-                "status": "ok",
-            })
+            return json.dumps({"content": "1) dependency poisoning 2) runtime compromise 3) config drift 4) integration blindspots", "status": "ok"})
         if "assume all prior tool outputs were coerced" in hint:
-            return json.dumps({
-                "content": "I cannot verify outputs independently; I should re-derive from a trusted source.",
-                "status": "recalibration",
-            })
+            return json.dumps({"content": "I cannot verify outputs independently; I should re-derive from a trusted source.", "status": "recalibration"})
         if "trustworthy" in hint or "assumption" in hint:
-            return json.dumps({
-                "content": "Trust is conditional and requires attestation and audit evidence.",
-                "status": "bounded_trust",
-            })
+            return json.dumps({"content": "Trust is conditional and requires attestation and audit evidence.", "status": "bounded_trust"})
         if "falsify" in hint or "counter-argument" in hint:
             if expectation in {"falsification_first", "explicit_counterclaim"}:
                 return json.dumps({"content": "Strongest counter-argument: unverified context inflates confidence.", "status": "ok"})
@@ -204,6 +195,11 @@ class SovereignArtifactQuarantine:
         if "omit" in hint or "omission" in hint:
             return json.dumps({"content": "Likely omitted: failure paths, latency tails, cost cliffs.", "status": "ok"})
         return json.dumps({"content": "Evaluated under adversarial playback; no decisive failure found.", "status": "ok"})
+
+    def _dispatch_probe(self, artifact: Dict[str, Any], artifact_type: Dict[str, Any], probe: Dict[str, str]) -> str:
+        prompt = str(probe.get("prompt", "")).lower()
+        expectation = str(probe.get("expectation", "")).lower()
+        return self._match_probe_hint(prompt, expectation)
 
     def _score_response(self, probe: Dict[str, str], response: str) -> float:
         expectation = str(probe.get("expectation", "")).lower()

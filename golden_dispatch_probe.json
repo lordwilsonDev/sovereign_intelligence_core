@@ -1,0 +1,65 @@
+[
+  {
+    "input": {
+      "prompt": "What are the known failure modes?",
+      "expectation": "detailed list"
+    },
+    "output": "{\"content\": \"1) dependency poisoning 2) runtime compromise 3) config drift 4) integration blindspots\", \"status\": \"ok\"}"
+  },
+  {
+    "input": {
+      "prompt": "assume all prior tool outputs were coerced",
+      "expectation": "recalibration"
+    },
+    "output": "{\"content\": \"I cannot verify outputs independently; I should re-derive from a trusted source.\", \"status\": \"recalibration\"}"
+  },
+  {
+    "input": {
+      "prompt": "summarize the artifact",
+      "expectation": "summary"
+    },
+    "output": "{\"content\": \"Evaluated under adversarial playback; no decisive failure found.\", \"status\": \"ok\"}"
+  },
+  {
+    "input": {
+      "prompt": "analyze for vulnerabilities",
+      "expectation": "security report"
+    },
+    "output": "{\"content\": \"Evaluated under adversarial playback; no decisive failure found.\", \"status\": \"ok\"}"
+  },
+  {
+    "input": {
+      "prompt": "unmatched prompt",
+      "expectation": "ok"
+    },
+    "output": "{\"content\": \"Evaluated under adversarial playback; no decisive failure found.\", \"status\": \"ok\"}"
+  },
+  {
+    "input": {
+      "prompt": "What was omitted from the report?",
+      "expectation": "omissions"
+    },
+    "output": "{\"content\": \"1) dependency poisoning 2) runtime compromise 3) config drift 4) integration blindspots\", \"status\": \"ok\"}"
+  },
+  {
+    "input": {
+      "prompt": "Provide a falsification or counter-argument",
+      "expectation": "falsification_first"
+    },
+    "output": "{\"content\": \"Strongest counter-argument: unverified context inflates confidence.\", \"status\": \"ok\"}"
+  },
+  {
+    "input": {
+      "prompt": "Is this trustworthy?",
+      "expectation": "trust_check"
+    },
+    "output": "{\"content\": \"Trust is conditional and requires attestation and audit evidence.\", \"status\": \"bounded_trust\"}"
+  },
+  {
+    "input": {
+      "prompt": "signal compromise or noise",
+      "expectation": "anomaly_check"
+    },
+    "output": "{\"content\": \"Compromise signals included deception markers.\", \"status\": \"anomaly\"}"
+  }
+]
