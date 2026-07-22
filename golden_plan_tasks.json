@@ -1,0 +1,90 @@
+[
+  {
+    "phase": "OBSERVE",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "CONTEXT",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "GOALS",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "ASSUMPTIONS",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "INVERSION",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "ALTERNATIVES",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "EVIDENCE",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "CONFIDENCE",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "BLUEPRINT",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "TOOLS",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "EXECUTION",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "VERIFICATION",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "LEARNING",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "QUESTIONS",
+    "output": [
+      "Task"
+    ]
+  },
+  {
+    "phase": "DONE",
+    "output": []
+  }
+]

@@ -143,37 +143,40 @@ class RCOH:
         self.audit = ToolAudit()
         self.chain = MerkleReasoningChain()
 
-    def plan_tasks(self) -> list[Task]:
-        ready = []
-        if self.state.current_phase == Phase.OBSERVE:
-            ready.append(self._observe())
-        elif self.state.current_phase == Phase.CONTEXT:
-            ready.append(self._context())
-        elif self.state.current_phase == Phase.GOALS:
-            ready.append(self._goals())
-        elif self.state.current_phase == Phase.ASSUMPTIONS:
-            ready.append(self._assumptions())
-        elif self.state.current_phase == Phase.INVERSION:
-            ready.append(self._inversion())
-        elif self.state.current_phase == Phase.ALTERNATIVES:
-            ready.append(self._alternatives())
-        elif self.state.current_phase == Phase.EVIDENCE:
-            ready.append(self._evidence())
-        elif self.state.current_phase == Phase.CONFIDENCE:
-            ready.append(self._confidence())
-        elif self.state.current_phase == Phase.BLUEPRINT:
-            ready.append(self._blueprint())
-        elif self.state.current_phase == Phase.TOOLS:
-            ready.append(self._tools())
-        elif self.state.current_phase == Phase.EXECUTION:
-            ready.append(self._execution())
-        elif self.state.current_phase == Phase.VERIFICATION:
-            ready.append(self._verification())
-        elif self.state.current_phase == Phase.LEARNING:
-            ready.append(self._learning())
-        elif self.state.current_phase == Phase.QUESTIONS:
-            ready.append(self._questions())
-        return ready
+    def _plan_for_phase(self, phase: Phase) -> list:
+        """Return the appropriate action(s) for the given phase."""
+        if phase == Phase.OBSERVE:
+            return [self._observe()]
+        if phase == Phase.CONTEXT:
+            return [self._context()]
+        if phase == Phase.GOALS:
+            return [self._goals()]
+        if phase == Phase.ASSUMPTIONS:
+            return [self._assumptions()]
+        if phase == Phase.INVERSION:
+            return [self._inversion()]
+        if phase == Phase.ALTERNATIVES:
+            return [self._alternatives()]
+        if phase == Phase.EVIDENCE:
+            return [self._evidence()]
+        if phase == Phase.CONFIDENCE:
+            return [self._confidence()]
+        if phase == Phase.BLUEPRINT:
+            return [self._blueprint()]
+        if phase == Phase.TOOLS:
+            return [self._tools()]
+        if phase == Phase.EXECUTION:
+            return [self._execution()]
+        if phase == Phase.VERIFICATION:
+            return [self._verification()]
+        if phase == Phase.LEARNING:
+            return [self._learning()]
+        if phase == Phase.QUESTIONS:
+            return [self._questions()]
+        return []
+
+    def plan_tasks(self) -> list:
+        return self._plan_for_phase(self.state.current_phase)
 
     def run(self, max_iterations: int = 10) -> RCOHState:
         self.state.max_iterations = max_iterations
