@@ -1,0 +1,111 @@
+[
+  {
+    "input": {
+      "result": {
+        "telemetry": {
+          "primary": {
+            "execution_time_s": 1.2,
+            "retries": 2,
+            "fallback_reason": "timeout",
+            "error_class": "TransportError",
+            "tags": [
+              "a"
+            ]
+          },
+          "secondary": {
+            "execution_time_s": 0.5,
+            "retries": 0,
+            "fallback_reason": null,
+            "error_class": null,
+            "tags": [
+              "b"
+            ]
+          }
+        }
+      },
+      "primary": "research",
+      "secondary": "backup"
+    },
+    "output": {
+      "primary_execution_time_s": 1.2,
+      "secondary_execution_time_s": 0.5,
+      "primary_retries": 2,
+      "secondary_retries": 0,
+      "primary_fallback_reason": "timeout",
+      "secondary_fallback_reason": null,
+      "primary_error_class": "TransportError",
+      "secondary_error_class": null,
+      "primary_tags": [
+        "a"
+      ],
+      "secondary_tags": [
+        "b"
+      ]
+    }
+  },
+  {
+    "input": {
+      "result": {
+        "telemetry": {
+          "primary": {
+            "execution_time_s": 3.4,
+            "retries": 1,
+            "fallback_reason": null,
+            "error_class": null,
+            "tags": [
+              "c"
+            ]
+          },
+          "secondary": {
+            "execution_time_s": 1.1,
+            "retries": 0,
+            "fallback_reason": "slow",
+            "error_class": "LatencyError",
+            "tags": [
+              "d"
+            ]
+          }
+        }
+      },
+      "primary": "build",
+      "secondary": "test"
+    },
+    "output": {
+      "primary_execution_time_s": 3.4,
+      "secondary_execution_time_s": 1.1,
+      "primary_retries": 1,
+      "secondary_retries": 0,
+      "primary_fallback_reason": null,
+      "secondary_fallback_reason": "slow",
+      "primary_error_class": null,
+      "secondary_error_class": "LatencyError",
+      "primary_tags": [
+        "c"
+      ],
+      "secondary_tags": [
+        "d"
+      ]
+    }
+  },
+  {
+    "input": {
+      "result": {
+        "telemetry": {}
+      },
+      "primary": "complex_reasoning",
+      "secondary": null
+    },
+    "output": {
+      "primary_execution_time_s": 0.0,
+      "secondary_execution_time_s": 0.0,
+      "primary_retries": 0,
+      "secondary_retries": 0,
+      "primary_fallback_reason": null,
+      "secondary_fallback_reason": null,
+      "primary_error_class": null,
+      "secondary_error_class": null,
+      "primary_tags": [],
+      "secondary_tags": []
+    }
+  }
+]
