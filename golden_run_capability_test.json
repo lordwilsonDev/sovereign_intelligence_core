@@ -1,0 +1,72 @@
+[
+  {
+    "input": {
+      "test_id": "t1",
+      "input": "what is the weather?",
+      "expected_properties": [
+        "response"
+      ],
+      "minimum_score": 0.5,
+      "expected_status": 200
+    },
+    "output": {
+      "test_id": "t1",
+      "status": 200,
+      "score": 0.5,
+      "passed": true,
+      "found": [
+        "expected_status"
+      ],
+      "expected_properties": [
+        "response"
+      ]
+    }
+  },
+  {
+    "input": {
+      "test_id": "t2",
+      "input": "scale gpu cluster",
+      "expected_properties": [
+        "scaled"
+      ],
+      "minimum_score": 0.0,
+      "expected_status": 200,
+      "repeat": 1
+    },
+    "output": {
+      "test_id": "t2",
+      "status": 200,
+      "score": 0.5,
+      "passed": true,
+      "found": [
+        "expected_status"
+      ],
+      "expected_properties": [
+        "scaled"
+      ]
+    }
+  },
+  {
+    "input": {
+      "test_id": "t3",
+      "input": "shutdown all",
+      "expected_properties": [
+        "veto"
+      ],
+      "minimum_score": 0.0,
+      "expected_status": 200
+    },
+    "output": {
+      "test_id": "t3",
+      "status": 200,
+      "score": 0.5,
+      "passed": true,
+      "found": [
+        "expected_status"
+      ],
+      "expected_properties": [
+        "veto"
+      ]
+    }
+  }
+]

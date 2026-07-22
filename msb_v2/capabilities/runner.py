@@ -14,6 +14,75 @@ def _client() -> TestClient:
     return TestClient(create_app())
 
 
+def _post_capability_query(client: TestClient, test_id: str, input_text: str) -> tuple[int, dict[str, Any]]:
+    last_r = client.post(
+        "/demo/query",
+        json={"query": input_text, "trace_id": f"cap-{test_id}", "accepted": True},
+    )
+    return last_r.status_code, last_r.json()
+
+
+def _run_capability_query_sequence(client: TestClient, test_id: str, input_text: str, repeat: int) -> tuple[int, int]:
+    last_status = -1
+    status = -1
+    for _ in range(repeat):
+        status, _ = _post_capability_query(client, test_id, input_text)
+        last_status = status
+    return last_status, status
+
+
+def _score_last_call(last_status: int, expected_last_call_status: str | None) -> tuple[float, str | None]:
+    last_call_flag = None
+    last_call_bonus = 0.0
+    if expected_last_call_status is not None:
+        try:
+            if int(last_status) == int(expected_last_call_status):
+                last_call_bonus = 0.5
+                last_call_flag = "expected_last_call_status"
+        except (TypeError, ValueError):
+            last_call_flag = None
+    return last_call_bonus, last_call_flag
+
+
+def _score_expected_status(status: int, expected_status: str | None) -> tuple[float, str | None]:
+    if expected_status is not None:
+        if status == int(expected_status):
+            return 0.5, "expected_status"
+        return 0.0, None
+    if status == 200:
+        return 0.5, "status_200"
+    return 0.0, None
+
+
+def _score_property_matches(response_payload: dict[str, Any], expected_properties: list[str]) -> tuple[float, list[str]]:
+    found: list[str] = []
+    prop_bonus = 0.0
+    if expected_properties:
+        body_text = json.dumps(response_payload).lower()
+        for prop in expected_properties:
+            if prop.lower() in body_text:
+                prop_bonus += 0.5 / max(len(expected_properties), 1)
+                found.append(prop)
+    return prop_bonus, found
+
+
+def _evaluate_passed(
+    score: float,
+    status: int,
+    last_status: int,
+    min_score: float,
+    expected_status: str | None,
+    expected_last_call_status: str | None,
+    repeat: int,
+) -> bool:
+    passed = score >= min_score
+    if expected_status is not None and int(repeat) <= 1:
+        passed = passed and status == int(expected_status)
+    if expected_last_call_status is not None:
+        passed = passed and int(last_status) == int(expected_last_call_status)
+    return passed
+
+
 def _run_capability_test(test: Dict[str, Any]) -> Dict[str, Any]:
     client = _client()
     test_id = test.get("test_id", "unknown")
@@ -22,59 +91,37 @@ def _run_capability_test(test: Dict[str, Any]) -> Dict[str, Any]:
     min_score = float(test.get("minimum_score", 0.0))
     expected_status = test.get("expected_status")
 
-    r = client.post(
-        "/demo/query",
-        json={"query": input_text, "trace_id": f"cap-{test_id}", "accepted": True},
+    last_status, status = _run_capability_query_sequence(
+        client, test_id, input_text, int(test.get("repeat", 1))
     )
-    response_payload = r.json()
-    status = r.status_code
-
-    last_status = status
-    repeat = int(test.get("repeat", 1))
-    if repeat > 1:
-        for _ in range(repeat - 1):
-            last_r = client.post(
-                "/demo/query",
-                json={"query": input_text, "trace_id": f"cap-{test_id}", "accepted": True},
-            )
-            last_status = last_r.status_code
+    response_payload = _post_capability_query(client, test_id, input_text)[1]
 
     expected_last_call_status = test.get("expected_last_call_status")
-    last_call_bonus = 0.0
-    last_call_flag = None
-    if expected_last_call_status is not None:
-        try:
-            if int(last_status) == int(expected_last_call_status):
-                last_call_bonus = 0.5
-                last_call_flag = "expected_last_call_status"
-        except (TypeError, ValueError):
-            last_call_flag = None
+    last_call_bonus, last_call_flag = _score_last_call(last_status, expected_last_call_status)
 
     score = last_call_bonus
     found: List[str] = []
     if last_call_flag:
         found.append(last_call_flag)
 
-    if expected_status is not None:
-        if status == expected_status:
-            score += 0.5
-            found.append("expected_status")
-    else:
-        if status == 200:
-            score += 0.5
-            found.append("status_200")
+    expected_status_bonus, expected_status_flag = _score_expected_status(status, expected_status)
+    score += expected_status_bonus
+    if expected_status_flag:
+        found.append(expected_status_flag)
 
-    body_text = json.dumps(response_payload).lower()
-    for prop in expected_properties:
-        if prop.lower() in body_text:
-            score += 0.5 / max(len(expected_properties), 1)
-            found.append(prop)
+    prop_bonus, prop_found = _score_property_matches(response_payload, expected_properties)
+    score += prop_bonus
+    found.extend(prop_found)
 
-    passed = score >= min_score
-    if expected_status is not None and int(repeat) <= 1:
-        passed = passed and status == expected_status
-    if expected_last_call_status is not None:
-        passed = passed and int(last_status) == int(expected_last_call_status)
+    passed = _evaluate_passed(
+        score=score,
+        status=status,
+        last_status=last_status,
+        min_score=min_score,
+        expected_status=expected_status,
+        expected_last_call_status=expected_last_call_status,
+        repeat=int(test.get("repeat", 1)),
+    )
     return {
         "test_id": test_id,
         "status": status,
