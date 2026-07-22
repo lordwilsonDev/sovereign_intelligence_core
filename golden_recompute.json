@@ -1,0 +1,31 @@
+[
+  {
+    "input": "default_stream",
+    "output": {
+      "reasoning": {
+        "total_traces": 4,
+        "active_traces": 4,
+        "total_events": 8,
+        "avg_score": 0.7,
+        "avg_confidence": 0.6,
+        "avg_entropy": 0.35,
+        "drift_count": 1,
+        "counterfactual_count": 0,
+        "assessment_count": 2,
+        "error_count": 1,
+        "tool_call_count": 1,
+        "memory_read_count": 1,
+        "human_feedback_count": 1,
+        "budget_breaches": 1,
+        "budget_health": 0.0
+      },
+      "memory": {
+        "total_memories": 1,
+        "active_memories": 1,
+        "archived_memories": 0,
+        "avg_source_reliability": 0.95,
+        "verification_rate": 1.0
+      }
+    }
+  }
+]

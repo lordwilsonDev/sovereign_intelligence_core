@@ -72,8 +72,7 @@ class MetricsStore:
         self.reasoning = ReasoningMetrics()
         self.memory = MemoryMetrics()
 
-    def recompute(self, stream: EventStreamStore, memory_store: Any | None = None) -> tuple[ReasoningMetrics, MemoryMetrics]:
-        events = stream.global_stream(limit=10000)
+    def _ingest_event_metrics(self, events: list[Any]) -> dict:
         trace_ids: set[str] = set()
         scores: list[float] = []
         confidences: list[float] = []
@@ -116,24 +115,45 @@ class MetricsStore:
                 if "budget" in source or "budget" in str(payload):
                     budget_breach = True
 
-        reasoning = ReasoningMetrics(
-            total_traces=len(trace_ids),
-            active_traces=len(trace_ids),
-            total_events=len(events),
+        return {
+            "trace_ids": trace_ids,
+            "scores": scores,
+            "confidences": confidences,
+            "entropies": entropies,
+            "drift_count": drift_count,
+            "counterfactual_count": counterfactual_count,
+            "assessment_count": assessment_count,
+            "error_count": error_count,
+            "tool_call_count": tool_call_count,
+            "memory_read_count": memory_read_count,
+            "human_feedback_count": human_feedback_count,
+            "budget_breach": budget_breach,
+            "event_count": len(events),
+        }
+
+    def _build_reasoning_metrics(self, aggregated: dict) -> ReasoningMetrics:
+        scores = aggregated["scores"]
+        confidences = aggregated["confidences"]
+        entropies = aggregated["entropies"]
+        return ReasoningMetrics(
+            total_traces=len(aggregated["trace_ids"]),
+            active_traces=len(aggregated["trace_ids"]),
+            total_events=aggregated["event_count"],
             avg_score=sum(scores) / len(scores) if scores else 0.0,
             avg_confidence=sum(confidences) / len(confidences) if confidences else 0.0,
             avg_entropy=sum(entropies) / len(entropies) if entropies else 0.0,
-            drift_count=drift_count,
-            counterfactual_count=counterfactual_count,
-            assessment_count=assessment_count,
-            error_count=error_count,
-            tool_call_count=tool_call_count,
-            memory_read_count=memory_read_count,
-            human_feedback_count=human_feedback_count,
-            budget_breaches=1 if budget_breach else 0,
-            budget_health=0.0 if budget_breach else 1.0,
+            drift_count=aggregated["drift_count"],
+            counterfactual_count=aggregated["counterfactual_count"],
+            assessment_count=aggregated["assessment_count"],
+            error_count=aggregated["error_count"],
+            tool_call_count=aggregated["tool_call_count"],
+            memory_read_count=aggregated["memory_read_count"],
+            human_feedback_count=aggregated["human_feedback_count"],
+            budget_breaches=1 if aggregated["budget_breach"] else 0,
+            budget_health=0.0 if aggregated["budget_breach"] else 1.0,
         )
 
+    def _build_memory_metrics(self, memory_store: Any | None) -> MemoryMetrics:
         memory = MemoryMetrics()
         if memory_store is not None:
             all_memories = memory_store.all() if hasattr(memory_store, "all") else []
@@ -149,7 +169,13 @@ class MetricsStore:
                     avg_source_reliability=sum(rels) / len(rels) if rels else 0.0,
                     verification_rate=len(verified) / len(all_memories) if all_memories else 0.0,
                 )
+        return memory
 
+    def recompute(self, stream: EventStreamStore, memory_store: Any | None = None) -> tuple[ReasoningMetrics, MemoryMetrics]:
+        events = stream.global_stream(limit=10000)
+        aggregated = self._ingest_event_metrics(events)
+        reasoning = self._build_reasoning_metrics(aggregated)
+        memory = self._build_memory_metrics(memory_store)
         self.reasoning = reasoning
         self.memory = memory
         return reasoning, memory
