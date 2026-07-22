@@ -1,0 +1,1 @@
+{"id":"sshh-heartbeat","name":"SSHH Heartbeat Check","schedule":"*/15 * * * *","harness_action":{"type":"http","method":"GET","url":"http://127.0.0.1:8766/sshh/status","body":{}},"retry_policy":{"max_retries":2,"backoff_factor":15},"failure_policy":{"on_failure":"alert","alert_template":"sshh_readiness_failure"},"active":true}
