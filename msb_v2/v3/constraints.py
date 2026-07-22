@@ -33,12 +33,14 @@ class ConstraintEngine:
                 result["violations"].append(violation)
         return result
 
-    def _evaluate(self, constraint: Constraint, payload: Dict[str, Any]) -> Optional[Dict[str, str]]:
+    def _check_cost(self, constraint: Constraint, payload: Dict[str, Any]) -> Optional[Dict[str, str]]:
         if constraint.max_cost is not None:
             cost = float(payload.get("cost_estimate", 0.0) or 0.0)
             if cost > constraint.max_cost:
                 return {"constraint": constraint.name, "reason": f"cost {cost} exceeds {constraint.max_cost}"}
+        return None
 
+    def _check_autonomy(self, constraint: Constraint, payload: Dict[str, Any]) -> Optional[Dict[str, str]]:
         if constraint.required_autonomy is not None:
             autonomy = payload.get("autonomy_level", "observe")
             allowed = {"observe": 0, "recommend": 1, "draft": 2, "execute_with_confirmation": 3, "execute_within_policy": 4, "autonomous_execution": 5}
@@ -46,17 +48,27 @@ class ConstraintEngine:
             required = allowed.get(constraint.required_autonomy, -1)
             if requested < 0 or required < 0 or requested < required:
                 return {"constraint": constraint.name, "reason": f"autonomy {autonomy} below required {constraint.required_autonomy}"}
+        return None
 
+    def _check_tools(self, constraint: Constraint, payload: Dict[str, Any]) -> Optional[Dict[str, str]]:
         if constraint.allowed_tools is not None:
             tool = payload.get("tool")
             if tool and tool not in constraint.allowed_tools:
                 return {"constraint": constraint.name, "reason": f"tool {tool} is not allowed"}
+        return None
 
+    def _check_tags(self, constraint: Constraint, payload: Dict[str, Any]) -> Optional[Dict[str, str]]:
         if constraint.tags is not None:
             request_tags = payload.get("tags", []) or []
             if not set(constraint.tags).intersection(set(request_tags)):
                 return {"constraint": constraint.name, "reason": "missing required tags"}
+        return None
 
+    def _evaluate(self, constraint: Constraint, payload: Dict[str, Any]) -> Optional[Dict[str, str]]:
+        for check in [self._check_cost, self._check_autonomy, self._check_tools, self._check_tags]:
+            violation = check(constraint, payload)
+            if violation:
+                return violation
         return None
 
     def list(self) -> List[Constraint]:

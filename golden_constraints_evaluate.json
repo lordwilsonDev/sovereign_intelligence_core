@@ -1,0 +1,80 @@
+[
+  {
+    "constraint": "cost_violation",
+    "payload": {
+      "cost_estimate": 150.0
+    },
+    "output": {
+      "constraint": "budget",
+      "reason": "cost 150.0 exceeds 100.0"
+    }
+  },
+  {
+    "constraint": "cost_ok",
+    "payload": {
+      "cost_estimate": 50.0
+    },
+    "output": null
+  },
+  {
+    "constraint": "autonomy_violation",
+    "payload": {
+      "autonomy_level": "observe"
+    },
+    "output": {
+      "constraint": "autonomy",
+      "reason": "autonomy observe below required execute_with_confirmation"
+    }
+  },
+  {
+    "constraint": "autonomy_ok",
+    "payload": {
+      "autonomy_level": "execute_within_policy"
+    },
+    "output": null
+  },
+  {
+    "constraint": "tool_violation",
+    "payload": {
+      "tool": "write"
+    },
+    "output": {
+      "constraint": "tools",
+      "reason": "tool write is not allowed"
+    }
+  },
+  {
+    "constraint": "tool_ok",
+    "payload": {
+      "tool": "search"
+    },
+    "output": null
+  },
+  {
+    "constraint": "tags_violation",
+    "payload": {
+      "tags": [
+        "dev"
+      ]
+    },
+    "output": {
+      "constraint": "tags",
+      "reason": "missing required tags"
+    }
+  },
+  {
+    "constraint": "tags_ok",
+    "payload": {
+      "tags": [
+        "prod",
+        "staging"
+      ]
+    },
+    "output": null
+  },
+  {
+    "constraint": "no_constraints",
+    "payload": {},
+    "output": null
+  }
+]
