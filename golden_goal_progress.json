@@ -1,0 +1,22 @@
+[
+  {
+    "input": "baseline",
+    "output": {
+      "current_goals": [
+        "goal1",
+        "task"
+      ],
+      "blocked": [
+        "2"
+      ],
+      "completed": [
+        "2"
+      ],
+      "dependencies": {
+        "h1": [
+          "2"
+        ]
+      }
+    }
+  }
+]

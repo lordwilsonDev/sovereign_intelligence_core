@@ -285,31 +285,44 @@ class MemoryStore:
             "mistakes": mistakes,
         }
 
-    def goal_progress(self) -> Dict[str, Any]:
-        current_goals = []
-        blocked = []
-        completed = []
-        dependencies: Dict[str, List[str]] = {}
+    def _collect_current_goals(self) -> list:
+        goals = []
         for record in self._records.values():
             if record.kind == MemoryKind.STRATEGIC:
-                current_goals.append(record.content)
-        for record in self._records.values():
+                goals.append(record.content)
             if record.experimental_group:
-                current_goals.append(record.content)
+                goals.append(record.content)
+        return goals
+
+    def _collect_statuses(self) -> tuple[list, list]:
+        blocked = []
+        completed = []
+        for record in self._records.values():
             if record.status == MemoryStatus.COMPRESSED:
                 blocked.append(record.id)
             tags = set(record.tags)
             if "completed" in tags or record.status == MemoryStatus.COMPRESSED:
                 completed.append(record.id)
-            if record.hypothesis_id and record.hypothesis_id not in dependencies:
-                dependencies[record.hypothesis_id] = []
+        return blocked, completed
+
+    def _collect_dependencies(self) -> dict:
+        deps = {}
+        for record in self._records.values():
+            if record.hypothesis_id and record.hypothesis_id not in deps:
+                deps[record.hypothesis_id] = []
             if record.hypothesis_id:
-                dependencies[record.hypothesis_id].append(record.id)
+                deps[record.hypothesis_id].append(record.id)
+        return deps
+
+    def goal_progress(self):
+        goals = self._collect_current_goals()
+        blocked, completed = self._collect_statuses()
+        deps = self._collect_dependencies()
         return {
-            "current_goals": current_goals,
+            "current_goals": goals,
             "blocked": blocked,
             "completed": completed,
-            "dependencies": dependencies,
+            "dependencies": deps,
         }
 
     def health(self) -> MemoryHealth:
