@@ -1,0 +1,119 @@
+[
+  {
+    "input": {
+      "result": {
+        "temperature": {
+          "score": 0.8
+        },
+        "elapsed_s": 1.2,
+        "telemetry": {
+          "primary": {
+            "execution_time_s": 0.5,
+            "retries": 1,
+            "fallback_reason": null,
+            "error_class": null,
+            "tags": [
+              "a"
+            ]
+          },
+          "secondary": {
+            "execution_time_s": 0.7,
+            "retries": 0,
+            "fallback_reason": "timeout",
+            "error_class": "TimeoutError",
+            "tags": [
+              "b"
+            ]
+          }
+        }
+      },
+      "primary": "claude",
+      "secondary": "gpt"
+    },
+    "output": {
+      "temperature_score": 0.8,
+      "elapsed_s": 1.2,
+      "primary_execution_time_s": 0.5,
+      "secondary_execution_time_s": 0.7,
+      "primary_retries": 1,
+      "secondary_retries": 0,
+      "primary_fallback_reason": null,
+      "secondary_fallback_reason": "timeout",
+      "primary_error_class": null,
+      "secondary_error_class": "TimeoutError",
+      "primary_tags": [
+        "a"
+      ],
+      "secondary_tags": [
+        "b"
+      ]
+    }
+  },
+  {
+    "input": {
+      "result": {
+        "temperature": {
+          "score": 0.0
+        },
+        "elapsed_s": 0.0
+      },
+      "primary": "base_are",
+      "secondary": null
+    },
+    "output": {
+      "temperature_score": 0.0,
+      "elapsed_s": 0.0,
+      "primary_execution_time_s": 0.0,
+      "secondary_execution_time_s": 0.0,
+      "primary_retries": 0,
+      "secondary_retries": 0,
+      "primary_fallback_reason": null,
+      "secondary_fallback_reason": null,
+      "primary_error_class": null,
+      "secondary_error_class": null,
+      "primary_tags": [],
+      "secondary_tags": []
+    }
+  },
+  {
+    "input": {
+      "result": {
+        "temperature": {
+          "score": 0.5
+        },
+        "elapsed_s": 2.0,
+        "telemetry": {
+          "primary": {
+            "execution_time_s": 1.0,
+            "retries": 2,
+            "fallback_reason": "overloaded",
+            "error_class": "RateLimitError",
+            "tags": [
+              "x"
+            ]
+          }
+        }
+      },
+      "primary": "claude",
+      "secondary": "gpt"
+    },
+    "output": {
+      "temperature_score": 0.5,
+      "elapsed_s": 2.0,
+      "primary_execution_time_s": 1.0,
+      "secondary_execution_time_s": 0.0,
+      "primary_retries": 2,
+      "secondary_retries": 0,
+      "primary_fallback_reason": "overloaded",
+      "secondary_fallback_reason": null,
+      "primary_error_class": "RateLimitError",
+      "secondary_error_class": null,
+      "primary_tags": [
+        "x"
+      ],
+      "secondary_tags": [
+        "gpt"
+      ]
+    }
+  }
+]

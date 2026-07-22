@@ -1,0 +1,20 @@
+{
+  "id": "cloud-agent-health",
+  "name": "Cloud Agent Autonomic Health Check",
+  "schedule": "*/15 * * * *",
+  "harness_action": {
+    "type": "http",
+    "method": "POST",
+    "url": "http://127.0.0.1:8766/cloud-agent/status",
+    "body": {}
+  },
+  "retry_policy": {
+    "max_retries": 2,
+    "backoff_factor": 30
+  },
+  "failure_policy": {
+    "on_failure": "alert",
+    "alert_template": "cloud_agent_health_failure"
+  },
+  "active": true
+}

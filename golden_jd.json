@@ -1,0 +1,264 @@
+[
+  {
+    "input": "Senior Python developer with 5+ years in cloud infrastructure and Kubernetes",
+    "output": {
+      "company": "Unknown",
+      "role": "Senior Python developer with 5+ years in cloud infrastructure and Kubernetes",
+      "skills": [
+        "5+ years in cloud infrastructure"
+      ],
+      "requirements": [
+        "Senior Python developer with 5+ years in cloud infrastructure and Kubernetes"
+      ],
+      "responsibilities": [],
+      "seniority": "senior",
+      "remote": null
+    }
+  },
+  {
+    "input": "Entry-level data analyst proficient in Excel and SQL",
+    "output": {
+      "company": "Unknown",
+      "role": "Entry-level data analyst proficient in Excel and SQL",
+      "skills": [
+        "Excel and SQL"
+      ],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": null
+    }
+  },
+  {
+    "input": "Staff Security Engineer at CloudCorp working on zero-trust architecture",
+    "output": {
+      "company": "CloudCorp working on zero-trust architecture",
+      "role": "Staff Security Engineer at CloudCorp working on zero-trust architecture",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": "staff",
+      "remote": null
+    }
+  },
+  {
+    "input": "VP Engineering leading 3 teams with Python and microservices",
+    "output": {
+      "company": "Unknown",
+      "role": "VP Engineering leading 3 teams with Python and microservices",
+      "skills": [
+        "Python and microservices"
+      ],
+      "requirements": [
+        "VP Engineering leading 3 teams with Python and microservices"
+      ],
+      "responsibilities": [],
+      "seniority": "lead",
+      "remote": null
+    }
+  },
+  {
+    "input": "Principal Researcher in NLP with PyTorch and transformers",
+    "output": {
+      "company": "Unknown",
+      "role": "Principal Researcher in NLP with PyTorch and transformers",
+      "skills": [
+        "PyTorch and transformers"
+      ],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": "principal",
+      "remote": null
+    }
+  },
+  {
+    "input": "Junior Backend Engineer - remote - Go and gRPC",
+    "output": {
+      "company": "Unknown",
+      "role": "Junior Backend Engineer - remote - Go and gRPC",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": "junior",
+      "remote": "remote"
+    }
+  },
+  {
+    "input": "Product Manager with 3 years in developer tools and roadmap strategy",
+    "output": {
+      "company": "Unknown",
+      "role": "Product Manager with 3 years in developer tools and roadmap strategy",
+      "skills": [
+        "3 years in developer tools"
+      ],
+      "requirements": [
+        "Product Manager with 3 years in developer tools and roadmap strategy"
+      ],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": null
+    }
+  },
+  {
+    "input": "Infrastructure Engineer - Kubernetes, Terraform, AWS",
+    "output": {
+      "company": "Unknown",
+      "role": "Infrastructure Engineer - Kubernetes, Terraform, AWS",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": null
+    }
+  },
+  {
+    "input": "AI Safety Researcher - PhD preferred - alignment and interpretability",
+    "output": {
+      "company": "Unknown",
+      "role": "AI Safety Researcher - PhD preferred - alignment and interpretability",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": null
+    }
+  },
+  {
+    "input": "Full-stack engineer: React, Node.js, PostgreSQL, remote",
+    "output": {
+      "company": "Unknown",
+      "role": "Full-stack engineer: React, Node.js, PostgreSQL, remote",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": "remote"
+    }
+  },
+  {
+    "input": "Senior ML Engineer at Acme - PyTorch, deep learning, MLOps",
+    "output": {
+      "company": "Acme - PyTorch",
+      "role": "Senior ML Engineer at Acme - PyTorch, deep learning, MLOps",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": "senior",
+      "remote": null
+    }
+  },
+  {
+    "input": "Data Scientist - statistics, Python, A/B testing, experiments",
+    "output": {
+      "company": "Unknown",
+      "role": "Data Scientist - statistics, Python, A/B testing, experiments",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": null
+    }
+  },
+  {
+    "input": "DevOps Lead - CI/CD, Docker, Kubernetes, GitHub Actions",
+    "output": {
+      "company": "Unknown",
+      "role": "DevOps Lead - CI/CD, Docker, Kubernetes, GitHub Actions",
+      "skills": [],
+      "requirements": [
+        "DevOps Lead - CI/CD, Docker, Kubernetes, GitHub Actions"
+      ],
+      "responsibilities": [],
+      "seniority": "lead",
+      "remote": null
+    }
+  },
+  {
+    "input": "Frontend Developer - React, TypeScript, CSS-in-JS, design systems",
+    "output": {
+      "company": "Unknown",
+      "role": "Frontend Developer - React, TypeScript, CSS-in-JS, design systems",
+      "skills": [],
+      "requirements": [
+        "Frontend Developer - React, TypeScript, CSS-in-JS, design systems"
+      ],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": null
+    }
+  },
+  {
+    "input": "Engineering Manager - remote - people ops, hiring, agile",
+    "output": {
+      "company": "Unknown",
+      "role": "Engineering Manager - remote - people ops, hiring, agile",
+      "skills": [],
+      "requirements": [
+        "Engineering Manager - remote - people ops, hiring, agile"
+      ],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": "remote"
+    }
+  },
+  {
+    "input": "Site Reliability Engineer - on-call, monitoring, SLI/SLO, incident response",
+    "output": {
+      "company": "Unknown",
+      "role": "Site Reliability Engineer - on-call, monitoring, SLI/SLO, incident response",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": null
+    }
+  },
+  {
+    "input": "Research Scientist - NLP - LLMs, RLHF, scalable training",
+    "output": {
+      "company": "Unknown",
+      "role": "Research Scientist - NLP - LLMs, RLHF, scalable training",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": null,
+      "remote": null
+    }
+  },
+  {
+    "input": "Software Engineer 2 - mid-level - backend APIs, REST, auth",
+    "output": {
+      "company": "Unknown",
+      "role": "Software Engineer 2 - mid-level - backend APIs, REST, auth",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": "mid",
+      "remote": null
+    }
+  },
+  {
+    "input": "Senior Platform Engineer - hybrid - Terraform, AWS, Python",
+    "output": {
+      "company": "Unknown",
+      "role": "Senior Platform Engineer - hybrid - Terraform, AWS, Python",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": "senior",
+      "remote": "hybrid"
+    }
+  },
+  {
+    "input": "Director of Engineering - 10+ years - enterprise SaaS",
+    "output": {
+      "company": "Unknown",
+      "role": "Director of Engineering - 10+ years - enterprise SaaS",
+      "skills": [],
+      "requirements": [],
+      "responsibilities": [],
+      "seniority": "director",
+      "remote": null
+    }
+  }
+]

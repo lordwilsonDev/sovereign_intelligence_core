@@ -183,30 +183,66 @@ class CareerHarness(BaseHarness):
         p = _ParsedJD()
         p.text = jd
         lines = [ln.strip() for ln in jd.splitlines() if ln.strip()]
-        if lines:
-            p.role = lines[0].strip()[:120] or fallback_role
-        for ln in lines:
-            if not p.company or p.company == "Unknown":
-                m = re.search(r"at\s+([A-Za-z0-9 &._-]+)", ln)
-                if m:
-                    p.company = m.group(1).strip()
-            for marker in ["remote", "hybrid", "onsite"]:
-                if marker in ln.lower() and p.remote is None:
-                    p.remote = marker
-            for marker in ["junior", "mid", "senior", "staff", "lead", "principal", "director", "vp"]:
-                if marker in ln.lower() and p.seniority is None:
-                    p.seniority = marker
-            m = re.findall(r"(?i)(?:experience|proficient|skilled|built|led|using|with)\s+(?:in\s+)?([A-Za-z0-9#+./_-]+(?:[,\s]+[A-Za-z0-9#+./_-]+){0,4})", ln)
-            if m:
-                p.skills.extend(m[:3])
+        p.company = self._infer_company(jd, lines, fallback_company)
+        p.role = self._infer_role(lines, fallback_role)
+        p.remote = self._infer_work_mode(jd)
+        p.seniority = self._infer_seniority(jd)
+        p.skills = self._infer_skills(jd)
+        p.requirements = self._infer_requirements(lines)
+        p.responsibilities = self._infer_responsibilities(lines)
         p.skills = sorted(set([s.strip(".,; ") for s in p.skills if s]))[:20]
-        p.requirements = [ln for ln in lines if any(k in ln.lower() for k in ["require", "responsib", "build", "design", "implement", "deliver", "manage", "lead", "develop"])][:20]
-        p.responsibilities = [ln for ln in lines if any(k in ln.lower() for k in ["collaborate", "partner", "mentor", "communicate", "drive", "own", "support"])][:20]
-        if p.company == "Unknown":
-            p.company = fallback_company
-        if p.role == "Unknown":
-            p.role = fallback_role
         return p
+
+    def _infer_company(self, jd: str, lines: list, fallback: str) -> str:
+        for ln in lines:
+            m = re.search(r"at\s+([A-Za-z0-9 &._-]+)", ln)
+            if m:
+                company = m.group(1).strip()
+                if company:
+                    return company
+        return fallback if fallback else "Unknown"
+
+    def _infer_role(self, lines: list, fallback: str) -> str:
+        if lines:
+            candidate = lines[0].strip()[:120]
+            return candidate or fallback
+        return fallback or "Unknown"
+
+    def _infer_work_mode(self, jd: str) -> Optional[str]:
+        for marker in ["remote", "hybrid", "onsite"]:
+            if marker in jd.lower():
+                return marker
+        return None
+
+    def _infer_seniority(self, jd: str) -> Optional[str]:
+        for marker in ["junior", "mid", "senior", "staff", "lead", "principal", "director", "vp"]:
+            if marker in jd.lower():
+                return marker
+        return None
+
+    def _infer_skills(self, jd: str) -> list:
+        skills: list = []
+        lines = jd.splitlines()
+        for ln in lines:
+            matches = re.findall(
+                r"(?i)(?:experience|proficient|skilled|built|led|using|with)\s+(?:in\s+)?([A-Za-z0-9#+./_-]+(?:[,\s]+[A-Za-z0-9#+./_-]+){0,4})",
+                ln,
+            )
+            if matches:
+                skills.extend(matches[:3])
+        return skills
+
+    def _infer_requirements(self, lines: list) -> list:
+        return [
+            ln for ln in lines
+            if any(k in ln.lower() for k in ["require", "responsib", "build", "design", "implement", "deliver", "manage", "lead", "develop"])
+        ][:20]
+
+    def _infer_responsibilities(self, lines: list) -> list:
+        return [
+            ln for ln in lines
+            if any(k in ln.lower() for k in ["collaborate", "partner", "mentor", "communicate", "drive", "own", "support"])
+        ][:20]
 
     def _guess_company(self, query: str) -> str:
         candidates = re.findall(r"(?<![\w])([A-Z][A-Za-z0-9 &._-]{2,40})(?:\s+is\s+looking|\s+seeks\s+|\s+role\s+at\s+|\s+at\s+)(?=[A-Z])", query)

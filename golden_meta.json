@@ -1,0 +1,146 @@
+[
+  {
+    "input": {
+      "primary": "desktop",
+      "secondary": "building",
+      "query": "open app and build api"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "building",
+      "secondary": "desktop",
+      "query": "architect system and click UI"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "desktop",
+      "secondary": "research",
+      "query": "launch browser and study market"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "research",
+      "secondary": "desktop",
+      "query": "investigate and open app"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "desktop",
+      "secondary": "complex_reasoning",
+      "query": "automate UI and ethics strategy"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "research",
+      "secondary": "complex_reasoning",
+      "query": "hypothesis and paradox"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "building",
+      "secondary": "complex_reasoning",
+      "query": "plan system and concept"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "desktop",
+      "secondary": "telegram",
+      "query": "screenshot and send widget"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "telegram",
+      "secondary": "desktop",
+      "query": "chart and launch app"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "telegram",
+      "secondary": "research",
+      "query": "html and experiment"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "research",
+      "secondary": "telegram",
+      "query": "study and send webapp"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "telegram",
+      "secondary": "building",
+      "query": "recipe and design api"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "building",
+      "secondary": "telegram",
+      "query": "build system and send html"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "code",
+      "secondary": "data",
+      "query": "generate code and analyze csv"
+    },
+    "output": "parallel"
+  },
+  {
+    "input": {
+      "primary": "career",
+      "secondary": "building",
+      "query": "cv and build system"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "telegram",
+      "secondary": "career",
+      "query": "telegram artifact and evaluate offer"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "career",
+      "secondary": "telegram",
+      "query": "scan job and send widget"
+    },
+    "output": "serial"
+  },
+  {
+    "input": {
+      "primary": "backend",
+      "secondary": "frontend",
+      "query": "design microservice and dashboard"
+    },
+    "output": "parallel"
+  }
+]

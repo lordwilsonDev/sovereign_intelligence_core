@@ -1,0 +1,246 @@
+"""Minimal KB4 kernel wired into existing MSB primitives."""
+
+from __future__ import annotations
+
+import hashlib
+import logging
+import os
+from pathlib import Path
+from typing import Any, Dict
+
+from msb_v2.engine.moie_orchestrator import MoIEOrchestrator
+from msb_v2.engine.orchestrator import Task, orchestrate
+from msb_v2.audit.sovereign.merkle import AuditMerkleChain
+from msb_v2.continuity.resume_compiler import ResumePromptCompiler
+from msb_v2.evolution.scanner import OuroborosScanner
+from msb_v2.audit.sovereign.metrics import compute_audit_sovereignty_score
+from msb_v2.kernel.types import KB4Result
+from msb_v2.kernel.metrics import (
+    KB4_CYCLES_TOTAL,
+    KB4_MUTATIONS_TOTAL,
+    KB4_VETOES_TOTAL,
+)
+
+logger = logging.getLogger(__name__)
+
+
+def _safe_copy(value: Any) -> Any:
+    if isinstance(value, bool) or value is None:
+        return value
+    if isinstance(value, (int, float, str)):
+        return value
+    if isinstance(value, dict):
+        return {str(k): _safe_copy(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_safe_copy(v) for v in value]
+    return str(value)
+
+
+class KB4Kernel:
+    def __init__(self, root: str | None = None) -> None:
+        self.root = Path(root) if root else Path.cwd()
+        self._load_audit_chain()
+        self.memory = None
+        self.quarantine = None
+        self.sac = None
+        self._init_memory()
+        self._init_quarantine()
+        self._init_sac()
+        self.moie = MoIEOrchestrator()
+        self.orchestrator = None
+        self.ouroboros = OuroborosScanner(self.root)
+        self.resume_compiler = ResumePromptCompiler(
+            project="MSB v2",
+            version="v2",
+            active_task="kb4-run",
+        )
+        self.threshold = float(os.getenv("MSB_KB4_THRESHOLD", "75"))
+
+    def _load_audit_chain(self) -> None:
+        audit_dir = self.root / ".kb4"
+        audit_dir.mkdir(parents=True, exist_ok=True)
+        self.audit_chain = AuditMerkleChain(audit_dir / "audit.jsonl")
+
+    def _init_memory(self) -> None:
+        try:
+            from msb_v2.memory.honcho_router import HonchoMemoryRouter
+            self.memory = HonchoMemoryRouter()
+        except Exception:
+            pass
+
+    def _init_quarantine(self) -> None:
+        try:
+            from msb_v2.cognitive_compiler.sovereign_autonomy_core import QuarantineInversionAgent
+            self.quarantine = QuarantineInversionAgent()
+        except Exception:
+            pass
+
+    def _init_sac(self) -> None:
+        try:
+            from msb_v2.cognitive_compiler.sovereign_autonomy_core import SovereignAutonomyCore
+            self.sac = SovereignAutonomyCore()
+        except Exception:
+            pass
+
+    def _context(self, intent: str) -> Dict[str, Any]:
+        return {
+            "source_label": "kb4-user",
+            "prompt": intent[:500],
+        }
+
+    def run(self, intent: str) -> KB4Result:
+        intent = intent or ""
+        context = self._context(intent)
+        high_risk = False
+        if self.quarantine is not None:
+            try:
+                summary = self.quarantine.apply("kb4-user", context)
+                plain_risk = getattr(summary, "epistemic_risk", "LOW")
+                if hasattr(plain_risk, "value"):
+                    plain_risk = getattr(plain_risk, "value")
+                plain_risk = str(plain_risk or "LOW").upper()
+                high_risk = plain_risk == "HIGH"
+            except Exception:
+                high_risk = False
+
+        if high_risk or not intent.strip():
+            result = {"result": "high-risk intent vetoed by quarantine"}
+            final_score = 0.0
+            synthesis_claims = [intent[:200]]
+            rnr_ratio = 0.0
+            fts = 1.0 if high_risk else 0.5
+            payload = {"vetoed": True, "high_risk": high_risk}
+            self.audit_chain.append({"type": "veto", "payload": payload})
+            mutation_triggered = False
+        else:
+            memory_context = {
+                "memory": self.memory.recall(intent) if self.memory is not None else [],
+            }
+            try:
+                synthesis = self.moie.run(intent)
+            except Exception as exc:
+                logger.debug("moie dispatch failed: %s", exc)
+                synthesis = {"status": "error", "message": str(exc), "query": intent}
+
+            claims = synthesis.get("claims", [])
+            rnr_ratio = 0.0
+            if self.sac is not None:
+                try:
+                    rnr_res = self.sac.rnr.measure(claims)
+                    rnr_ratio = float(getattr(rnr_res, "ratio", 0.0) or 0.0)
+                except Exception:
+                    rnr_ratio = 0.0
+
+            uim = {
+                "status": synthesis.get("status", "ok"),
+                "synthesis": synthesis,
+                "claims_total": synthesis.get("claims_total", len(claims)),
+                "validated": synthesis.get("validated", 0),
+                "rejected": synthesis.get("rejected", 0),
+                "rnr_ratio": rnr_ratio,
+                "memory_context": memory_context,
+            }
+            plan = synthesis.get("plan") or uim
+            try:
+                scope = getattr(self.orchestrator, "TaskScope", None)
+                if scope is not None:
+                    scope = scope("kb4")
+                    scope.enter()
+                    task = self.orchestrator.align({"name": intent, "action": lambda: plan})
+                    executed = task.result if task else plan
+                else:
+                    executed = plan
+            except Exception:
+                executed = uim
+
+            result = executed if isinstance(executed, dict) else {"result": str(executed)}
+            new_metrics = {
+                "rnr_ratio": rnr_ratio,
+                "eig_score": 0.0,
+                "latency_s": 0.0,
+            }
+            cma_record = None
+            fts = 0.0
+            if self.sac is not None:
+                try:
+                    cma_record = self.sac.cma.audit("kb4", new_metrics)
+                except Exception:
+                    cma_record = None
+                try:
+                    sas_val = self.sac.sas.compute(
+                        rnr_ratio=rnr_ratio,
+                        eig_score=float(new_metrics.get("eig_score", 0.0)),
+                        cma_verdict=(cma_record.verdict if cma_record else "ok"),
+                    )
+                    fts = float(getattr(sas_val, "score", 0.0) or 0.0)
+                except Exception:
+                    fts = 0.0
+
+            merkle_ok = False
+            assumption_debt = 0
+            try:
+                merkle_ok = self.audit_chain.verify_chain()
+                assumption_debt = len(getattr(self.sac, "_assumption_debts", []) or [])
+            except Exception:
+                merkle_ok = False
+            final_score = compute_audit_sovereignty_score(
+                merkle_ok=merkle_ok,
+                fts=fts,
+                assumption_debt=assumption_debt,
+                veto_active=False,
+            )
+
+            sweep_context = {}
+            if self.sac is not None:
+                try:
+                    sweep_context["sac"] = self.sac.get_status()
+                except Exception:
+                    pass
+            mutation_triggered = False
+            if final_score < self.threshold:
+                mutation_triggered = True
+                try:
+                    self.ouroboros.scan()
+                except Exception:
+                    pass
+                self.audit_chain.append({"type": "mutation", "score": final_score})
+
+        audit_event = _safe_copy({
+            "type": "kb4",
+            "intent": intent[:200],
+            "score": float(final_score),
+            "fts": float(fts),
+            "rnr": float(rnr_ratio),
+            "vetoed": high_risk,
+            "mutation": mutation_triggered,
+        })
+        try:
+            audit_receipt = self.audit_chain.append(audit_event)
+        except Exception:
+            audit_receipt = hashlib.sha256(str(audit_event).encode()).hexdigest()
+
+        try:
+            self.resume_compiler.topic = intent[:60]
+            self.resume_compiler.last_turn_summary = f"kb4 score={final_score:.2f}"
+            self.resume_compiler.audit_sovereignty_score = float(final_score)
+            self.resume_compiler.policy_prediction_fts = float(fts)
+            self.resume_compiler.merkle_root_hash = str(audit_receipt)
+            continuity_token = self.resume_compiler.to_json()
+        except Exception:
+            continuity_token = str(audit_receipt)
+
+        try:
+            KB4_CYCLES_TOTAL.inc()
+            if mutation_triggered:
+                KB4_MUTATIONS_TOTAL.inc()
+            if high_risk:
+                KB4_VETOES_TOTAL.inc()
+        except Exception:
+            pass
+
+        return KB4Result(
+            intent=intent,
+            result=_safe_copy(result),
+            sovereignty_score=float(final_score),
+            reasoning_to_noise_ratio=float(rnr_ratio),
+            falsification_score=float(fts)

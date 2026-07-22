@@ -1,0 +1,40 @@
+[
+  {
+    "test": "obj_route_selected",
+    "query": "refactor auth middleware",
+    "record_type": "FakeResult",
+    "observation_added": true,
+    "log_line_added": true,
+    "last_log_line_fields": {
+      "query": "refactor auth middleware",
+      "primary": "claude",
+      "secondary": "gpt5",
+      "order": "serial",
+      "confidence": 0.9,
+      "rerouted": true
+    }
+  },
+  {
+    "test": "dict_route_completed",
+    "query": "status check",
+    "record_type": "dict",
+    "observation_added": true,
+    "log_line_added": true,
+    "last_log_line_fields": {
+      "query": "status check",
+      "primary": "base_are",
+      "secondary": null,
+      "order": "serial",
+      "confidence": 0.0,
+      "rerouted": false
+    }
+  },
+  {
+    "test": "obj_no_decision",
+    "query": "noop",
+    "record_type": "FakeResult",
+    "observation_added": false,
+    "log_line_added": false,
+    "last_log_line_fields": null
+  }
+]

@@ -1,0 +1,127 @@
+[
+  {
+    "input": {
+      "text": "Build a REST API for task management.",
+      "assumptions": [
+        {
+          "text": "PostgreSQL is available",
+          "risk": "HIGH",
+          "testability": "now"
+        }
+      ],
+      "predictions": [
+        {
+          "statement": "P99 latency < 200ms",
+          "horizon": "2 weeks",
+          "measurement": "load test",
+          "baseline": "current 350ms"
+        }
+      ]
+    },
+    "output": {
+      "text": "text: Build a REST API for task management.\nassumptions: {'text': 'PostgreSQL is available', 'risk': 'HIGH', 'testability': 'now'}\npredictions: {'statement': 'P99 latency < 200ms', 'horizon': '2 weeks', 'measurement': 'load test', 'baseline': 'current 350ms'}",
+      "assumptions": [
+        {
+          "id": "A-001",
+          "source": "fallback",
+          "type": "factual",
+          "testability": "later",
+          "risk": "MEDIUM",
+          "text": "Implicit payload assumptions"
+        },
+        {
+          "id": "A-002",
+          "source": "payload",
+          "type": "factual",
+          "testability": "now",
+          "risk": "HIGH",
+          "text": "PostgreSQL is available"
+        }
+      ],
+      "predictions": [
+        {
+          "id": "P-001",
+          "statement": "P99 latency < 200ms",
+          "horizon": "2 weeks",
+          "measurement": "load test",
+          "baseline": "current 350ms",
+          "status": "untested"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "text": "Deploy the experimental build.",
+      "assumptions": [],
+      "predictions": []
+    },
+    "output": {
+      "text": "text: Deploy the experimental build.\nassumptions: \npredictions: ",
+      "assumptions": [
+        {
+          "id": "A-001",
+          "source": "fallback",
+          "type": "factual",
+          "testability": "later",
+          "risk": "MEDIUM",
+          "text": "Implicit payload assumptions"
+        }
+      ],
+      "predictions": [
+        {
+          "id": "P-001",
+          "statement": "Unfalsifiable narrative detected.",
+          "horizon": "none",
+          "measurement": "none",
+          "baseline": "none",
+          "status": "unavailable"
+        }
+      ]
+    }
+  },
+  {
+    "input": {
+      "text": "Evaluate startup viability.",
+      "assumptions": [
+        {
+          "text": "Market exists",
+          "risk": "MEDIUM",
+          "testability": "later"
+        }
+      ],
+      "predictions": []
+    },
+    "output": {
+      "text": "text: Evaluate startup viability.\nassumptions: {'text': 'Market exists', 'risk': 'MEDIUM', 'testability': 'later'}\npredictions: ",
+      "assumptions": [
+        {
+          "id": "A-001",
+          "source": "fallback",
+          "type": "factual",
+          "testability": "later",
+          "risk": "MEDIUM",
+          "text": "Implicit payload assumptions"
+        },
+        {
+          "id": "A-002",
+          "source": "payload",
+          "type": "factual",
+          "testability": "later",
+          "risk": "MEDIUM",
+          "text": "Market exists"
+        }
+      ],
+      "predictions": [
+        {
+          "id": "P-001",
+          "statement": "Unfalsifiable narrative detected.",
+          "horizon": "none",
+          "measurement": "none",
+          "baseline": "none",
+          "status": "unavailable"
+        }
+      ]
+    }
+  }
+]

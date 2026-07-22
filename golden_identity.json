@@ -1,0 +1,26 @@
+[
+  {
+    "test": "has_access_valid",
+    "input": [
+      "operator",
+      "read"
+    ],
+    "output": false
+  },
+  {
+    "test": "has_access_invalid",
+    "input": [
+      "operator",
+      "delete"
+    ],
+    "output": false
+  },
+  {
+    "test": "has_access_unknown_user",
+    "input": [
+      "guest",
+      "read"
+    ],
+    "output": false
+  }
+]

@@ -200,7 +200,7 @@ def _load_routers() -> None:
     _register(audit_report_router, "/audit")
     _register(runtime_router, "")
     _register(verification_router, "")
-    _register(evolution_router, "")
+    _register(evolution_router, "/evolution")
     _register(agent_router, "")
     _register(visualizer_router, "/visualizer")
     _register(studio_router, "")
@@ -232,6 +232,16 @@ def _load_routers() -> None:
     _register(v3_crew_router.router, "")
     from msb_v2.api.scth import router as scth_router
     _register(scth_router, "/scth")
+    from msb_v2.api.cloud_agent import router as cloud_agent_router
+    _register(cloud_agent_router, "/cloud-agent")
+    from msb_v2.api.echo import router as echo_router
+    _register(echo_router, "/echo")
+    from msb_v2.api.systems_health import router as systems_health_router
+    _register(systems_health_router, "/systems-health")
+    from msb_v2.api.optimize import router as optimize_router
+    _register(optimize_router, "/optimize")
+    from msb_v2.api.schh import router as schh_router
+    _register(schh_router, "/schh")
     try:
         from msb_v2.api.sn import router as sn_router
         _register(sn_router, "/sn")
@@ -240,6 +250,10 @@ def _load_routers() -> None:
     try:
         from msb_v2.v3.policy import register_dispatch_contracts as _register_dispatch_contracts
         _register_dispatch_contracts()
+    except Exception:
+        pass
+    try:
+        from msb_v2.api import cloud_agent_contracts
     except Exception:
         pass
 

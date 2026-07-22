@@ -1,21 +1,13 @@
 """
 O_FUSION: a universal error-fusion operator for structured concurrency.
 
-Implements the three fusion policies surveyed in the paper's Section 2:
+Implements the three fusion policies in the paper's Section 2:
 
-  - FIRST_WINS  : Kotlin/Java style. First failure propagates; the rest are
+  - FIRST_WINS  : first failure propagates; the rest are
                   attached as suppressed exceptions on the primary.
-  - AGGREGATE   : Trio/Python 3.11+ style. All failures are collected into
-                  a single ExceptionGroup, catchable with `except*`.
+  - AGGREGATE   : all failures are collected into a single ExceptionGroup.
   - TREE        : preserves which task raised which error, as a dict keyed
-                  by task name -- useful when you need to know *which*
-                  sibling failed, not just that something did.
-
-The `Scope` class is a structured-concurrency primitive: no task spawned
-inside it can outlive it (mirrors Trio's nursery / Kotlin's coroutineScope).
-On the first failure, siblings are cancelled (cooperative cancellation --
-see the paper's Section 9 on scheduler fairness for why this requires
-tasks to actually hit an await point to notice).
+                  by task name.
 """
 
 from __future__ import annotations
@@ -31,9 +23,35 @@ class FusionPolicy(enum.Enum):
     TREE = "tree"
 
 
+class _ErrorClassification:
+    __slots__ = (
+        "error",
+        "weight",
+        "sovereign_alert",
+        "reversible",
+        "payload_type",
+        "scope_source",
+    )
+
+    def __init__(
+        self,
+        error: BaseException,
+        weight: float,
+        sovereign_alert: bool,
+        reversible: bool,
+        payload_type: str,
+        scope_source: bool = False,
+    ) -> None:
+        self.error = error
+        self.weight = weight
+        self.sovereign_alert = sovereign_alert
+        self.reversible = reversible
+        self.payload_type = payload_type
+        self.scope_source = scope_source
+
+
 class FusedError(Exception):
-    """Composite error for policies that don't have a native Python type
-    to lean on (TREE). Carries every underlying failure."""
+    """Composite error for policies that don't have a native Python type to lean on."""
 
     def __init__(self, errors: list[BaseException], policy: FusionPolicy):
         self.errors = errors
@@ -47,15 +65,7 @@ class FusedError(Exception):
 
 
 class Scope:
-    """A structured-concurrency scope with a configurable O_FUSION policy.
-
-    Usage:
-        async with Scope(policy=FusionPolicy.AGGREGATE) as scope:
-            scope.spawn(worker_a(), name="a")
-            scope.spawn(worker_b(), name="b")
-        # by the time we're here, either both succeeded, or a fused
-        # error has been raised representing every failure.
-    """
+    """Structured-concurrency scope with a configurable O_FUSION policy."""
 
     def __init__(
         self,
@@ -66,7 +76,6 @@ class Scope:
         self.cancel_on_error = cancel_on_error
         self._tasks: list[asyncio.Task] = []
         self._task_names: dict[asyncio.Task, str] = {}
-        self._errors: list[BaseException] = []
 
     async def __aenter__(self) -> "Scope":
         return self
@@ -83,26 +92,17 @@ class Scope:
                 t.cancel()
 
     async def __aexit__(self, exc_type, exc, tb) -> bool:
-        # A failure in the `async with` body itself counts as a failure
-        # of the scope, same as a spawned child failing.
+        self._errors: list[BaseException] = []
         if exc is not None:
             self._errors.append(exc)
             if self.cancel_on_error:
                 self._cancel_all()
 
-        # Use an incremental FIRST_COMPLETED wait rather than gather(): gather
-        # only reports results once *every* task has finished, so cancelling
-        # a sibling in response to an early failure would happen too late to
-        # matter (e.g. a sibling asleep for 5s would still sleep the full 5s).
-        # Waiting on FIRST_COMPLETED lets us cancel remaining siblings the
-        # instant any one task fails.
         pending = set(self._tasks)
         while pending:
             done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
             for task in done:
                 if task.cancelled():
-                    # Expected: this task was cancelled because a sibling
-                    # failed. Not itself a fusion-worthy error.
                     continue
                 task_exc = task.exception()
                 if task_exc is not None:
@@ -113,36 +113,89 @@ class Scope:
                                 t.cancel()
 
         if self._errors:
-            raise self._fuse() from None
+            raise self._fuse(self._errors) from None
 
         return False
 
-    def _fuse(self) -> BaseException:
-        if self.policy is FusionPolicy.FIRST_WINS:
-            primary, *rest = self._errors
-            if rest:
-                primary.__notes__ = getattr(primary, "__notes__", [])
-                for e in rest:
-                    primary.__notes__.append(f"suppressed: {type(e).__name__}: {e}")
-                primary.__suppressed__ = rest  # non-standard, but inspectable
-            return primary
+    def _fuse(self, errors: list[BaseException]) -> BaseException:
+        classified = self._classify_errors(errors)
+        weighted = self._weight_errors(classified)
+        return self._synthesize_fusion(weighted)
 
-        if self.policy is FusionPolicy.AGGREGATE:
-            return ExceptionGroup("O_FUSION: multiple task failures", self._errors)
+    def _classify_errors(self, errors: list[BaseException]) -> list[_ErrorClassification]:
+        classified: list[_ErrorClassification] = []
+        body_errors = [
+            e for e in errors
+            if getattr(e, "_scope_body_error", False)
+        ]
+        tree_errors = [
+            e for e in errors
+            if getattr(e, "_scope_task_error", False)
+        ]
+        for error in errors:
+            payload_type = type(error).__name__
+            sovereign_alert = False
+            reversible = True
+            scope_source = error in body_errors
+            if isinstance(error, SystemExit | KeyboardInterrupt | MemoryError | OSError):
+                sovereign_alert = True
+                reversible = False
+            elif isinstance(error, asyncio.CancelledError):
+                reversible = False
+            elif isinstance(error, (RuntimeError, ValueError, TypeError)):
+                reversible = True
+            classified.append(_ErrorClassification(
+                error=error,
+                weight=0.0,
+                sovereign_alert=sovereign_alert,
+                reversible=reversible,
+                payload_type=payload_type,
+                scope_source=scope_source,
+            ))
+        return classified
 
-        if self.policy is FusionPolicy.TREE:
-            err = FusedError(self._errors, self.policy)
+    def _weight_errors(self, classified: list[_ErrorClassification]) -> list[_ErrorClassification]:
+        for item in classified:
+            if item.sovereign_alert:
+                item.weight = 1.0
+                continue
+            if item.scope_source:
+                item.weight = max(item.weight, 0.8)
+            if isinstance(item.error, asyncio.CancelledError):
+                item.weight = max(item.weight, 0.1)
+            elif isinstance(item.error, (RuntimeError, ValueError, TypeError)):
+                item.weight = max(item.weight, 0.55)
+            else:
+                item.weight = max(item.weight, 0.25)
+        return classified
+
+    def _synthesize_fusion(self, weighted: list[_ErrorClassification]) -> BaseException:
+        primary = max(weighted, key=lambda item: item.weight)
+        fused = [item.error for item in weighted if item.error is not primary.error]
+        policy = self.policy
+        if policy is FusionPolicy.FIRST_WINS:
+            if fused:
+                primary.error.__notes__ = getattr(primary.error, "__notes__", [])
+                for error in fused:
+                    primary.error.__notes__.append(
+                        f"suppressed: {type(error).__name__}: {error}"
+                    )
+                primary.error.__suppressed__ = fused
+            return primary.error
+
+        if policy is FusionPolicy.AGGREGATE:
+            return ExceptionGroup("O_FUSION: multiple task failures", [item.error for item in weighted])
+
+        if policy is FusionPolicy.TREE:
+            err = FusedError([item.error for item in weighted], policy)
             for task, name in self._task_names.items():
                 if task.done() and not task.cancelled():
                     task_exc = task.exception()
                     if task_exc is not None:
                         err.tree[name] = task_exc
-                # cancelled tasks contribute nothing to the tree -- being
-                # cancelled isn't a failure of that task, it's fallout
-            # Body-level exception (not from a named task) goes in under "__scope__"
-            if exc_only_from_body := [e for e in self._errors if e not in err.tree.values()]:
-                for i, e in enumerate(exc_only_from_body):
-                    err.tree.setdefault(f"__scope__[{i}]", e)
+            body_errors = [item.error for item in weighted if item.scope_source]
+            for i, error in enumerate(body_errors):
+                err.tree.setdefault(f"__scope__[{i}]", error)
             return err
 
-        raise ValueError(f"Unknown fusion policy: {self.policy}")
+        raise ValueError(f"Unknown fusion policy: {policy}")

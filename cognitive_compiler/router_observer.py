@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import json
 import os
+import json
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
@@ -35,79 +35,11 @@ class RouterObserver:
         self.buffer: List[RoutingObservation] = []
 
     def record(self, result: Any, query: str) -> None:
-        routing = result.decision if hasattr(result, "decision") else result
-        if hasattr(routing, "primary"):
-            primary = routing.primary or "base_are"
-            secondary = routing.secondary
-            order = routing.order or "serial"
-            confidence = routing.confidence or 0.0
-            justification = routing.justification or ""
-            rerouted = bool(getattr(routing, "rerouted", False))
-        elif isinstance(routing, dict):
-            primary = routing.get("primary") or "base_are"
-            secondary = routing.get("secondary")
-            order = routing.get("order") or "serial"
-            confidence = routing.get("confidence") or 0.0
-            justification = routing.get("justification") or ""
-            rerouted = bool(routing.get("rerouted"))
-        else:
+        routing = self._extract_routing(result)
+        if routing is None:
             return
-
-        temp_score = 0.0
-        elapsed = 0.0
-        if hasattr(result, "temperature") and hasattr(result.temperature, "score"):
-            temp_score = result.temperature.score
-            elapsed = getattr(result, "elapsed_s", 0.0)
-        elif isinstance(result, dict):
-            temp_score = result.get("temperature", {}).get("score", 0.0)
-            elapsed = result.get("elapsed_s", 0.0)
-
-        primary_exec = 0.0
-        secondary_exec = 0.0
-        primary_retries = 0
-        secondary_retries = 0
-        primary_fallback = None
-        secondary_fallback = None
-        primary_error = None
-        secondary_error = None
-        primary_tags = []
-        secondary_tags = []
-        telemetry = result.get("telemetry") if isinstance(result, dict) else None
-        if telemetry:
-            pt = telemetry.get("primary") or {}
-            st = telemetry.get("secondary") or {}
-            primary_exec = float(pt.get("execution_time_s") or 0.0)
-            secondary_exec = float(st.get("execution_time_s") or 0.0)
-            primary_retries = int(pt.get("retries") or 0)
-            secondary_retries = int(st.get("retries") or 0)
-            primary_fallback = pt.get("fallback_reason")
-            secondary_fallback = st.get("fallback_reason")
-            primary_error = pt.get("error_class")
-            secondary_error = st.get("error_class")
-            primary_tags = list(pt.get("tags") or [primary])
-            secondary_tags = list(st.get("tags") or ([secondary] if secondary else []))
-
-        obs = RoutingObservation(
-            query=query,
-            primary=primary,
-            secondary=secondary,
-            order=order,
-            confidence=confidence,
-            justification=justification,
-            rerouted=rerouted,
-            temperature_score=temp_score,
-            elapsed_s=elapsed,
-            primary_execution_time_s=primary_exec,
-            secondary_execution_time_s=secondary_exec,
-            primary_retries=primary_retries,
-            secondary_retries=secondary_retries,
-            primary_fallback_reason=primary_fallback,
-            secondary_fallback_reason=secondary_fallback,
-            primary_error_class=primary_error,
-            secondary_error_class=secondary_error,
-            primary_tags=primary_tags,
-            secondary_tags=secondary_tags,
-        )
+        telemetry = self._extract_telemetry(result, routing["primary"], routing["secondary"])
+        obs = self._build_observation(query, routing, telemetry, result)
         self.buffer.append(obs)
         self._flush(obs)
 
@@ -144,6 +76,112 @@ class RouterObserver:
             "secondary_error_rate": secondary_errors / len(recent),
             "fallback_rate": fallbacks / len(recent),
         }
+
+    def _extract_routing(self, result: Any) -> Optional[Dict[str, Any]]:
+        routing = getattr(result, "decision", result) if hasattr(result, "decision") else result
+        if hasattr(routing, "primary"):
+            return {
+                "primary": routing.primary or "base_are",
+                "secondary": routing.secondary,
+                "order": routing.order or "serial",
+                "confidence": routing.confidence or 0.0,
+                "justification": routing.justification or "",
+                "rerouted": bool(getattr(routing, "rerouted", False)),
+            }
+        if isinstance(routing, dict):
+            return {
+                "primary": routing.get("primary") or "base_are",
+                "secondary": routing.get("secondary"),
+                "order": routing.get("order") or "serial",
+                "confidence": routing.get("confidence") or 0.0,
+                "justification": routing.get("justification") or "",
+                "rerouted": bool(routing.get("rerouted")),
+            }
+        return None
+
+    def _extract_temperature_and_elapsed(self, result: Any) -> Dict[str, float]:
+        temp_score = 0.0
+        elapsed = 0.0
+        if hasattr(result, "temperature") and hasattr(result.temperature, "score"):
+            temp_score = result.temperature.score
+            elapsed = getattr(result, "elapsed_s", 0.0)
+        elif isinstance(result, dict):
+            temp_score = result.get("temperature", {}).get("score", 0.0)
+            elapsed = result.get("elapsed_s", 0.0)
+        return {"temperature_score": temp_score, "elapsed_s": elapsed}
+
+    def _extract_execution_metrics(self, result: Any, primary: str, secondary: Optional[str]) -> Dict[str, Any]:
+        primary_exec = 0.0
+        secondary_exec = 0.0
+        primary_retries = 0
+        secondary_retries = 0
+        primary_fallback = None
+        secondary_fallback = None
+        primary_error = None
+        secondary_error = None
+        primary_tags: List[str] = []
+        secondary_tags: List[str] = []
+
+        telemetry = result.get("telemetry") if isinstance(result, dict) else None
+        if telemetry:
+            pt = telemetry.get("primary") or {}
+            st = telemetry.get("secondary") or {}
+            primary_exec = float(pt.get("execution_time_s") or 0.0)
+            secondary_exec = float(st.get("execution_time_s") or 0.0)
+            primary_retries = int(pt.get("retries") or 0)
+            secondary_retries = int(st.get("retries") or 0)
+            primary_fallback = pt.get("fallback_reason")
+            secondary_fallback = st.get("fallback_reason")
+            primary_error = pt.get("error_class")
+            secondary_error = st.get("error_class")
+            primary_tags = list(pt.get("tags") or [primary])
+            secondary_tags = list(st.get("tags") or ([secondary] if secondary else []))
+
+        return {
+            "primary_execution_time_s": primary_exec,
+            "secondary_execution_time_s": secondary_exec,
+            "primary_retries": primary_retries,
+            "secondary_retries": secondary_retries,
+            "primary_fallback_reason": primary_fallback,
+            "secondary_fallback_reason": secondary_fallback,
+            "primary_error_class": primary_error,
+            "secondary_error_class": secondary_error,
+            "primary_tags": primary_tags,
+            "secondary_tags": secondary_tags,
+        }
+
+    def _build_telemetry_packet(self, timing: Dict[str, float], metrics: Dict[str, Any]) -> Dict[str, Any]:
+        packet = dict(timing)
+        packet.update(metrics)
+        return packet
+
+    def _extract_telemetry(self, result: Any, primary: str, secondary: Optional[str]) -> Dict[str, Any]:
+        timing = self._extract_temperature_and_elapsed(result)
+        metrics = self._extract_execution_metrics(result, primary, secondary)
+        return self._build_telemetry_packet(timing, metrics)
+
+    def _build_observation(self, query: str, routing: Dict[str, Any], telemetry: Dict[str, Any], result: Any) -> RoutingObservation:
+        return RoutingObservation(
+            query=query,
+            primary=routing["primary"],
+            secondary=routing["secondary"],
+            order=routing["order"],
+            confidence=routing["confidence"],
+            justification=routing["justification"],
+            rerouted=routing["rerouted"],
+            temperature_score=telemetry["temperature_score"],
+            elapsed_s=telemetry["elapsed_s"],
+            primary_execution_time_s=telemetry["primary_execution_time_s"],
+            secondary_execution_time_s=telemetry["secondary_execution_time_s"],
+            primary_retries=telemetry["primary_retries"],
+            secondary_retries=telemetry["secondary_retries"],
+            primary_fallback_reason=telemetry["primary_fallback_reason"],
+            secondary_fallback_reason=telemetry["secondary_fallback_reason"],
+            primary_error_class=telemetry["primary_error_class"],
+            secondary_error_class=telemetry["secondary_error_class"],
+            primary_tags=telemetry["primary_tags"],
+            secondary_tags=telemetry["secondary_tags"],
+        )
 
     def _flush(self, obs: RoutingObservation) -> None:
         os.makedirs(os.path.dirname(self.log_path) or ".", exist_ok=True)

@@ -1,0 +1,8 @@
+{
+  "fatigue_baseline": 0.8,
+  "frustration_baseline": 0.1,
+  "urgency_baseline": 0.1,
+  "speech_rate": 1.0,
+  "pitch_variance": 1.0,
+  "pause_frequency": 0.1
+}

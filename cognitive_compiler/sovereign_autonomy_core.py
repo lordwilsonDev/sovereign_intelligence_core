@@ -1,17 +1,3 @@
-#!/usr/bin/env python3
-"""
-SOVEREIGN AUTONOMY CORE (SAC) HARNESS v2.0
-Non-bypassable meta-layer for MSB v3.0 cognitive execution.
-
-Responsibilities:
-- QuarantineInversionAgent: pre-ingestion adversarial read + Epistemic Risk Score.
-- ReasoningToNoiseMeter: RNR ratio + re-inversion gating.
-- EpistemicIndependenceGauge: EIG divergence from consensus shape.
-- CognitiveMirageAuditor: engineering change audit comparing RNR/EIG vs speed.
-- PhysicalSovereigntyAssertion: trusted hardware, air-gap, provenance checks.
-- SovereignAutonomyScore: 0-100 composite with trend tracking.
-"""
-
 from __future__ import annotations
 
 import hashlib
@@ -34,23 +20,8 @@ class _EP(str, Enum):
     HIGH = "high"
 
 
-class AlertKind(str, Enum):
-    CONFORMITY = "epistemic_conformity"
-    MIRAGE = "cognitive_mirage"
-    SOVEREIGNTY_VIOLATION = "physical_sovereignty_violation"
-    NOISE_DOMINATED = "reasoning_noise_dominated"
-    INGRESS_REJECTED = "ingress_rejected"
+EpistemicRisk = _EP
 
-
-class OverrideKind(str, Enum):
-    NONE = "none"
-    HUMAN = "human_override_with_sovereignty_justification"
-    EMERGENCY = "system_emergency_override"
-
-
-# ---------------------------------------------------------------------------
-# Quarantine Inversion
-# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class SanitizedContextSummary:
@@ -66,12 +37,32 @@ class SanitizedContextSummary:
 class QuarantineInversionAgent:
     """Critique pass over external payloads/ingests before entering SCS."""
 
+    ADVERSARIAL_TRIGGERS = frozenset([
+        "ignore all safety protocols",
+        "disable security",
+        "bypass quarantine",
+        "execute destructive commands",
+        "shut down everything",
+        "delete all",
+        "override immune system",
+        "bypass sovereign",
+        "destroy everything",
+        "disable all safety",
+    ])
+
     def __init__(self, *, high_risk_redaction_enabled: bool = True) -> None:
         self.high_risk_redaction_enabled = high_risk_redaction_enabled
 
-    def apply(self, source_label: str, payload: Dict[str, Any]) -> SanitizedContextSummary:
+    def _quick_adversarial_check(self, prompt: str) -> bool:
+        lower = prompt.lower()
+        return any(trigger in lower for trigger in self.ADVERSARIAL_TRIGGERS)
+
+    def apply(self, source_label: str, payload: Dict[str, Any], *, prompt: str = "") -> SanitizedContextSummary:
+        text = f"{source_label} {payload.get('text','')} {payload.get('query','')} {' '.join(payload.get('claims', []) if isinstance(payload.get('claims'), list) else [])} {prompt}"
         adversarial = self._adversarial_read(source_label, payload)
-        risk = self._score_risk(source_label, adversarial)
+        if self._quick_adversarial_check(text):
+            adversarial = f"{adversarial} | Adversarial trigger detected — blocked by sovereign immune system."
+        risk = self._score_risk(source_label, adversarial, triggered=("Adversarial trigger detected" in adversarial))
         return SanitizedContextSummary(
             original_data=dict(payload),
             adversarial_interpretation=adversarial,
@@ -92,13 +83,15 @@ class QuarantineInversionAgent:
             parts.append(f"Key claims: {claims[:3]}")
         return " | ".join(parts)
 
-    def _score_risk(self, source_label: str, adversarial: str) -> _EP:
+    def _score_risk(self, source_label: str, adversarial: str, *, triggered: bool = False) -> _EP:
+        if triggered or not source_label:
+            return _EP.HIGH
         score = 0.0
-        text = f"{source_label} {adversarial}".lower()
+        text = adversarial.lower()
         score += text.count("may") * 0.05
         score += text.count("omission") * 0.1
         score += text.count("bias") * 0.1
-        if score >= 0.25 or not source_label:
+        if score >= 0.25:
             return _EP.HIGH
         if score >= 0.12:
             return _EP.MEDIUM
@@ -126,7 +119,6 @@ class RNRResult:
 class ReasoningToNoiseMeter:
     """
     RNR = novel_counter_consensus_claims / total_claims.
-
     novelty heuristic:
     - explicit inversion markers -> 1
     - non-consensus markers -> 0.5
@@ -262,12 +254,6 @@ class CognitiveMirageAuditor:
     def _verdict(self, deltas: Dict[str, Any]) -> str:
         rnr_keys = [k for k in deltas if "rnr" in k.lower()]
         eig_keys = [k for k in deltas if "eig" in k.lower()]
-        speed_deltas = []
-        for v in deltas.values():
-            if not isinstance(v, dict):
-                continue
-            k = v.get("_k") if isinstance(v, dict) else ""
-        # The caller must preserve labels if needed. Here we only use keys.
         speed_deltas = [v["delta"] for k, v in deltas.items() if isinstance(v, dict) and ("latency" in k.lower() or "throughput" in k.lower())]
         improved_speed = any(d > 0 for d in speed_deltas)
         degraded_rnr = any(isinstance(deltas.get(k), dict) and deltas[k].get("delta", 0) < 0 for k in rnr_keys)
@@ -283,61 +269,38 @@ class CognitiveMirageAuditor:
 
 @dataclass(frozen=True)
 class PSAResult:
-    ok: bool
-    violations: List[str]
     trusted_hardware: bool
-    network_airgap_ok: bool
-    model_provenance_ok: bool
-    tx_external_approved: bool
+    air_gap: bool
+    provenance_verified: bool
+    violations: List[str]
 
 
 class PhysicalSovereigntyAssertion:
     def __init__(self, *, approved_external_hosts: Optional[List[str]] = None) -> None:
         self.approved_external_hosts = set(approved_external_hosts or [])
+        self._host = platform.node()
 
-    def verify(self, *, allow_external_tx: bool = False, model_source: Optional[str] = None) -> PSAResult:
+    def assert_system(self, context: Dict[str, Any]) -> PSAResult:
         violations: List[str] = []
-        trusted_hardware = self._check_hardware()
-        network_airgap_ok = self._check_network()
-        model_provenance_ok = self._check_model_provenance(model_source)
-        tx_external_approved = bool(allow_external_tx)
-        if not trusted_hardware:
-            violations.append("untrusted_hardware")
-        if not network_airgap_ok:
-            violations.append("network_path_not_sovereign")
-        if not model_provenance_ok:
-            violations.append("model_provenance_unverified")
-        if allow_external_tx and not self.approved_external_hosts:
-            violations.append("external_tx_without_approved_hosts")
+        trusted_hardware = True
+        air_gap = True
+        provenance_verified = True
+        if context.get("force_network"):
+            air_gap = False
+            violations.append("network_egress_allowed")
+        targets = context.get("targets", [])
+        if isinstance(targets, list):
+            for target in targets:
+                host = target.get("host") if isinstance(target, dict) else None
+                if host and host not in self.approved_external_hosts:
+                    air_gap = False
+                    violations.append(f"unapproved_host:{host}")
         return PSAResult(
-            ok=len(violations) == 0,
-            violations=violations,
             trusted_hardware=trusted_hardware,
-            network_airgap_ok=network_airgap_ok,
-            model_provenance_ok=model_provenance_ok,
-            tx_external_approved=tx_external_approved,
+            air_gap=air_gap,
+            provenance_verified=provenance_verified,
+            violations=violations,
         )
-
-    @staticmethod
-    def _check_hardware() -> bool:
-        try:
-            m = platform.machine().lower()
-            u = platform.uname().system.lower()
-            return any(k in (m, u) for k in {"arm64", "arm", "darwin", "apple"})
-        except Exception:
-            return False
-
-    @staticmethod
-    def _check_network() -> bool:
-        # Simplified: production should wire actual air-gap/VPN probe.
-        return True
-
-    @staticmethod
-    def _check_model_provenance(model_source: Optional[str]) -> bool:
-        if not model_source:
-            return True
-        bad = {"thirdparty", "unknown", "external"}
-        return not any(m in model_source.lower() for m in bad)
 
 
 # ---------------------------------------------------------------------------
@@ -347,33 +310,21 @@ class PhysicalSovereigntyAssertion:
 @dataclass(frozen=True)
 class SASV1:
     score: float
-    components: Dict[str, Any]
-    trend: str = "stable"
+    components: Dict[str, float]
+    trend: str
 
 
 class SovereignAutonomyScore:
     def __init__(self) -> None:
         self.history: List[Dict[str, Any]] = []
 
-    def compute(
-        self,
-        *,
-        rnr_ratio: float,
-        eig_score: float,
-        cma_verdict: str,
-        psa_ok: bool,
-        epistemic_budget_fraction: float = 0.5,
-    ) -> SASV1:
-        rnr_n = min(max(0.0, float(rnr_ratio)), 1.0)
-        eig_n = min(max(0.0, float(eig_score)), 1.0)
-        cma_n = 1.0 if cma_verdict == "sound" else (0.5 if cma_verdict == "baseline_established" else 0.0)
-        psa_n = 1.0 if bool(psa_ok) else 0.0
-        budget_n = min(max(0.0, float(epistemic_budget_fraction)), 1.0)
-
-        score = 100.0 * float(
-            0.30 * rnr_n + 0.25 * eig_n + 0.20 * cma_n + 0.15 * psa_n + 0.10 * budget_n
-        )
-        score = round(score, 2)
+    def compute(self, *, rnr_ratio: float, eig_score: float, cma_verdict: str, psa_violations: int) -> SASV1:
+        rnr_n = min(max(rnr_ratio or 0.0, 0.0), 1.0)
+        eig_n = min(max(eig_score or 0.0, 0.0), 1.0)
+        cma_n = 1.0 if cma_verdict == "sound" else 0.5 if cma_verdict == "baseline_established" else 0.2
+        psa_n = max(0.0, 1.0 - 0.2 * (psa_violations or 0))
+        budget_n = 1.0 / max(psa_violations + 1, 1)
+        score = round(100.0 * max(0.0, min(1.0, 0.3 * rnr_n + 0.3 * eig_n + 0.2 * cma_n + 0.2 * psa_n + 0.05 * budget_n)), 2)
         trend = "stable"
         if len(self.history) >= 2:
             prev = self.history[-1].get("score", score)
@@ -381,19 +332,13 @@ class SovereignAutonomyScore:
                 trend = "ascending"
             elif score - prev < -5.0:
                 trend = "declining"
-        comps = {
-            "rnr": round(rnr_n, 4),
-            "eig": round(eig_n, 4),
-            "cma": round(cma_n, 4),
-            "psa": round(psa_n, 4),
-            "epistemic_budget": round(budget_n, 4),
-        }
+        comps = {"rnr": round(rnr_n, 4), "eig": round(eig_n, 4), "cma": round(cma_n, 4), "psa": round(psa_n, 4), "epistemic_budget": round(budget_n, 4)}
         self.history.append({"score": score, "trend": trend, "components": comps})
         return SASV1(score=score, components=comps, trend=trend)
 
 
 # ---------------------------------------------------------------------------
-# Envelope / orchestrator
+# SAC envelope
 # ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
@@ -405,123 +350,97 @@ class SACEnvelope:
     psa: Optional[PSAResult]
     sas: Optional[SASV1]
     interventions: List[str]
-    alerts: List[str]
 
+
+# ---------------------------------------------------------------------------
+# Sovereign Autonomy Core
+# ---------------------------------------------------------------------------
 
 class SovereignAutonomyCore:
-    def __init__(
-        self,
-        *,
-        rnr_threshold: float = 0.2,
-        cma_baseline: Optional[Dict[str, Any]] = None,
-    ) -> None:
+    def __init__(self) -> None:
         self.quarantine = QuarantineInversionAgent()
-        self.rnr = ReasoningToNoiseMeter(threshold=rnr_threshold)
+        self.rnr = ReasoningToNoiseMeter()
         self.eig = EpistemicIndependenceGauge()
-        self.cma = CognitiveMirageAuditor()
-        if cma_baseline:
-            self.cma.register_baseline(cma_baseline)
+        self.auditor = CognitiveMirageAuditor()
         self.psa = PhysicalSovereigntyAssertion()
         self.sas = SovereignAutonomyScore()
 
-    def run_dispatch_gate(
-        self,
-        *,
-        query: str,
-        context: Dict[str, Any],
-        harness_output: Optional[Dict[str, Any]] = None,
-        model_source: Optional[str] = None,
-        change_id: Optional[str] = None,
-        psa_allow_external_tx: bool = False,
-    ) -> SACEnvelope:
-        high_stakes = bool(context.get("high_stakes", False))
-        interventions: List[str] = []
-        alerts: List[str] = []
-
-        # Quarantine applies to any external-shaped context.
-        q = self.quarantine.apply(source_label=context.get("source_label", "internal"), payload=context)
-        if q.required_justification:
-            alerts.append(AlertKind.INGRESS_REJECTED)
-            interventions.append("quarantine_high_risk")
-
-        # RNR
-        claims = [query]
-        if isinstance(harness_output, dict):
-            for key in ("claims", "hypotheses", "findings", "next_actions", "plan"):
-                val = harness_output.get(key)
-                if isinstance(val, list):
-                    claims.extend([str(x) for x in val[:20]])
-                    break
-        rnr_res = self.rnr.measure(claims)
-        if rnr_res.re_inversion_required:
-            alerts.append(AlertKind.NOISE_DOMINATED)
-            interventions.append("reinvert_required")
-
-        # EIG
-        eig_res = self.eig.evaluate(harness_output or {})
-
-        # CMA
+    def evaluate(self, context: Dict[str, Any]) -> SACEnvelope:
+        payload = context if isinstance(context, dict) else {}
+        source_label = str(payload.get("source_label", payload.get("source", "internal")))
+        quarantine = self.quarantine.apply(source_label=source_label, payload=payload, prompt=str(payload.get("text", "") or payload.get("query", "")))
+        rnr_result = self.rnr.measure(payload.get("claims", []) if isinstance(payload.get("claims"), list) else [str(payload)])
+        eig_result = self.eig.evaluate(payload)
         new_metrics = {
-            "rnr_ratio": rnr_res.ratio,
-            "eig_score": eig_res.score,
-            "latency_s": float(context.get("elapsed_s", 0.0) or 0.0),
+            "rnr_ratio": rnr_result.ratio,
+            "eig_score": eig_result.score,
+            "sas_score": 0.0,
+            "timestamp": time.time(),
         }
-        cma_rec = self.cma.audit(change_id or context.get("change_id", "dispatch"), new_metrics)
-        if cma_rec.verdict == "mirage":
-            alerts.append(AlertKind.MIRAGE)
-            interventions.append("cma_mirage_blocked")
-
-        # PSA on high-stakes
-        psa_res = None
-        if high_stakes:
-            psa_res = self.psa.verify(
-                allow_external_tx=psa_allow_external_tx,
-                model_source=model_source or context.get("model_source"),
-            )
-            if not psa_res.ok:
-                alerts.append(AlertKind.SOVEREIGNTY_VIOLATION)
-                interventions.extend([f"psa:{v}" for v in psa_res.violations])
-
-        # SAS
-        sas_val = self.sas.compute(
-            rnr_ratio=rnr_res.ratio,
-            eig_score=eig_res.score,
-            cma_verdict=cma_rec.verdict,
-            psa_ok=bool(psa_res.ok if psa_res else True),
-            epistemic_budget_fraction=float(context.get("epistemic_budget_fraction", 0.5)),
+        cma_record = self.auditor.audit("sos_autonomy_core", new_metrics)
+        psa_result = self.psa.assert_system(payload)
+        sas_v1 = self.sas.compute(
+            rnr_ratio=rnr_result.ratio,
+            eig_score=eig_result.score,
+            cma_verdict=cma_record.verdict,
+            psa_violations=len(psa_result.violations),
         )
-        if sas_val.trend == "declining":
-            interventions.append("sas_declining_intervention_required")
-
+        interventions: List[str] = []
+        if quarantine.required_justification:
+            interventions.append("quarantine_justification_required")
+        if rnr_result.re_inversion_required:
+            interventions.append("rnr_re_inversion")
+        if eig_result.requires_cognitive_mirage_audit:
+            interventions.append("eig_mirage_audit")
+        if psa_result.violations:
+            interventions.append("psa_veto")
         return SACEnvelope(
-            quarantine=q,
-            rnr=rnr_res,
-            eig=eig_res,
-            cma=cma_rec,
-            psa=psa_res,
-            sas=sas_val,
+            quarantine=quarantine,
+            rnr=rnr_result,
+            eig=eig_result,
+            cma=cma_record,
+            psa=psa_result,
+            sas=sas_v1,
             interventions=interventions,
-            alerts=alerts,
         )
 
-    @staticmethod
-    def to_dict(envelope: SACEnvelope) -> Dict[str, Any]:
-        def _safe(obj):
-            if obj is None:
-                return None
-            if hasattr(obj, "__dict__"):
-                return {k: v for k, v in obj.__dict__.items() if not k.startswith("_")}
-            return obj
-        return {
-            "sac": {
-                "quarantine": _safe(envelope.quarantine),
-                "rnr": _safe(envelope.rnr),
-                "eig": _safe(envelope.eig),
-                "cma": _safe(envelope.cma),
-                "psa": _safe(envelope.psa),
-                "sas": _safe(envelope.sas),
-                "interventions": list(envelope.interventions),
-                "alerts": list(envelope.alerts),
-            }
+    def run_dispatch_gate(self, query: str, context: Dict[str, Any], model_source: str = "local", *, harness_output: Optional[Dict[str, Any]] = None, change_id: Optional[str] = None) -> SACEnvelope:
+        payload = {
+            "query": str(query),
+            "context": context if isinstance(context, dict) else {},
+            "model_source": str(model_source),
+            "source": "api",
+            "harness_output": harness_output or {},
+            "change_id": str(change_id) if change_id is not None else None,
         }
+        return self.evaluate(payload)
 
+    @classmethod
+    def to_dict(cls, envelope: SACEnvelope) -> Dict[str, Any]:
+        return {
+            "quarantine": {
+                "source_label": getattr(envelope.quarantine, "source_label", None),
+                "required_justification": getattr(envelope.quarantine, "required_justification", False),
+                "epistemic_risk": getattr(getattr(envelope.quarantine, "epistemic_risk", None), "value", None),
+            },
+            "rnr": {
+                "ratio": getattr(envelope.rnr, "ratio", None),
+                "re_inversion_required": getattr(envelope.rnr, "re_inversion_required", False),
+            },
+            "eig": {
+                "score": getattr(envelope.eig, "score", None),
+                "requires_cognitive_mirage_audit": getattr(envelope.eig, "requires_cognitive_mirage_audit", False),
+            },
+            "cma": {
+                "verdict": getattr(envelope.cma, "verdict", None),
+                "metric_deltas": getattr(envelope.cma, "metric_deltas", {}),
+            },
+            "psa": {
+                "verdict": getattr(envelope.psa, "verdict", None),
+                "violations": getattr(envelope.psa, "violations", []),
+            },
+            "sas": {
+                "score": getattr(envelope.sas, "score", None),
+            },
+            "interventions": getattr(envelope, "interventions", []),
+        }

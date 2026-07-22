@@ -131,37 +131,25 @@ class MetaRoutingHarness:
         return HarnessDecision(primary="base_are", confidence=confidence, justification="Low match; defaulting to base ARE")
 
     def _determine_order(self, primary: str, secondary: str, query: str) -> str:
-        if primary == "desktop" and secondary == "building":
-            return "serial"
-        if primary == "building" and secondary == "desktop":
-            return "serial"
-        if primary == "desktop" and secondary == "research":
-            return "serial"
-        if primary == "research" and secondary == "desktop":
-            return "serial"
-        if primary == "desktop" and secondary == "complex_reasoning":
-            return "serial"
-        if primary == "research" and secondary == "complex_reasoning":
-            return "serial"
-        if primary == "building" and secondary == "complex_reasoning":
-            return "serial"
-        if primary == "desktop" and secondary == "telegram":
-            return "serial"
-        if primary == "telegram" and secondary == "desktop":
-            return "serial"
-        if primary == "telegram" and secondary == "research":
-            return "serial"
-        if primary == "research" and secondary == "telegram":
-            return "serial"
-        if primary == "telegram" and secondary == "building":
-            return "serial"
-        if primary == "building" and secondary == "telegram":
-            return "serial"
-        if "career" in (primary, secondary):
-            return "serial"
-        if "telegram" in (primary, secondary):
+        if self._is_serial_order(primary, secondary):
             return "serial"
         return "parallel"
+
+    _NON_TELEGRAM_SERIAL_ORDER_PAIRS = frozenset({
+        ("desktop", "building"),
+        ("building", "desktop"),
+        ("desktop", "research"),
+        ("research", "desktop"),
+        ("desktop", "complex_reasoning"),
+        ("research", "complex_reasoning"),
+        ("building", "complex_reasoning"),
+    })
+    _ALWAYS_SERIAL_HARNESSES = frozenset({"career", "telegram"})
+
+    def _is_serial_order(self, primary: str, secondary: str) -> bool:
+        if primary in self._ALWAYS_SERIAL_HARNESSES or secondary in self._ALWAYS_SERIAL_HARNESSES:
+            return True
+        return (primary, secondary) in self._NON_TELEGRAM_SERIAL_ORDER_PAIRS
 
     def monitor(self, scs: SharedCognitiveState) -> CognitiveTemperature:
         temp = CognitiveTemperature(current_harness=scs.routing_decision.get("primary", "base_are"))

@@ -1,0 +1,85 @@
+[
+  {
+    "input": [
+      "code generation",
+      {
+        "language": "python"
+      }
+    ],
+    "output": {
+      "primary": "base_are",
+      "secondary": null,
+      "order": "serial",
+      "confidence": 0.9,
+      "justification": "Trivial query: short, no domain markers",
+      "transition_predicate": null,
+      "rerouted": false
+    }
+  },
+  {
+    "input": [
+      "data analysis",
+      {
+        "dataset_size": "large"
+      }
+    ],
+    "output": {
+      "primary": "base_are",
+      "secondary": null,
+      "order": "serial",
+      "confidence": 0.9,
+      "justification": "Trivial query: short, no domain markers",
+      "transition_predicate": null,
+      "rerouted": false
+    }
+  },
+  {
+    "input": [
+      "summarization",
+      {}
+    ],
+    "output": {
+      "primary": "base_are",
+      "secondary": null,
+      "order": "serial",
+      "confidence": 0.9,
+      "justification": "Trivial query: short, no domain markers",
+      "transition_predicate": null,
+      "rerouted": false
+    }
+  },
+  {
+    "input": [
+      "image generation",
+      {
+        "resolution": "1024x1024"
+      }
+    ],
+    "output": {
+      "primary": "base_are",
+      "secondary": null,
+      "order": "serial",
+      "confidence": 0.9,
+      "justification": "Trivial query: short, no domain markers",
+      "transition_predicate": null,
+      "rerouted": false
+    }
+  },
+  {
+    "input": [
+      "security audit",
+      {
+        "scope": "full"
+      }
+    ],
+    "output": {
+      "primary": "base_are",
+      "secondary": null,
+      "order": "serial",
+      "confidence": 0.9,
+      "justification": "Trivial query: short, no domain markers",
+      "transition_predicate": null,
+      "rerouted": false
+    }
+  }
+]

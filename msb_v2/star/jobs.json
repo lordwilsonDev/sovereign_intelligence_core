@@ -1,191 +1,23 @@
 {
   "jobs": [
     {
-      "id": "703663ca",
-      "name": "fail job",
-      "description": "forces failure",
+      "id": "cloud-agent-health",
+      "name": "Cloud Agent Autonomic Health Check",
+      "description": "Calls the cloud agent status endpoint every 15 minutes to keep the sovereign organism breathing.",
       "cron": "*/15 * * * *",
       "harness_action": {
-        "harness": "app",
-        "action": "fail"
+        "type": "http",
+        "method": "POST",
+        "url": "http://127.0.0.1:8766/cloud-agent/status",
+        "body": {}
       },
       "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
+        "max_retries": 2,
+        "backoff_factor": 30
       },
       "failure_policy": "alert",
       "active": true,
-      "created_at": "2026-07-21T22:38:32.766030+00:00"
-    },
-    {
-      "id": "bb32f062",
-      "name": "fail job 1000000000",
-      "description": "forces failure",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:40:15.160075+00:00"
-    },
-    {
-      "id": "e949ffcc",
-      "name": "fail job 1000000001",
-      "description": "forces failure",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:43:36.035126+00:00"
-    },
-    {
-      "id": "318fe109",
-      "name": "integration fail job",
-      "description": "forces failure for integration",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:44:15.853617+00:00"
-    },
-    {
-      "id": "57479169",
-      "name": "integration fail job 8a4a9c2b",
-      "description": "forces failure for integration",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:45:31.086641+00:00"
-    },
-    {
-      "id": "8dc0a549",
-      "name": "integration fail job 87a0dcaa",
-      "description": "forces failure for integration",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:45:39.821083+00:00"
-    },
-    {
-      "id": "2025ee95",
-      "name": "integration fail job baf0e99f",
-      "description": "forces failure for integration",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:45:57.578176+00:00"
-    },
-    {
-      "id": "7f9aca30",
-      "name": "integration fail job 200d069f",
-      "description": "forces failure for integration",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:46:14.199015+00:00"
-    },
-    {
-      "id": "8bd65c1b",
-      "name": "integration fail job 9f4122e8",
-      "description": "forces failure for integration",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:46:42.746404+00:00"
-    },
-    {
-      "id": "ba01eb9f",
-      "name": "integration fail job 830fe16c",
-      "description": "forces failure for integration",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:47:16.734421+00:00"
-    },
-    {
-      "id": "0582cca3",
-      "name": "integration fail job 6748843f",
-      "description": "forces failure for integration",
-      "cron": "*/15 * * * *",
-      "harness_action": {
-        "harness": "app",
-        "action": "fail"
-      },
-      "retry_policy": {
-        "max_retries": 0,
-        "backoff_factor": 1.0
-      },
-      "failure_policy": "alert",
-      "active": true,
-      "created_at": "2026-07-21T22:48:09.282630+00:00"
+      "created_at": "2026-07-22T09:14:00+00:00"
     }
   ]
 }

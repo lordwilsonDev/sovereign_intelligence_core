@@ -45,13 +45,33 @@ class HarnessDispatcher:
 
     def dispatch(self, query: str, context: Dict[str, Any] = None, scs: Optional[SharedCognitiveState] = None) -> Dict[str, Any]:
         context = context or {}
-        meta = self.meta.execute(query, context)
+        meta = self._execute_meta_routing(query, context)
+        scs = self._prepare_scs(query, context, meta, scs)
+        sac_block = self._run_sac_gate(query, context, scs)
+        if sac_block is not None:
+            return sac_block
+        policy_block = self._enforce_dispatch_policy(query, context, scs)
+        if policy_block is not None:
+            return policy_block
+        result = self._build_base_result(query, context, meta, scs)
+        if scs.routing_decision.get("primary") == "base_are":
+            result["primary_output"] = self._base_are(query, context)
+            scs.add_harness_output("base_are", result["primary_output"])
+            return self._post_process_result(result, meta, query, context)
+        primary_result = self._execute_primary(query, context, result, scs)
+        result.update(primary_result)
+        if self._verification_blocked(result, context):
+            return self._post_process_result(result, meta, query, context)
+        secondary_result = self._execute_secondary_if_needed(query, context, result, scs)
+        if secondary_result is not None:
+            result.update(secondary_result)
+        return self._post_process_result(result, meta, query, context)
+
+    def _execute_meta_routing(self, query: str, context: Dict[str, Any]) -> MetaRoutingResult:
+        return self.meta.execute(query, context)
+
+    def _prepare_scs(self, query: str, context: Dict[str, Any], meta: MetaRoutingResult, scs: Optional[SharedCognitiveState]) -> SharedCognitiveState:
         scs = scs or SharedCognitiveState(problem_statement=query)
-        
-        # SAC gate: mandatory pre-processing before routing/handoff
-        core = SovereignAutonomyCore()
-        envelope = core.run_dispatch_gate(query=query, context=context, model_source="local")
-        scs.sac = SovereignAutonomyCore.to_dict(envelope)
         scs.routing_decision = {
             "primary": meta.decision.primary,
             "secondary": meta.decision.secondary,
@@ -60,17 +80,29 @@ class HarnessDispatcher:
             "justification": meta.decision.justification,
         }
         scs.context = context
-        primary = meta.decision.primary
-        secondary = meta.decision.secondary
-        order = meta.decision.order
+        return scs
 
+    def _run_sac_gate(self, query: str, context: Dict[str, Any], scs: SharedCognitiveState) -> Optional[Dict[str, Any]]:
+        core = SovereignAutonomyCore()
+        envelope = core.run_dispatch_gate(query=query, context=context, model_source="local")
+        scs.sac = SovereignAutonomyCore.to_dict(envelope)
+        return None
+
+    def _enforce_dispatch_policy(self, query: str, context: Dict[str, Any], scs: SharedCognitiveState) -> Optional[Dict[str, Any]]:
         try:
             from msb_v2.v3.policy import CognitivePolicyError, enforce_dispatch_policy
             actor = context.get("actor") or context.get("sub") or "anonymous"
+            primary = scs.routing_decision.get("primary")
+            secondary = scs.routing_decision.get("secondary")
+            order = scs.routing_decision.get("order")
             enforce_dispatch_policy(str(primary), {"actor": actor, **context})
             if secondary and order == "serial":
                 enforce_dispatch_policy(str(secondary), {"actor": actor, **context})
         except CognitivePolicyError as exc:
+            primary = scs.routing_decision.get("primary")
+            secondary = scs.routing_decision.get("secondary")
+            order = scs.routing_decision.get("order")
+            meta_elapsed = getattr(self.meta.execute(query, context), "elapsed_s", 0.0)
             return {
                 "routing": {
                     "primary": primary,
@@ -86,17 +118,20 @@ class HarnessDispatcher:
                     "primary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": str(exc), "error_class": "policy", "tags": [primary]},
                     "secondary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": None, "error_class": None, "tags": [secondary]},
                     "routing_confidence": 0.0,
-                    "elapsed_s": meta.elapsed_s,
+                    "elapsed_s": meta_elapsed,
                 },
-                "elapsed_s": meta.elapsed_s,
+                "elapsed_s": meta_elapsed,
             }
         except Exception:
             pass
+        return None
+
+    def _build_base_result(self, query: str, context: Dict[str, Any], meta: MetaRoutingResult, scs: SharedCognitiveState) -> Dict[str, Any]:
         result: Dict[str, Any] = {
             "routing": {
-                "primary": primary,
-                "secondary": secondary,
-                "order": order,
+                "primary": meta.decision.primary,
+                "secondary": meta.decision.secondary,
+                "order": meta.decision.order,
                 "confidence": meta.decision.confidence,
                 "justification": meta.decision.justification,
                 "rerouted": meta.rerouted,
@@ -110,42 +145,46 @@ class HarnessDispatcher:
                 "uncertainty_spike": meta.temperature.uncertainty_spike,
             },
             "telemetry": {
-                "primary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": None, "error_class": None, "tags": [primary]},
-                "secondary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": None, "error_class": None, "tags": [secondary]},
+                "primary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": None, "error_class": None, "tags": [meta.decision.primary]},
+                "secondary": {"execution_time_s": 0.0, "retries": 0, "fallback_reason": None, "error_class": None, "tags": [meta.decision.secondary]},
                 "routing_confidence": meta.decision.confidence,
                 "elapsed_s": meta.elapsed_s,
             },
             "elapsed_s": meta.elapsed_s,
         }
+        return result
 
-        if primary == "base_are":
-            result["primary_output"] = self._base_are(query, context)
-            scs.add_harness_output("base_are", result["primary_output"])
-            return result
-
+    def _execute_primary(self, query: str, context: Dict[str, Any], result: Dict[str, Any], scs: SharedCognitiveState) -> Dict[str, Any]:
+        primary = scs.routing_decision.get("primary")
         start = time.time()
         primary_payload = self._run_primary(primary, query, context)
         elapsed = round(time.time() - start, 4)
         result["telemetry"]["primary"]["execution_time_s"] = elapsed
         result["telemetry"]["primary"]["tags"] = self._tags_for(primary)
-        result["elapsed_s"] = elapsed + meta.elapsed_s
+        result["elapsed_s"] = elapsed + result.get("elapsed_s", 0.0) - scs.routing_decision.get("elapsed", elapsed)
         result["primary_output"] = primary_payload
         scs.add_harness_output(primary, primary_payload)
-
         if isinstance(primary_payload, dict) and primary in {"building", "agentic-dev"} and "artifact" in primary_payload:
             result.setdefault("artifact_summary", {
                 "normalizer_backend": primary_payload.get("artifact", {}).get("metrics", {}).get("normalizer_backend"),
                 "artifact_id": primary_payload.get("artifact", {}).get("artifact_id"),
                 "kind": primary_payload.get("artifact", {}).get("kind"),
             })
+        return result
 
+    def _verification_blocked(self, result: Dict[str, Any], context: Dict[str, Any]) -> bool:
         verification = self.verifier.verify(result, context)
         if verification is not None and not verification.ok:
             result["primary_output"] = {"verification": "blocked", "issues": verification.issues, "risk": verification.risk}
             result.setdefault("telemetry", {})["primary"]["error_class"] = "verification"
             result.setdefault("telemetry", {})["primary"]["fallback_reason"] = f"axiom_risk={verification.risk:.2f}"
-            return self._post_process(result, meta)
+            return True
+        return False
 
+    def _execute_secondary_if_needed(self, query: str, context: Dict[str, Any], result: Dict[str, Any], scs: SharedCognitiveState) -> Optional[Dict[str, Any]]:
+        primary = scs.routing_decision.get("primary")
+        secondary = scs.routing_decision.get("secondary")
+        order = scs.routing_decision.get("order")
         if secondary and order == "serial":
             handoff_prompt = (
                 "You are continuing a hybrid reasoning session.\n" + scs.to_prompt_context() +
@@ -157,8 +196,22 @@ class HarnessDispatcher:
             result["telemetry"]["secondary"]["tags"] = self._tags_for(secondary)
             result["secondary_output"] = secondary_payload
             scs.add_harness_output(secondary, secondary_payload)
+        return None
 
-        return self._post_process(result, meta)
+    def _post_process_result(self, result: Dict[str, Any], meta: MetaRoutingResult, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        core = getattr(self, "_sac", None) or SovereignAutonomyCore()
+        result.setdefault("sac", {}).update(
+            SovereignAutonomyCore.to_dict(
+                self._run_post_sac(result, query=result.get("query", query), context=result.get("context", context), core=core)
+            )
+        )
+        if "memory_bytes" not in result["telemetry"]["primary"]:
+            try:
+                import sys as _sys
+                result["telemetry"]["primary"]["memory_bytes"] = _sys.getsizeof(result)
+            except Exception:
+                pass
+        return result
 
     def _base_are(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
         try:

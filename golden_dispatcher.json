@@ -1,0 +1,943 @@
+[
+  {
+    "input": {
+      "query": "run the full test suite",
+      "context": {}
+    },
+    "output": {
+      "routing": {
+        "primary": "desktop",
+        "secondary": null,
+        "order": "serial",
+        "confidence": 1.0,
+        "justification": "Clear keyword match to desktop",
+        "rerouted": false
+      },
+      "primary_output": {
+        "goal": "run the full test suite",
+        "requirements": [
+          {
+            "id": "DREQ-001",
+            "text": "run the full test suite",
+            "category": "desktop-action",
+            "assumptions": [
+              "UI exposes actionable element for: run the full test suite",
+              "Target app is installed and reachable on this OS",
+              "Permissions allow input automation"
+            ]
+          }
+        ],
+        "assumptions": [
+          "UI exposes actionable element for: run the full test suite",
+          "Target app is installed and reachable on this OS",
+          "Permissions allow input automation"
+        ],
+        "environment": {
+          "python": "/opt/homebrew/Caskroom/miniforge/base/bin/python3",
+          "main_py": "/tmp/neuralagent/desktop/aiagent/main.py",
+          "exists": true,
+          "platform": "darwin",
+          "backend_url": "http://127.0.0.1:8000"
+        },
+        "prerequisites": {
+          "env": {
+            "NEURALAGENT_API_URL": "http://127.0.0.1:8000",
+            "NEURALAGENT_USER_ACCESS_TOKEN": "",
+            "NEURALAGENT_THREAD_ID": ""
+          },
+          "missing": [
+            "NEURALAGENT_USER_ACCESS_TOKEN",
+            "NEURALAGENT_THREAD_ID"
+          ],
+          "ready": false
+        },
+        "risk": {
+          "severity": "MEDIUM",
+          "category": "observation",
+          "description": "Goal includes intermediate-risk actions `ui`; may mutate UI state",
+          "matched": [
+            "ui"
+          ]
+        },
+        "risks": [
+          {
+            "id": "DR-3",
+            "category": "vision",
+            "description": "Screenshot interpretation can misread dynamic UI",
+            "mitigation": "include previous action history + memory",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "DR-2",
+            "category": "backend",
+            "description": "Desktop agent depends on live NeuralAgent backend + DB",
+            "mitigation": "start backend before execute()",
+            "severity": "HIGH"
+          },
+          {
+            "id": "DR-1",
+            "category": "automation",
+            "description": "PyAutoGUI fails if accessibility permissions are missing on macOS",
+            "mitigation": "grant Accessibility access or run with sudo-prompt where needed",
+            "severity": "HIGH"
+          }
+        ],
+        "state": "blocked",
+        "stdout": "",
+        "stderr": "Missing binary/env; see prerequisites",
+        "command": [
+          "/opt/homebrew/Caskroom/miniforge/base/bin/python3",
+          "main.py"
+        ],
+        "cwd": "/tmp/neuralagent/desktop/aiagent",
+        "timeout_s": 600.0
+      },
+      "secondary_output": null,
+      "scs_snapshot": "Problem: run the full test suite\n\nRouting: desktop -> None",
+      "temperature": {
+        "score": 0.0,
+        "logic_loop_failures": 0,
+        "uncertainty_spike": false
+      },
+      "telemetry": {
+        "primary": {
+          "execution_time_s": 0.0055,
+          "retries": 0,
+          "fallback_reason": null,
+          "error_class": null,
+          "tags": [
+            "desktop",
+            "automation"
+          ]
+        },
+        "secondary": {
+          "execution_time_s": 0.0,
+          "retries": 0,
+          "fallback_reason": null,
+          "error_class": null,
+          "tags": [
+            null
+          ]
+        },
+        "routing_confidence": 1.0
+      },
+      "sac": {
+        "quarantine": {
+          "source_label": null,
+          "required_justification": false,
+          "epistemic_risk": "low"
+        },
+        "rnr": {
+          "ratio": 1.0,
+          "re_inversion_required": false
+        },
+        "eig": {
+          "score": 1.0,
+          "requires_cognitive_mirage_audit": true
+        },
+        "cma": {
+          "verdict": "baseline_established",
+          "metric_deltas": {}
+        },
+        "psa": {
+          "verdict": null,
+          "violations": []
+        },
+        "sas": {
+          "score": 95.0
+        },
+        "interventions": [
+          "eig_mirage_audit"
+        ]
+      }
+    }
+  },
+  {
+    "input": {
+      "query": "build a REST API for tasks",
+      "context": {
+        "language": "python"
+      }
+    },
+    "output": {
+      "routing": {
+        "primary": "building",
+        "secondary": "desktop",
+        "order": "serial",
+        "confidence": 0.7666666666666666,
+        "justification": "Close tie between building and desktop; hybrid with serial execution",
+        "rerouted": false
+      },
+      "primary_output": {
+        "goal": "build a REST API for tasks",
+        "requirements": [
+          {
+            "id": "REQ-001",
+            "text": "build a REST API for tasks",
+            "category": "functional",
+            "assumptions": [
+              "Belief: 'build a REST API for tasks' maps to real user need.",
+              "Belief: current tech can satisfy 'build a REST API for tasks' within constraints."
+            ]
+          }
+        ],
+        "assumptions": [
+          "Belief: 'build a REST API for tasks' maps to real user need.",
+          "Belief: current tech can satisfy 'build a REST API for tasks' within constraints."
+        ],
+        "scout_map": {
+          "standard": [
+            "REST/HTTP",
+            "gRPC",
+            "event-driven",
+            "GraphQL"
+          ],
+          "anomalous": [
+            "CRDT-based coordination",
+            "Bittorrent-style swarms"
+          ],
+          "failures": [
+            "Chatty microservices in low-bandwidth environments"
+          ]
+        },
+        "concepts": [
+          {
+            "name": "Standard Approach",
+            "source": "standard",
+            "feasibility": 0.9,
+            "upside": 0.4
+          },
+          {
+            "name": "build a REST API for tasks via parallel exploration",
+            "source": "inverted",
+            "feasibility": 0.44999999999999996,
+            "upside": 0.5249999999999999
+          },
+          {
+            "name": "build a REST API for tasks via distributed consensus",
+            "source": "inverted",
+            "feasibility": 0.44999999999999996,
+            "upside": 0.5249999999999999
+          },
+          {
+            "name": "build a REST API for tasks via adaptive feedback loops",
+            "source": "inverted",
+            "feasibility": 0.39999999999999997,
+            "upside": 0.5
+          }
+        ],
+        "architecture": {
+          "components": [
+            "Ingress",
+            "Core",
+            "State",
+            "Egress"
+          ],
+          "flows": [
+            "Request \u2192 Core \u2192 State \u2192 Response",
+            "Event \u2192 Core \u2192 State"
+          ],
+          "interfaces": [
+            "REST: /v1/*",
+            "Event: topic.system.*"
+          ],
+          "traceability_count": 2,
+          "primitives": [
+            "Actor per component",
+            "CBF guard on State"
+          ],
+          "phase_transition_risk": "Shared State may serialize under >10k RPS; shard State before that threshold."
+        },
+        "prototype": {
+          "name": "Spike-v1",
+          "targets": [
+            "Belief: 'build a REST API for tasks' maps to real user need.",
+            "Belief: current tech can satisfy 'build a REST API for tasks' within constraints."
+          ],
+          "build": "Build one-path mock implementation against a fixed dataset.",
+          "success": [
+            "latency p99 < 200ms",
+            "error rate < 0.1%"
+          ],
+          "metrics": [
+            "p50_latency_ms",
+            "p99_latency_ms",
+            "error_rate",
+            "throughput_rps"
+          ]
+        },
+        "risks": [
+          {
+            "id": "R1",
+            "category": "logical",
+            "severity": "HIGH",
+            "description": "Circular dependency between Core and State",
+            "mitigation": "Introduce explicit command/query separation"
+          },
+          {
+            "id": "R2",
+            "category": "scaling",
+            "severity": "MEDIUM",
+            "description": "Single State becomes bottleneck",
+            "mitigation": "Partition State by key prefix when QPS > 10k"
+          },
+          {
+            "id": "R3",
+            "category": "coordination",
+            "severity": "HIGH",
+            "description": "Actor failure cascade",
+            "mitigation": "Add supervisor with restart/backoff policy"
+          }
+        ],
+        "plan": {
+          "confidence": 0.72,
+          "phases": [
+            "Spike",
+            "Hardening",
+            "Integration",
+            "Observability"
+          ],
+          "gates": [
+            "Gate 1: Spike metrics within SLA",
+            "Gate 2: <5% error in load test",
+            "Gate 3: On-call runbook"
+          ],
+          "resources": [
+            "1 backend engineer",
+            "1 SRE for 2 weeks"
+          ],
+          "falsifications": [
+            "p99 latency > 500ms under 2x expected load",
+            "memory growth > 1GB/24h without leak"
+          ],
+          "next_action": "Implement Spike-v1 against synthetic dataset and run the success criteria benchmark."
+        },
+        "artifact": {
+          "artifact_id": "cb-build-e9f4737194",
+          "kind": "build",
+          "title": "build a REST API for tasks",
+          "body": "{\"goal\": \"build a REST API for tasks\", \"requirements\": [\"Requirement(id='REQ-001', text='build a REST API for tasks', explicit=True, category='functional', assumptions=[\\\"Belief: 'build a REST API for tasks' maps to real user need.\\\", \\\"Belief: current tech can satisfy 'build a REST API for tasks' within constraints.\\\"], assumption_confidence=[0.7, 0.6])\"], \"assumptions\": [\"Belief: 'build a REST API for tasks' maps to real user need.\", \"Belief: current tech can satisfy 'build a REST API for tasks' within constraints.\"]}",
+          "tags": [],
+          "metrics": {
+            "normalizer_backend": "generic",
+            "normalizer_fallback_reason": "swift backend unavailable"
+          },
+          "relations": [],
+          "created_at": "2026-07-22T13:52:45.354067+00:00",
+          "source": "artifact_normalizer"
+        }
+      },
+      "secondary_output": {
+        "goal": "build a REST API for tasks",
+        "requirements": [
+          {
+            "id": "DREQ-001",
+            "text": "build a REST API for tasks",
+            "category": "desktop-action",
+            "assumptions": [
+              "UI exposes actionable element for: build a REST API for tasks",
+              "Target app is installed and reachable on this OS",
+              "Permissions allow input automation"
+            ]
+          }
+        ],
+        "assumptions": [
+          "UI exposes actionable element for: build a REST API for tasks",
+          "Target app is installed and reachable on this OS",
+          "Permissions allow input automation"
+        ],
+        "environment": {
+          "python": "/opt/homebrew/Caskroom/miniforge/base/bin/python3",
+          "main_py": "/tmp/neuralagent/desktop/aiagent/main.py",
+          "exists": true,
+          "platform": "darwin",
+          "backend_url": "http://127.0.0.1:8000"
+        },
+        "prerequisites": {
+          "env": {
+            "NEURALAGENT_API_URL": "http://127.0.0.1:8000",
+            "NEURALAGENT_USER_ACCESS_TOKEN": "",
+            "NEURALAGENT_THREAD_ID": ""
+          },
+          "missing": [
+            "NEURALAGENT_USER_ACCESS_TOKEN",
+            "NEURALAGENT_THREAD_ID"
+          ],
+          "ready": false
+        },
+        "risk": {
+          "severity": "MEDIUM",
+          "category": "observation",
+          "description": "Goal includes intermediate-risk actions `ui`; may mutate UI state",
+          "matched": [
+            "ui"
+          ]
+        },
+        "risks": [
+          {
+            "id": "DR-3",
+            "category": "vision",
+            "description": "Screenshot interpretation can misread dynamic UI",
+            "mitigation": "include previous action history + memory",
+            "severity": "MEDIUM"
+          },
+          {
+            "id": "DR-2",
+            "category": "backend",
+            "description": "Desktop agent depends on live NeuralAgent backend + DB",
+            "mitigation": "start backend before execute()",
+            "severity": "HIGH"
+          },
+          {
+            "id": "DR-1",
+            "category": "automation",
+            "description": "PyAutoGUI fails if accessibility permissions are missing on macOS",
+            "mitigation": "grant Accessibility access or run with sudo-prompt where needed",
+            "severity": "HIGH"
+          }
+        ],
+        "state": "blocked",
+        "started_at": 1784728365.354219,
+        "elapsed_s": 0.0,
+        "stdout": "",
+        "stderr": "Missing binary/env; see prerequisites",
+        "command": [
+          "/opt/homebrew/Caskroom/miniforge/base/bin/python3",
+          "main.py"
+        ],
+        "cwd": "/tmp/neuralagent/desktop/aiagent",
+        "timeout_s": 600.0
+      },
+      "scs_snapshot": "Problem: build a REST API for tasks\n\nRouting: building -> desktop",
+      "temperature": {
+        "score": 0.0,
+        "logic_loop_failures": 0,
+        "uncertainty_spike": false
+      },
+      "telemetry": {
+        "primary": {
+          "execution_time_s": 0.0002,
+          "retries": 0,
+          "fallback_reason": null,
+          "error_class": null,
+          "tags": [
+            "building",
+            "implementation-first"
+          ]
+        },
+        "secondary": {
+          "execution_time_s": 0.0,
+          "retries": 0,
+          "fallback_reason": null,
+          "error_class": null,
+          "tags": [
+            "desktop",
+            "automation"
+          ]
+        },
+        "routing_confidence": 0.7666666666666666
+      },
+      "artifact_summary": {
+        "normalizer_backend": "generic",
+        "artifact_id": "cb-build-e9f4737194",
+        "kind": "build"
+      },
+      "sac": {
+        "quarantine": {
+          "source_label": null,
+          "required_justification": false,
+          "epistemic_risk": "low"
+        },
+        "rnr": {
+          "ratio": 1.0,
+          "re_inversion_required": false
+        },
+        "eig": {
+          "score": 1.0,
+          "requires_cognitive_mirage_audit": true
+        },
+        "cma": {
+          "verdict": "sound",
+          "metric_deltas": {
+            "sas_score": {
+              "before": 0.0,
+              "after": 0.0,
+              "delta": 0.0
+            },
+            "rnr_ratio": {
+              "before": 1.0,
+              "after": 1.0,
+              "delta": 0.0
+            },
+            "timestamp": {
+              "before": 1784728365.353896,
+              "after": 1784728365.354379,
+              "delta": 0.000483
+            },
+            "eig_score": {
+              "before": 1.0,
+              "after": 1.0,
+              "delta": 0.0
+            }
+          }
+        },
+        "psa": {
+          "verdict": null,
+          "violations": []
+        },
+        "sas": {
+          "score": 100.0
+        },
+        "interventions": [
+          "eig_mirage_audit"
+        ]
+      }
+    }
+  },
+  {
+    "input": {
+      "query": "what is the status of the system?",
+      "context": {}
+    },
+    "output": {
+      "routing": {
+        "primary": "building",
+        "secondary": null,
+        "order": "serial",
+        "confidence": 1.0,
+        "justification": "Clear keyword match to building",
+        "rerouted": false
+      },
+      "primary_output": {
+        "goal": "what is the status of the system?",
+        "requirements": [
+          {
+            "id": "REQ-001",
+            "text": "what is the status of the system?",
+            "category": "functional",
+            "assumptions": [
+              "Belief: 'what is the status of the system?' maps to real user need.",
+              "Belief: current tech can satisfy 'what is the status of the system?' within constraints."
+            ]
+          }
+        ],
+        "assumptions": [
+          "Belief: 'what is the status of the system?' maps to real user need.",
+          "Belief: current tech can satisfy 'what is the status of the system?' within constraints."
+        ],
+        "scout_map": {
+          "standard": [
+            "Monolithic v1",
+            "Microservice v2",
+            "Serverless hybrid"
+          ],
+          "anomalous": [
+            "Erlang-style supervision trees",
+            "Smalltalk image model"
+          ],
+          "failures": [
+            "Premature distribution",
+            "Distributed monolith"
+          ]
+        },
+        "concepts": [
+          {
+            "name": "Standard Approach",
+            "source": "standard",
+            "feasibility": 0.9,
+            "upside": 0.4
+          },
+          {
+            "name": "what is the status of the system? via parallel exploration",
+            "source": "inverted",
+            "feasibility": 0.44999999999999996,
+            "upside": 0.5249999999999999
+          },
+          {
+            "name": "what is the status of the system? via distributed consensus",
+            "source": "inverted",
+            "feasibility": 0.44999999999999996,
+            "upside": 0.5249999999999999
+          },
+          {
+            "name": "what is the status of the system? via adaptive feedback loops",
+            "source": "inverted",
+            "feasibility": 0.39999999999999997,
+            "upside": 0.5
+          }
+        ],
+        "architecture": {
+          "components": [
+            "Ingress",
+            "Core",
+            "State",
+            "Egress"
+          ],
+          "flows": [
+            "Request \u2192 Core \u2192 State \u2192 Response",
+            "Event \u2192 Core \u2192 State"
+          ],
+          "interfaces": [
+            "REST: /v1/*",
+            "Event: topic.system.*"
+          ],
+          "traceability_count": 2,
+          "primitives": [
+            "Actor per component",
+            "CBF guard on State"
+          ],
+          "phase_transition_risk": "Shared State may serialize under >10k RPS; shard State before that threshold."
+        },
+        "prototype": {
+          "name": "Spike-v1",
+          "targets": [
+            "Belief: 'what is the status of the system?' maps to real user need.",
+            "Belief: current tech can satisfy 'what is the status of the system?' within constraints."
+          ],
+          "build": "Build one-path mock implementation against a fixed dataset.",
+          "success": [
+            "latency p99 < 200ms",
+            "error rate < 0.1%"
+          ],
+          "metrics": [
+            "p50_latency_ms",
+            "p99_latency_ms",
+            "error_rate",
+            "throughput_rps"
+          ]
+        },
+        "risks": [
+          {
+            "id": "R1",
+            "category": "logical",
+            "severity": "HIGH",
+            "description": "Circular dependency between Core and State",
+            "mitigation": "Introduce explicit command/query separation"
+          },
+          {
+            "id": "R2",
+            "category": "scaling",
+            "severity": "MEDIUM",
+            "description": "Single State becomes bottleneck",
+            "mitigation": "Partition State by key prefix when QPS > 10k"
+          },
+          {
+            "id": "R3",
+            "category": "coordination",
+            "severity": "HIGH",
+            "description": "Actor failure cascade",
+            "mitigation": "Add supervisor with restart/backoff policy"
+          }
+        ],
+        "plan": {
+          "confidence": 0.72,
+          "phases": [
+            "Spike",
+            "Hardening",
+            "Integration",
+            "Observability"
+          ],
+          "gates": [
+            "Gate 1: Spike metrics within SLA",
+            "Gate 2: <5% error in load test",
+            "Gate 3: On-call runbook"
+          ],
+          "resources": [
+            "1 backend engineer",
+            "1 SRE for 2 weeks"
+          ],
+          "falsifications": [
+            "p99 latency > 500ms under 2x expected load",
+            "memory growth > 1GB/24h without leak"
+          ],
+          "next_action": "Implement Spike-v1 against synthetic dataset and run the success criteria benchmark."
+        },
+        "artifact": {
+          "artifact_id": "cb-build-0ec8726aee",
+          "kind": "build",
+          "title": "what is the status of the system?",
+          "body": "{\"goal\": \"what is the status of the system?\", \"requirements\": [\"Requirement(id='REQ-001', text='what is the status of the system?', explicit=True, category='functional', assumptions=[\\\"Belief: 'what is the status of the system?' maps to real user need.\\\", \\\"Belief: current tech can satisfy 'what is the status of the system?' within constraints.\\\"], assumption_confidence=[0.7, 0.6])\"], \"assumptions\": [\"Belief: 'what is the status of the system?' maps to real user need.\", \"Belief: current tech can satisfy 'what is the status of the system?' within constraints.\"]}",
+          "tags": [],
+          "metrics": {
+            "normalizer_backend": "generic",
+            "normalizer_fallback_reason": "swift backend unavailable"
+          },
+          "relations": [],
+          "created_at": "2026-07-22T13:52:45.354504+00:00",
+          "source": "artifact_normalizer"
+        }
+      },
+      "secondary_output": null,
+      "scs_snapshot": "Problem: what is the status of the system?\n\nRouting: building -> None",
+      "temperature": {
+        "score": 0.0,
+        "logic_loop_failures": 0,
+        "uncertainty_spike": false
+      },
+      "telemetry": {
+        "primary": {
+          "execution_time_s": 0.0001,
+          "retries": 0,
+          "fallback_reason": null,
+          "error_class": null,
+          "tags": [
+            "building",
+            "implementation-first"
+          ]
+        },
+        "secondary": {
+          "execution_time_s": 0.0,
+          "retries": 0,
+          "fallback_reason": null,
+          "error_class": null,
+          "tags": [
+            null
+          ]
+        },
+        "routing_confidence": 1.0
+      },
+      "artifact_summary": {
+        "normalizer_backend": "generic",
+        "artifact_id": "cb-build-0ec8726aee",
+        "kind": "build"
+      },
+      "sac": {
+        "quarantine": {
+          "source_label": null,
+          "required_justification": false,
+          "epistemic_risk": "low"
+        },
+        "rnr": {
+          "ratio": 1.0,
+          "re_inversion_required": false
+        },
+        "eig": {
+          "score": 1.0,
+          "requires_cognitive_mirage_audit": true
+        },
+        "cma": {
+          "verdict": "sound",
+          "metric_deltas": {
+            "sas_score": {
+              "before": 0.0,
+              "after": 0.0,
+              "delta": 0.0
+            },
+            "rnr_ratio": {
+              "before": 1.0,
+              "after": 1.0,
+              "delta": 0.0
+            },
+            "timestamp": {
+              "before": 1784728365.353896,
+              "after": 1784728365.354624,
+              "delta": 0.000728
+            },
+            "eig_score": {
+              "before": 1.0,
+              "after": 1.0,
+              "delta": 0.0
+            }
+          }
+        },
+        "psa": {
+          "verdict": null,
+          "violations": []
+        },
+        "sas": {
+          "score": 100.0
+        },
+        "interventions": [
+          "eig_mirage_audit"
+        ]
+      }
+    }
+  },
+  {
+    "input": {
+      "query": "deploy the latest canary",
+      "context": {
+        "env": "staging"
+      }
+    },
+    "output": {
+      "routing": {
+        "primary": "base_are",
+        "secondary": null,
+        "order": "serial",
+        "confidence": 0.9,
+        "justification": "Trivial query: short, no domain markers",
+        "rerouted": false
+      },
+      "primary_output": {
+        "query_id": "d3c30c08-32c8-451f-81a1-1c52fb36d779",
+        "success": true,
+        "data": {
+          "query_id": "d3c30c08-32c8-451f-81a1-1c52fb36d779",
+          "synthesis_type": "axiom_guided",
+          "hypotheses_used": [
+            {
+              "original_assumption": "deploy the latest canary",
+              "inverted_assumption": "deploy the latest canary",
+              "mechanism": "deploy the latest canary via parallel exploration",
+              "evidence": [
+                "Parallel processing reduces latency by 40% (KG:n123)"
+              ],
+              "counterexamples": [
+                "Overhead of context switching degrades performance (KG:n789)"
+              ],
+              "constraints": [],
+              "confidence": 0.44999999999999996,
+              "timestamp": 1784728365.354736
+            },
+            {
+              "original_assumption": "deploy the latest canary",
+              "inverted_assumption": "deploy the latest canary",
+              "mechanism": "deploy the latest canary via distributed consensus",
+              "evidence": [
+                "No direct evidence found."
+              ],
+              "counterexamples": [
+                "No direct counterexamples found."
+              ],
+              "constraints": [],
+              "confidence": 0.44999999999999996,
+              "timestamp": 1784728365.354738
+            },
+            {
+              "original_assumption": "deploy the latest canary",
+              "inverted_assumption": "deploy the latest canary",
+              "mechanism": "deploy the latest canary via adaptive feedback loops",
+              "evidence": [
+                "Adaptive systems outperform static by 25% (Memory:evt_456)"
+              ],
+              "counterexamples": [
+                "No direct counterexamples found."
+              ],
+              "constraints": [
+                "Monitor oscillation before scaling"
+              ],
+              "confidence": 0.39999999999999997,
+              "timestamp": 1784728365.3547368
+            }
+          ],
+          "layers_queried": [
+            "graph",
+            "memory",
+            "decision"
+          ],
+          "results": {
+            "graph": {
+              "layer": "graph",
+              "data": "Retrieved data for {'query': 'deploy the latest canary', 'env': 'staging'}",
+              "status": "success"
+            },
+            "memory": {
+              "layer": "memory",
+              "data": "Retrieved data for {'query': 'deploy the latest canary', 'env': 'staging'}",
+              "status": "success"
+            },
+            "decision": {
+              "layer": "decision",
+              "data": "Retrieved data for {'query': 'deploy the latest canary', 'env': 'staging'}",
+              "status": "success"
+            }
+          },
+          "confidence": 1.0,
+          "timestamp": 1784728365.35475
+        },
+        "layers_used": [
+          "graph",
+          "memory",
+          "decision"
+        ],
+        "execution_time": 3.5762786865234375e-05,
+        "cache_hit": false,
+        "torsion_level": 0.0,
+        "true_success": false,
+        "metadata": {
+          "hypotheses_considered": 3,
+          "heart_correction_applied": true
+        }
+      },
+      "secondary_output": null,
+      "scs_snapshot": "Problem: deploy the latest canary\n\nRouting: base_are -> None",
+      "temperature": {
+        "score": 0.0,
+        "logic_loop_failures": 0,
+        "uncertainty_spike": false
+      },
+      "telemetry": {
+        "primary": {
+          "execution_time_s": 0.0,
+          "retries": 0,
+          "fallback_reason": null,
+          "error_class": null,
+          "tags": [
+            "base_are"
+          ]
+        },
+        "secondary": {
+          "execution_time_s": 0.0,
+          "retries": 0,
+          "fallback_reason": null,
+          "error_class": null,
+          "tags": [
+            null
+          ]
+        },
+        "routing_confidence": 0.9
+      },
+      "sac": {
+        "quarantine": {
+          "source_label": null,
+          "required_justification": false,
+          "epistemic_risk": "low"
+        },
+        "rnr": {
+          "ratio": 1.0,
+          "re_inversion_required": false
+        },
+        "eig": {
+          "score": 1.0,
+          "requires_cognitive_mirage_audit": true
+        },
+        "cma": {
+          "verdict": "sound",
+          "metric_deltas": {
+            "sas_score": {
+              "before": 0.0,
+              "after": 0.0,
+              "delta": 0.0
+            },
+            "rnr_ratio": {
+              "before": 1.0,
+              "after": 1.0,
+              "delta": 0.0
+            },
+            "timestamp": {
+              "before": 1784728365.353896,
+              "after": 1784728365.3548968,
+              "delta": 0.001001
+            },
+            "eig_score": {
+              "before": 1.0,
+              "after": 1.0,
+              "delta": 0.0
+            }
+          }
+        },
+        "psa": {
+          "verdict": null,
+          "violations": []
+        },
+        "sas": {
+          "score": 100.0
+        },
+        "interventions": [
+          "eig_mirage_audit"
+        ]
+      }
+    }
+  }
+]
