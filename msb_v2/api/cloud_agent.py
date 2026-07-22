@@ -7,10 +7,12 @@ from typing import Any, Dict
 from fastapi import APIRouter
 
 from msb_v2.cloud_agent.models import CommandResult
+from msb_v2.cloud_agent.prosody import VoiceprintStore
 from msb_v2.cloud_agent.sovereign_agent import SovereignCloudAgent
 
 router = APIRouter()
 _agent = SovereignCloudAgent()
+_store = VoiceprintStore()
 _logger = logging.getLogger(__name__)
 
 
@@ -94,3 +96,23 @@ def history(limit: int = 50) -> Dict[str, Any]:
 def status() -> Dict[str, Any]:
     history = _agent.history()
     return {"active": True, "history_count": len(history)}
+
+
+@router.get("/voiceprint/baseline")
+def voiceprint_baseline() -> Dict[str, Any]:
+    return _store.baseline()
+
+
+@router.post("/voiceprint/calibrate")
+def voiceprint_calibrate(payload: Dict[str, Any]) -> Dict[str, Any]:
+    samples = payload.get("samples") or []
+    if not isinstance(samples, list):
+        samples = []
+    baseline = _store.update(samples)
+    return {"status": "calibrated", "baseline": baseline}
+
+
+@router.post("/voiceprint/reset")
+def voiceprint_reset() -> Dict[str, Any]:
+    baseline = _store.reset()
+    return {"status": "reset", "baseline": baseline}
