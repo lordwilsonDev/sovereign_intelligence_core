@@ -73,63 +73,62 @@ class MetricsStore:
         self.memory = MemoryMetrics()
 
     def _ingest_event_metrics(self, events: list[Any]) -> dict:
-        trace_ids: set[str] = set()
-        scores: list[float] = []
-        confidences: list[float] = []
-        entropies: list[float] = []
-        drift_count = 0
-        counterfactual_count = 0
-        assessment_count = 0
-        error_count = 0
-        tool_call_count = 0
-        memory_read_count = 0
-        human_feedback_count = 0
-        budget_breach = False
-
-        for event in events:
-            trace_id = event.trace_id or event.decision_id
-            if trace_id:
-                trace_ids.add(trace_id)
-            if event.kind == EventKind.CONFIDENCE_ASSESSMENT:
-                assessment_count += 1
-                payload = event.payload or {}
-                if "score" in payload:
-                    scores.append(float(payload["score"]))
-                if "confidence" in payload:
-                    confidences.append(float(payload["confidence"]))
-                if "entropy" in payload:
-                    entropies.append(float(payload["entropy"]))
-            elif event.kind == EventKind.DRIFT:
-                drift_count += 1
-            elif event.kind == EventKind.ERROR:
-                error_count += 1
-            elif event.kind == EventKind.TOOL:
-                tool_call_count += 1
-            elif event.kind == EventKind.MEMORY_READ:
-                memory_read_count += 1
-            elif event.kind == EventKind.HUMAN:
-                human_feedback_count += 1
-            elif event.kind == EventKind.ALERT:
-                source = str(event.source or "")
-                payload = event.payload or {}
-                if "budget" in source or "budget" in str(payload):
-                    budget_breach = True
-
-        return {
-            "trace_ids": trace_ids,
-            "scores": scores,
-            "confidences": confidences,
-            "entropies": entropies,
-            "drift_count": drift_count,
-            "counterfactual_count": counterfactual_count,
-            "assessment_count": assessment_count,
-            "error_count": error_count,
-            "tool_call_count": tool_call_count,
-            "memory_read_count": memory_read_count,
-            "human_feedback_count": human_feedback_count,
-            "budget_breach": budget_breach,
+        aggregated = {
+            "trace_ids": set(),
+            "scores": [],
+            "confidences": [],
+            "entropies": [],
+            "drift_count": 0,
+            "counterfactual_count": 0,
+            "assessment_count": 0,
+            "error_count": 0,
+            "tool_call_count": 0,
+            "memory_read_count": 0,
+            "human_feedback_count": 0,
+            "budget_breach": False,
             "event_count": len(events),
         }
+        for event in events:
+            self._ingest_single_event(event, aggregated)
+        return aggregated
+
+    def _ingest_single_event(self, event: Any, aggregated: dict) -> None:
+        trace_id = event.trace_id or event.decision_id
+        if trace_id:
+            aggregated["trace_ids"].add(trace_id)
+        self._update_kind_counts(event, aggregated)
+        if event.kind == EventKind.CONFIDENCE_ASSESSMENT:
+            self._ingest_confidence_assessment(event, aggregated)
+        elif event.kind == EventKind.ALERT:
+            aggregated["budget_breach"] |= self._detect_budget_breach(event)
+
+    def _update_kind_counts(self, event: Any, aggregated: dict) -> None:
+        if event.kind == EventKind.DRIFT:
+            aggregated["drift_count"] += 1
+        elif event.kind == EventKind.ERROR:
+            aggregated["error_count"] += 1
+        elif event.kind == EventKind.TOOL:
+            aggregated["tool_call_count"] += 1
+        elif event.kind == EventKind.MEMORY_READ:
+            aggregated["memory_read_count"] += 1
+        elif event.kind == EventKind.HUMAN:
+            aggregated["human_feedback_count"] += 1
+        elif event.kind == EventKind.CONFIDENCE_ASSESSMENT:
+            aggregated["assessment_count"] += 1
+
+    def _ingest_confidence_assessment(self, event: Any, aggregated: dict) -> None:
+        payload = event.payload or {}
+        if "score" in payload:
+            aggregated["scores"].append(float(payload["score"]))
+        if "confidence" in payload:
+            aggregated["confidences"].append(float(payload["confidence"]))
+        if "entropy" in payload:
+            aggregated["entropies"].append(float(payload["entropy"]))
+
+    def _detect_budget_breach(self, event: Any) -> bool:
+        source = str(event.source or "")
+        payload = event.payload or {}
+        return "budget" in source or "budget" in str(payload)
 
     def _build_reasoning_metrics(self, aggregated: dict) -> ReasoningMetrics:
         scores = aggregated["scores"]

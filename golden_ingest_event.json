@@ -1,0 +1,101 @@
+[
+  {
+    "input": [
+      {
+        "kind": "confidence_assessment",
+        "source": "x",
+        "payload": {
+          "score": 0.9,
+          "confidence": 0.8,
+          "entropy": 0.1
+        },
+        "trace_id": "t1",
+        "decision_id": null
+      },
+      {
+        "kind": "confidence_assessment",
+        "source": "x",
+        "payload": {
+          "score": 0.5,
+          "confidence": 0.4,
+          "entropy": 0.6
+        },
+        "trace_id": "t1",
+        "decision_id": null
+      },
+      {
+        "kind": "drift",
+        "source": "y",
+        "payload": {},
+        "trace_id": "t2",
+        "decision_id": "d1"
+      },
+      {
+        "kind": "error",
+        "source": "z",
+        "payload": {},
+        "trace_id": null,
+        "decision_id": "d1"
+      },
+      {
+        "kind": "tool",
+        "source": "tool",
+        "payload": {},
+        "trace_id": "t3",
+        "decision_id": null
+      },
+      {
+        "kind": "memory_read",
+        "source": "mem",
+        "payload": {},
+        "trace_id": "t3",
+        "decision_id": null
+      },
+      {
+        "kind": "human",
+        "source": "human",
+        "payload": {},
+        "trace_id": "t2",
+        "decision_id": null
+      },
+      {
+        "kind": "alert",
+        "source": "budget_bot",
+        "payload": {
+          "budget": "low"
+        },
+        "trace_id": "t1",
+        "decision_id": null
+      }
+    ],
+    "output": {
+      "trace_ids": [
+        "d1",
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "scores": [
+        0.9,
+        0.5
+      ],
+      "confidences": [
+        0.8,
+        0.4
+      ],
+      "entropies": [
+        0.1,
+        0.6
+      ],
+      "drift_count": 1,
+      "counterfactual_count": 0,
+      "assessment_count": 2,
+      "error_count": 1,
+      "tool_call_count": 1,
+      "memory_read_count": 1,
+      "human_feedback_count": 1,
+      "budget_breach": true,
+      "event_count": 8
+    }
+  }
+]
