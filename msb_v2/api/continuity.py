@@ -88,6 +88,12 @@ class ResumeBlob:
 
 
 class ResumePromptCompiler:
+    def _init_checkpoint_dir(self) -> Path:
+        """Create and return the checkpoint directory."""
+        path = Path("/private/var/folders/_0/1fjsnc_n747c32_7t8s014c40000gn/T/msb-checkpoints")
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
     def __init__(
         self,
         project: str = "",
@@ -121,8 +127,7 @@ class ResumePromptCompiler:
         self.recent_tool_calls = list(recent_tool_calls or [])
         self.active_harness = active_harness or ""
         self.memory_pointer = memory_pointer or ""
-        self._checkpoint_dir = Path("/private/var/folders/_0/1fjsnc_n747c32_7t8s014c40000gn/T/msb-checkpoints")
-        self._checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        self._checkpoint_dir = self._init_checkpoint_dir()
 
     def _live_snapshot(self) -> dict[str, Any]:
         try:

@@ -1,0 +1,23 @@
+[
+  {
+    "input": {},
+    "output": {
+      "checkpoint_dir": "/private/var/folders/_0/1fjsnc_n747c32_7t8s014c40000gn/T/msb-checkpoints",
+      "project": "MSB v2",
+      "version": "v2"
+    }
+  },
+  {
+    "input": {
+      "project": "test-proj",
+      "version": "0.1.0",
+      "memory_pointer": "ptr123"
+    },
+    "output": {
+      "checkpoint_dir": "/private/var/folders/_0/1fjsnc_n747c32_7t8s014c40000gn/T/msb-checkpoints",
+      "project": "test-proj",
+      "version": "0.1.0",
+      "memory_pointer": "ptr123"
+    }
+  }
+]
