@@ -1,0 +1,126 @@
+[
+  {
+    "input": {
+      "tasks": [
+        {
+          "id": "a",
+          "dependencies": [],
+          "status": "pending"
+        },
+        {
+          "id": "b",
+          "dependencies": [
+            "a"
+          ],
+          "status": "pending"
+        }
+      ],
+      "has_hook": false
+    },
+    "output": [
+      {
+        "id": "a",
+        "status": "succeeded",
+        "failed": false
+      },
+      {
+        "id": "b",
+        "status": "succeeded",
+        "failed": false
+      }
+    ]
+  },
+  {
+    "input": {
+      "tasks": [
+        {
+          "id": "x",
+          "dependencies": [
+            "y"
+          ],
+          "status": "pending"
+        },
+        {
+          "id": "y",
+          "dependencies": [],
+          "status": "pending"
+        }
+      ],
+      "has_hook": false
+    },
+    "output": [
+      {
+        "id": "x",
+        "status": "succeeded",
+        "failed": false
+      },
+      {
+        "id": "y",
+        "status": "succeeded",
+        "failed": false
+      }
+    ]
+  },
+  {
+    "input": {
+      "tasks": [
+        {
+          "id": "fail",
+          "dependencies": [],
+          "status": "pending"
+        },
+        {
+          "id": "blocked",
+          "dependencies": [
+            "fail"
+          ],
+          "status": "pending"
+        }
+      ],
+      "has_hook": false
+    },
+    "output": [
+      {
+        "id": "fail",
+        "status": "failed",
+        "failed": true
+      },
+      {
+        "id": "blocked",
+        "status": "blocked",
+        "failed": false
+      }
+    ]
+  },
+  {
+    "input": {
+      "tasks": [
+        {
+          "id": "hooked",
+          "dependencies": [],
+          "status": "pending"
+        },
+        {
+          "id": "child",
+          "dependencies": [
+            "hooked"
+          ],
+          "status": "pending"
+        }
+      ],
+      "has_hook": true
+    },
+    "output": [
+      {
+        "id": "hooked",
+        "status": "succeeded",
+        "failed": false
+      },
+      {
+        "id": "child",
+        "status": "succeeded",
+        "failed": false
+      }
+    ]
+  }
+]

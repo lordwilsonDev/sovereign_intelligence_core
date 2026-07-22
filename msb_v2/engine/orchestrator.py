@@ -79,14 +79,7 @@ def orchestrate(
     by_id = {task.id: task for task in tasks}
     if len(by_id) != len(tasks):
         raise ValueError("Task IDs must be unique")
-
-    for task in tasks:
-        unknown = set(task.dependencies) - by_id.keys()
-        if unknown:
-            names = ", ".join(sorted(unknown))
-            raise ValueError(f"Task '{task.id}' has unknown dependencies: {names}")
-        if task.status not in {PENDING, SUCCEEDED, FAILED, BLOCKED}:
-            raise ValueError(f"Task '{task.id}' has invalid initial status: {task.status}")
+    _validate_graph(tasks, by_id)
 
     remaining = {task.id for task in tasks if task.status == PENDING}
     while remaining:
@@ -96,37 +89,59 @@ def orchestrate(
                 continue
 
             dependencies = [by_id[dependency] for dependency in task.dependencies]
-            if any(dependent.status in {FAILED, BLOCKED} for dependent in dependencies):
-                task.status = BLOCKED
-                if task.id in remaining:
-                    remaining.remove(task.id)
-                if hook:
-                    hook("blocked", task.id, {"reason": "parent_failed_or_blocked"}, None)
+            if _mark_blocked_by_failed_parents(task, dependencies, hook):
+                remaining.discard(task.id)
                 progressed = True
                 continue
             if not all(dependent.status == SUCCEEDED for dependent in dependencies):
                 continue
 
-            task.status = RUNNING
-            if hook:
-                hook("dispatch", task.id, {"action": bool(task.action)}, None)
-            try:
-                task.result = task.action() if task.action else _dispatch_neuralagent(task, hook)
-            except Exception as error:
-                task.status = FAILED
-                task.result = error
-                if hook:
-                    hook("error", task.id, {"error": str(error)}, None)
-            else:
-                task.status = SUCCEEDED
-                if hook:
-                    hook("result", task.id, {"result": _safe(task.result)}, None)
-            if task.id in remaining:
-                remaining.remove(task.id)
+            _execute_task(task, hook)
+            remaining.discard(task.id)
             progressed = True
 
-        if not progressed:
-            cycle = ", ".join(sorted(remaining))
-            raise ValueError(f"Circular or unsatisfiable task dependencies: {cycle}")
+        _detect_cycle(remaining, progressed)
 
     return tasks
+
+
+def _validate_graph(tasks: list[Task], by_id: dict[str, Task]) -> None:
+    for task in tasks:
+        unknown = set(task.dependencies) - by_id.keys()
+        if unknown:
+            names = ", ".join(sorted(unknown))
+            raise ValueError(f"Task '{task.id}' has unknown dependencies: {names}")
+        if task.status not in {PENDING, SUCCEEDED, FAILED, BLOCKED}:
+            raise ValueError(f"Task '{task.id}' has invalid initial status: {task.status}")
+
+
+def _mark_blocked_by_failed_parents(task: Task, dependencies: list[Task], hook: Callable[[str, str, dict[str, Any] | None, str | None], dict[str, Any]] | None) -> bool:
+    if any(dependent.status in {FAILED, BLOCKED} for dependent in dependencies):
+        task.status = BLOCKED
+        if hook:
+            hook("blocked", task.id, {"reason": "parent_failed_or_blocked"}, None)
+        return True
+    return False
+
+
+def _execute_task(task: Task, hook: Callable[[str, str, dict[str, Any] | None, str | None], dict[str, Any]] | None) -> None:
+    task.status = RUNNING
+    if hook:
+        hook("dispatch", task.id, {"action": bool(task.action)}, None)
+    try:
+        task.result = task.action() if task.action else _dispatch_neuralagent(task, hook)
+    except Exception as error:
+        task.status = FAILED
+        task.result = error
+        if hook:
+            hook("error", task.id, {"error": str(error)}, None)
+    else:
+        task.status = SUCCEEDED
+        if hook:
+            hook("result", task.id, {"result": _safe(task.result)}, None)
+
+
+def _detect_cycle(remaining: set[str], progressed: bool) -> None:
+    if not progressed:
+        cycle = ", ".join(sorted(remaining))
+        raise ValueError(f"Circular or unsatisfiable task dependencies: {cycle}")
