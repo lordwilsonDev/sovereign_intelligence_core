@@ -529,19 +529,19 @@ class SovereignResearchAssistant:
         status: Dict[str, Any] = {"schh": "unknown", "sshh": "unknown"}
         try:
             import requests
-            for path, expected_key in (
-                ("/schh/status", "system_readiness"),
-                ("/memory/health", "system_readiness"),
-                ("/systems-health/status", "system_readiness"),
-            ):
-                resp = requests.get(f"http://127.0.0.1:8766{path}", timeout=5)
-                if resp.ok:
-                    data = resp.json()
-                    if "schh" not in status and path.startswith("/schh"):
-                        status["schh"] = data.get(expected_key) or data.get("status", data.get("readiness", "unknown"))
-                    if "sshh" not in status and not path.startswith("/schh"):
-                        status["sshh"] = data.get(expected_key) or data.get("status", data.get("readiness", "unknown"))
-                    break
+
+            def _probe(path: str, expected_key: str) -> Optional[str]:
+                try:
+                    r = requests.get(f"http://127.0.0.1:8766{path}", timeout=5)
+                    if r.ok:
+                        data = r.json()
+                        return data.get(expected_key) or data.get("status") or data.get("readiness")
+                except Exception:
+                    pass
+                return None
+
+            status["schh"] = _probe("/schh/status", "system_readiness") or "unknown"
+            status["sshh"] = _probe("/systems-health/status", "system_readiness") or "unknown"
         except Exception:
             pass
         return status
