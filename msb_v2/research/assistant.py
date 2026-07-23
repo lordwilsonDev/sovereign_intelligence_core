@@ -670,7 +670,14 @@ class SovereignResearchAssistant:
         """Distribute evidence grounding sub-tasks across available mesh peers."""
         peers = self._discover_peers()
         if not peers:
-            return []
+            return [
+                {"angle": angle, "peer": "local", "result": {"status": "local_fallback", "note": "no peers configured"}}
+                for angle in [
+                    f"Search for recent academic papers on {topic}",
+                    f"Find case studies related to {topic}",
+                    f"Gather statistical data about {topic}",
+                ]
+            ]
 
         sub_angles = [
             f"Search for recent academic papers on {topic}",

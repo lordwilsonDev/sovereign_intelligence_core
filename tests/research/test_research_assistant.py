@@ -233,4 +233,6 @@ def test_mesh_distribution_graceful_with_no_peers(monkeypatch: pytest.MonkeyPatc
 
     result = assistant.run_full_pipeline()
     assert result["status"] == "completed"
-    assert result["phases"]["mesh_distribution"]["sub_tasks"] == 0
+    mesh = result["phases"]["mesh_distribution"]
+    assert mesh["sub_tasks"] == 3
+    assert all(angle.get("peer") == "local" for angle in mesh["results"])
