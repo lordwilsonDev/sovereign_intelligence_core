@@ -88,6 +88,39 @@ def _snh_notify(title: str, body: str) -> Dict[str, Any]:
     return {"available": False}
 
 
+def _ouroboros_scan() -> Dict[str, Any]:
+    try:
+        import requests
+        r = requests.get("http://127.0.0.1:8766/evolution/scan", timeout=5)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return {"available": False}
+
+
+def _continuity_prompt() -> Dict[str, Any]:
+    try:
+        import requests
+        r = requests.get("http://127.0.0.1:8766/continuity/resume-prompt", timeout=2)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return {"available": False}
+
+
+def _memory_consolidate() -> Dict[str, Any]:
+    try:
+        import requests
+        r = requests.post("http://127.0.0.1:8766/memory/consolidate", json={}, timeout=2)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return {"available": False}
+
+
 class SovereignResearchAssistant:
     """Phase-gated research workflow: define -> invert -> evidence -> report."""
 
@@ -351,6 +384,36 @@ class SovereignResearchAssistant:
         self.artifacts["completion"] = path
         _snh_notify("Research Assistant Progress", f"Research assistant completed phase `{self.topic}`.")
         return completion
+
+    def run_full_pipeline(self) -> Dict[str, Any]:
+        """Run the local research pipeline and append evolution/mesh artifacts."""
+        summary = {
+            "topic": self.topic,
+            "slug": self.slug,
+            "phases": [],
+        }
+        summary["phases"].append({"phase": "inversion", "result": self.run_inversion()})
+        summary["phases"].append({"phase": "evidence", "result": self.ground_evidence()})
+        summary["phases"].append({"phase": "report", "result": {"path": str(self.draft_report())}})
+        summary["evolution"] = _ouroboros_scan()
+        continuity = _continuity_prompt()
+        memory = _memory_consolidate()
+        summary["continuity"] = continuity
+        summary["memory"] = memory
+        summary["mesh"] = {
+            "peers": [],
+            "submitted_tasks": [],
+        }
+        try:
+            import requests
+            r = requests.get("http://127.0.0.1:8766/mesh/discover", timeout=2)
+            if r.status_code == 200:
+                summary["mesh"] = r.json()
+        except Exception:
+            pass
+        completion = self.record_completion()
+        summary["completion"] = completion
+        return summary
 
     def _persist(self, payload: Any, artifact_name: str) -> Path:
         safe_name = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in artifact_name)

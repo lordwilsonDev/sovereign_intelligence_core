@@ -1,4 +1,4 @@
-# Sovereign Research Assistant — Blueprint v0.1
+# Sovereign Research Assistant — Blueprint v0.2
 
 ## Goal
 A sovereign AI research assistant that can independently investigate any topic, generate novel hypotheses using AIL/MoIE, empirically ground them, and produce a publication-ready report—all while maintaining full sovereignty and self-audit.
@@ -42,11 +42,26 @@ A sovereign AI research assistant that can independently investigate any topic, 
 8. Store artifacts under `runtime/research/<topic_slug>/`.
 9. Record an axiom via `/evolution/memory/record`.
 
+## Autonomous Loop
+- `run_full_pipeline()` runs inversion, evidence grounding, report synthesis.
+- During the run it queries:
+  - `/sac/status`
+  - `/systems-health/check`
+  - `/echo/evaluate`
+  - `/evolution/scan`
+  - `/continuity/resume-prompt`
+  - `/memory/consolidate`
+  - `/mesh/discover`
+- Gate blocks trigger SNH alerts.
+- Completion triggers SNH progress notification.
+
 ## Artifacts
 - `<topic_slug>_UIM.json`
-- `<topic_slug>_evidence_ledger.jsonl`
+- `<topic_slug>_evidence_ledger.json`
 - `<topic_slug>_report.md`
 - `<topic_slug>_review.md`
+- `<topic_slug>_completion.json`
+- `<topic_slug>_state.json`
 
 ## Safety
 - No external publication should be emitted without explicit operator confirmation.
