@@ -47,3 +47,20 @@ def test_get_task_after_submission(client: TestClient) -> None:
 def test_get_nonexistent_task_returns_404(client: TestClient) -> None:
     resp = client.get("/mesh/tasks/nonexistent", headers=_auth_headers())
     assert resp.status_code == 404
+
+
+def test_execute_task_returns_completed(client: TestClient) -> None:
+    resp = client.post("/mesh/tasks/submit", json={
+        "intent": "Return 42",
+        "context": {},
+        "requesting_node_id": "node-x",
+        "requesting_node_signature": "sig-x",
+    }, headers=_auth_headers())
+    task_id = resp.json()["task_id"]
+    resp2 = client.get(f"/mesh/tasks/{task_id}", params={"execute": True}, headers=_auth_headers())
+    assert resp2.status_code == 200
+    body = resp2.json()
+    assert body["task_id"] == task_id
+    assert body["status"] == "completed"
+    assert body["result"] is not None
+    assert "executed_by" in body["result"]
