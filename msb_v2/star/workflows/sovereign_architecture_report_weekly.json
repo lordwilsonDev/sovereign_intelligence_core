@@ -1,0 +1,21 @@
+{
+  "id": "sovereign-architecture-report-weekly",
+  "name": "Weekly Report — Sovereign AI Architectures",
+  "schedule": {"cron": "0 9 * * 1"},
+  "harness_action": {
+    "type": "http",
+    "method": "POST",
+    "url": "http://127.0.0.1:8766/research/assistant/run",
+    "body": {"phase": "full", "topic": "comparative analysis of sovereign AI architectures: final synthesis"}
+  },
+  "retry_policy": {
+    "max_retries": 1,
+    "backoff_factor": 120
+  },
+  "failure_policy": {
+    "on_failure": "alert",
+    "alert_template": "research_assistant_failure"
+  },
+  "active": true,
+  "depends_on": ["sovereign-architecture-scan-daily"]
+}
