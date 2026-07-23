@@ -34,6 +34,8 @@ _register_contract(HarnessContract(route="/health", method="get", allow_anonymou
 _register_contract(HarnessContract(route="/runtime/ping", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/sac/status", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/sac/self-audit", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/sac/attest", method="post", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/sac/attest-trust", method="post", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/metrics", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/studio/status", method="get", allow_anonymous=True, max_body_bytes=65536))
@@ -416,6 +418,26 @@ def create_app() -> FastAPI:
             "cma_details": report.cma_details,
             "timestamp": report.timestamp,
         }
+
+    @app.post("/sac/attest")
+    def sac_attest(payload: dict) -> dict:
+        binary_path = payload.get("binary_path")
+        action = str(payload.get("action", "verify")).strip().lower()
+        from msb_v2.verification.hardware_attestation import HardwareAttestation
+        from pathlib import Path
+        target = Path(binary_path) if binary_path else Path(__file__).resolve().parents[2] / "msb_v2" / "api" / "web.py"
+        attestation = HardwareAttestation(binary_path=target)
+        if action == "trust":
+            return attestation.trust()
+        return attestation.verify()
+
+    @app.post("/sac/attest-trust")
+    def sac_attest_trust(payload: dict) -> dict:
+        binary_path = payload.get("binary_path")
+        from msb_v2.verification.hardware_attestation import HardwareAttestation
+        from pathlib import Path
+        target = Path(binary_path) if binary_path else Path(__file__).resolve().parents[2] / "msb_v2" / "api" / "web.py"
+        return HardwareAttestation(binary_path=target).trust()
 
     try:
         from prometheus_client import generate_latest, REGISTRY
