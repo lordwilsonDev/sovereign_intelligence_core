@@ -1,0 +1,50 @@
+[
+  {
+    "case": "decision_object",
+    "output": {
+      "primary": "research",
+      "secondary": "backup",
+      "order": "parallel",
+      "confidence": 0.9,
+      "justification": "ok",
+      "rerouted": true
+    }
+  },
+  {
+    "case": "routing_attrs",
+    "output": {
+      "primary": "research",
+      "secondary": "backup",
+      "order": "parallel",
+      "confidence": 0.9,
+      "justification": "high confidence",
+      "rerouted": true
+    }
+  },
+  {
+    "case": "dict",
+    "output": {
+      "primary": "build",
+      "secondary": "test",
+      "order": "serial",
+      "confidence": 0.5,
+      "justification": "unit",
+      "rerouted": false
+    }
+  },
+  {
+    "case": "decision_dict",
+    "output": {
+      "primary": "complex",
+      "secondary": null,
+      "order": "deep",
+      "confidence": 0.3,
+      "justification": "",
+      "rerouted": false
+    }
+  },
+  {
+    "case": "fallback",
+    "output": null
+  }
+]

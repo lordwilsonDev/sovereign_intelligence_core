@@ -78,24 +78,30 @@ class TeleportAccessHarness(BaseHarness):
     def shutdown(self) -> Dict[str, Any]:
         return {"ok": True, "event": "shutdown"}
 
-    def _detect(self, bin_dir: Optional[str | Path], profile: Optional[str]) -> None:
-        dirs = []
+    def _build_search_dirs(self, bin_dir: Optional[str | Path], profile: Optional[str]) -> List[str]:
+        dirs: List[str] = []
         if bin_dir:
             dirs.append(str(Path(bin_dir).expanduser().resolve()))
         dirs.extend(["/usr/local/bin", "/opt/homebrew/bin", os.path.expanduser("~/.local/bin"), os.environ.get("PATH", "")])
-        tctl = None
-        tsh = None
+        return dirs
+
+    def _locate_binary(self, dirs: List[str], name: str) -> Optional[str]:
         for d in dirs:
-            if d and Path(d, "tctl").exists():
-                tctl = str(Path(d, "tctl"))
-            if d and Path(d, "tsh").exists():
-                tsh = str(Path(d, "tsh"))
-            if tctl and tsh:
-                break
-        self.state.tctl = tctl or shutil.which("tctl")
-        self.state.tsh = tsh or shutil.which("tsh")
+            if d and Path(d, name).exists():
+                return str(Path(d, name))
+        return shutil.which(name)
+
+    def _apply_detected_state(self, tctl: Optional[str], tsh: Optional[str], profile: Optional[str]) -> None:
+        self.state.tctl = tctl
+        self.state.tsh = tsh
         self.state.profile = profile or os.environ.get("TELEPORT_PROFILE")
         self.state.ok = bool(self.state.tctl and self.state.tsh)
+
+    def _detect(self, bin_dir: Optional[str | Path], profile: Optional[str]) -> None:
+        dirs = self._build_search_dirs(bin_dir, profile)
+        tctl = self._locate_binary(dirs, "tctl")
+        tsh = self._locate_binary(dirs, "tsh")
+        self._apply_detected_state(tctl, tsh, profile)
 
     def _invoke(self, cmd: List[str], context: Dict[str, Any], timeout: int = 10) -> Dict[str, Any]:
         env = os.environ.copy()

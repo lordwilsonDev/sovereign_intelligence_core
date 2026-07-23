@@ -1,5 +1,5 @@
 {
-  "fatigue_baseline": 0.8,
+  "fatigue_baseline": 0.2,
   "frustration_baseline": 0.1,
   "urgency_baseline": 0.1,
   "speech_rate": 1.0,

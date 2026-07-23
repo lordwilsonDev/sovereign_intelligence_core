@@ -1,0 +1,570 @@
+[
+  {
+    "input": {
+      "context": {
+        "privacy_sensitive": "true"
+      },
+      "candidates": [
+        {
+          "plugin": "plugin-a",
+          "interface_type": "http://127.0.0.1:8001",
+          "endpoint": "http://127.0.0.1:8001",
+          "available": true,
+          "health": "healthy",
+          "priority": 10,
+          "metadata": {
+            "context_window": 4096,
+            "latency_ms": 5
+          },
+          "capabilities": [
+            "agent",
+            "tool"
+          ]
+        },
+        {
+          "plugin": "plugin-b",
+          "interface_type": "http://127.0.0.1:8002",
+          "endpoint": "http://127.0.0.1:8002",
+          "available": true,
+          "health": "healthy",
+          "priority": 5,
+          "metadata": {
+            "context_window": 2048,
+            "latency_ms": 12
+          },
+          "capabilities": [
+            "worker",
+            "mcp"
+          ]
+        },
+        {
+          "plugin": "plugin-c",
+          "interface_type": "https://api.example.com",
+          "endpoint": "https://api.example.com",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "context_window": 12000,
+            "latency_ms": 80
+          },
+          "capabilities": [
+            "llm"
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "plugin": "plugin-b",
+        "type": "http://127.0.0.1:8002",
+        "endpoint": "http://127.0.0.1:8002",
+        "available": true,
+        "health": "healthy",
+        "priority": 5,
+        "metadata": {
+          "context_window": 2048,
+          "latency_ms": 12
+        },
+        "capabilities": [
+          "worker",
+          "mcp"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "plugin": "plugin-a",
+        "type": "http://127.0.0.1:8001",
+        "endpoint": "http://127.0.0.1:8001",
+        "available": true,
+        "health": "healthy",
+        "priority": 10,
+        "metadata": {
+          "context_window": 4096,
+          "latency_ms": 5
+        },
+        "capabilities": [
+          "agent",
+          "tool"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "context": {
+        "offline": "yes"
+      },
+      "candidates": [
+        {
+          "plugin": "plugin-a",
+          "interface_type": "http://127.0.0.1:8001",
+          "endpoint": "http://127.0.0.1:8001",
+          "available": true,
+          "health": "healthy",
+          "priority": 10,
+          "metadata": {
+            "context_window": 4096,
+            "latency_ms": 5
+          },
+          "capabilities": [
+            "agent",
+            "tool"
+          ]
+        },
+        {
+          "plugin": "plugin-b",
+          "interface_type": "http://127.0.0.1:8002",
+          "endpoint": "http://127.0.0.1:8002",
+          "available": true,
+          "health": "healthy",
+          "priority": 5,
+          "metadata": {
+            "context_window": 2048,
+            "latency_ms": 12
+          },
+          "capabilities": [
+            "worker",
+            "mcp"
+          ]
+        },
+        {
+          "plugin": "plugin-c",
+          "interface_type": "https://api.example.com",
+          "endpoint": "https://api.example.com",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "context_window": 12000,
+            "latency_ms": 80
+          },
+          "capabilities": [
+            "llm"
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "plugin": "plugin-b",
+        "type": "http://127.0.0.1:8002",
+        "endpoint": "http://127.0.0.1:8002",
+        "available": true,
+        "health": "healthy",
+        "priority": 5,
+        "metadata": {
+          "context_window": 2048,
+          "latency_ms": 12
+        },
+        "capabilities": [
+          "worker",
+          "mcp"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "plugin": "plugin-a",
+        "type": "http://127.0.0.1:8001",
+        "endpoint": "http://127.0.0.1:8001",
+        "available": true,
+        "health": "healthy",
+        "priority": 10,
+        "metadata": {
+          "context_window": 4096,
+          "latency_ms": 5
+        },
+        "capabilities": [
+          "agent",
+          "tool"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "context": {
+        "tool_use_required": "1"
+      },
+      "candidates": [
+        {
+          "plugin": "plugin-a",
+          "interface_type": "http://127.0.0.1:8001",
+          "endpoint": "http://127.0.0.1:8001",
+          "available": true,
+          "health": "healthy",
+          "priority": 10,
+          "metadata": {
+            "context_window": 4096,
+            "latency_ms": 5
+          },
+          "capabilities": [
+            "agent",
+            "tool"
+          ]
+        },
+        {
+          "plugin": "plugin-b",
+          "interface_type": "http://127.0.0.1:8002",
+          "endpoint": "http://127.0.0.1:8002",
+          "available": true,
+          "health": "healthy",
+          "priority": 5,
+          "metadata": {
+            "context_window": 2048,
+            "latency_ms": 12
+          },
+          "capabilities": [
+            "worker",
+            "mcp"
+          ]
+        },
+        {
+          "plugin": "plugin-c",
+          "interface_type": "https://api.example.com",
+          "endpoint": "https://api.example.com",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "context_window": 12000,
+            "latency_ms": 80
+          },
+          "capabilities": [
+            "llm"
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "plugin": "plugin-a",
+        "type": "http://127.0.0.1:8001",
+        "endpoint": "http://127.0.0.1:8001",
+        "available": true,
+        "health": "healthy",
+        "priority": 10,
+        "metadata": {
+          "context_window": 4096,
+          "latency_ms": 5
+        },
+        "capabilities": [
+          "agent",
+          "tool"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "context": {
+        "large_context": "true"
+      },
+      "candidates": [
+        {
+          "plugin": "plugin-a",
+          "interface_type": "http://127.0.0.1:8001",
+          "endpoint": "http://127.0.0.1:8001",
+          "available": true,
+          "health": "healthy",
+          "priority": 10,
+          "metadata": {
+            "context_window": 4096,
+            "latency_ms": 5
+          },
+          "capabilities": [
+            "agent",
+            "tool"
+          ]
+        },
+        {
+          "plugin": "plugin-b",
+          "interface_type": "http://127.0.0.1:8002",
+          "endpoint": "http://127.0.0.1:8002",
+          "available": true,
+          "health": "healthy",
+          "priority": 5,
+          "metadata": {
+            "context_window": 2048,
+            "latency_ms": 12
+          },
+          "capabilities": [
+            "worker",
+            "mcp"
+          ]
+        },
+        {
+          "plugin": "plugin-c",
+          "interface_type": "https://api.example.com",
+          "endpoint": "https://api.example.com",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "context_window": 12000,
+            "latency_ms": 80
+          },
+          "capabilities": [
+            "llm"
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "plugin": "plugin-c",
+        "type": "https://api.example.com",
+        "endpoint": "https://api.example.com",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {
+          "context_window": 12000,
+          "latency_ms": 80
+        },
+        "capabilities": [
+          "llm"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "plugin": "plugin-a",
+        "type": "http://127.0.0.1:8001",
+        "endpoint": "http://127.0.0.1:8001",
+        "available": true,
+        "health": "healthy",
+        "priority": 10,
+        "metadata": {
+          "context_window": 4096,
+          "latency_ms": 5
+        },
+        "capabilities": [
+          "agent",
+          "tool"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "plugin": "plugin-b",
+        "type": "http://127.0.0.1:8002",
+        "endpoint": "http://127.0.0.1:8002",
+        "available": true,
+        "health": "healthy",
+        "priority": 5,
+        "metadata": {
+          "context_window": 2048,
+          "latency_ms": 12
+        },
+        "capabilities": [
+          "worker",
+          "mcp"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "context": {
+        "lowest_latency": "1"
+      },
+      "candidates": [
+        {
+          "plugin": "plugin-a",
+          "interface_type": "http://127.0.0.1:8001",
+          "endpoint": "http://127.0.0.1:8001",
+          "available": true,
+          "health": "healthy",
+          "priority": 10,
+          "metadata": {
+            "context_window": 4096,
+            "latency_ms": 5
+          },
+          "capabilities": [
+            "agent",
+            "tool"
+          ]
+        },
+        {
+          "plugin": "plugin-b",
+          "interface_type": "http://127.0.0.1:8002",
+          "endpoint": "http://127.0.0.1:8002",
+          "available": true,
+          "health": "healthy",
+          "priority": 5,
+          "metadata": {
+            "context_window": 2048,
+            "latency_ms": 12
+          },
+          "capabilities": [
+            "worker",
+            "mcp"
+          ]
+        },
+        {
+          "plugin": "plugin-c",
+          "interface_type": "https://api.example.com",
+          "endpoint": "https://api.example.com",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "context_window": 12000,
+            "latency_ms": 80
+          },
+          "capabilities": [
+            "llm"
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "plugin": "plugin-a",
+        "type": "http://127.0.0.1:8001",
+        "endpoint": "http://127.0.0.1:8001",
+        "available": true,
+        "health": "healthy",
+        "priority": 10,
+        "metadata": {
+          "context_window": 4096,
+          "latency_ms": 5
+        },
+        "capabilities": [
+          "agent",
+          "tool"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "plugin": "plugin-b",
+        "type": "http://127.0.0.1:8002",
+        "endpoint": "http://127.0.0.1:8002",
+        "available": true,
+        "health": "healthy",
+        "priority": 5,
+        "metadata": {
+          "context_window": 2048,
+          "latency_ms": 12
+        },
+        "capabilities": [
+          "worker",
+          "mcp"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "plugin": "plugin-c",
+        "type": "https://api.example.com",
+        "endpoint": "https://api.example.com",
+        "available": true,
+        "health": "healthy",
+        "priority": 1,
+        "metadata": {
+          "context_window": 12000,
+          "latency_ms": 80
+        },
+        "capabilities": [
+          "llm"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  },
+  {
+    "input": {
+      "context": {
+        "privacy_sensitive": "true",
+        "large_context": "true"
+      },
+      "candidates": [
+        {
+          "plugin": "plugin-a",
+          "interface_type": "http://127.0.0.1:8001",
+          "endpoint": "http://127.0.0.1:8001",
+          "available": true,
+          "health": "healthy",
+          "priority": 10,
+          "metadata": {
+            "context_window": 4096,
+            "latency_ms": 5
+          },
+          "capabilities": [
+            "agent",
+            "tool"
+          ]
+        },
+        {
+          "plugin": "plugin-b",
+          "interface_type": "http://127.0.0.1:8002",
+          "endpoint": "http://127.0.0.1:8002",
+          "available": true,
+          "health": "healthy",
+          "priority": 5,
+          "metadata": {
+            "context_window": 2048,
+            "latency_ms": 12
+          },
+          "capabilities": [
+            "worker",
+            "mcp"
+          ]
+        },
+        {
+          "plugin": "plugin-c",
+          "interface_type": "https://api.example.com",
+          "endpoint": "https://api.example.com",
+          "available": true,
+          "health": "healthy",
+          "priority": 1,
+          "metadata": {
+            "context_window": 12000,
+            "latency_ms": 80
+          },
+          "capabilities": [
+            "llm"
+          ]
+        }
+      ]
+    },
+    "output": [
+      {
+        "plugin": "plugin-a",
+        "type": "http://127.0.0.1:8001",
+        "endpoint": "http://127.0.0.1:8001",
+        "available": true,
+        "health": "healthy",
+        "priority": 10,
+        "metadata": {
+          "context_window": 4096,
+          "latency_ms": 5
+        },
+        "capabilities": [
+          "agent",
+          "tool"
+        ],
+        "last_checked": 0.0
+      },
+      {
+        "plugin": "plugin-b",
+        "type": "http://127.0.0.1:8002",
+        "endpoint": "http://127.0.0.1:8002",
+        "available": true,
+        "health": "healthy",
+        "priority": 5,
+        "metadata": {
+          "context_window": 2048,
+          "latency_ms": 12
+        },
+        "capabilities": [
+          "worker",
+          "mcp"
+        ],
+        "last_checked": 0.0
+      }
+    ]
+  }
+]

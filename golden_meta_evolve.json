@@ -1,0 +1,41 @@
+[
+  {
+    "input": {
+      "index": 0
+    },
+    "output": {
+      "vdr": 0.26666666666666666,
+      "V": 0.8,
+      "D": 3,
+      "pruned": false,
+      "removed_adapters": [],
+      "health": "metabolic_stress"
+    }
+  },
+  {
+    "input": {
+      "index": 1
+    },
+    "output": {
+      "vdr": 0.03333333333333333,
+      "V": 0.1,
+      "D": 3,
+      "pruned": false,
+      "removed_adapters": [],
+      "health": "metabolic_stress"
+    }
+  },
+  {
+    "input": {
+      "index": 2
+    },
+    "output": {
+      "vdr": 0.16666666666666666,
+      "V": 0.5,
+      "D": 3,
+      "pruned": false,
+      "removed_adapters": [],
+      "health": "metabolic_stress"
+    }
+  }
+]

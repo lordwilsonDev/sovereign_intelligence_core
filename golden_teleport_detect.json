@@ -1,0 +1,56 @@
+[
+  {
+    "input": {
+      "bin_dir": "/usr/local/bin",
+      "profile": "default"
+    },
+    "before": {
+      "tctl": null,
+      "tsh": null,
+      "profile": null,
+      "ok": false
+    },
+    "output": {
+      "tctl": null,
+      "tsh": null,
+      "profile": "default",
+      "ok": false
+    }
+  },
+  {
+    "input": {
+      "bin_dir": null,
+      "profile": null
+    },
+    "before": {
+      "tctl": null,
+      "tsh": null,
+      "profile": "default",
+      "ok": false
+    },
+    "output": {
+      "tctl": null,
+      "tsh": null,
+      "profile": null,
+      "ok": false
+    }
+  },
+  {
+    "input": {
+      "bin_dir": "/nonexistent",
+      "profile": "prod"
+    },
+    "before": {
+      "tctl": null,
+      "tsh": null,
+      "profile": null,
+      "ok": false
+    },
+    "output": {
+      "tctl": null,
+      "tsh": null,
+      "profile": "prod",
+      "ok": false
+    }
+  }
+]

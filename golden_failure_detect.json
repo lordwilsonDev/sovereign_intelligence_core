@@ -1,0 +1,50 @@
+[
+  {
+    "input": {
+      "loop_iterations": 10,
+      "timeout_rate": 0.02
+    },
+    "output": [
+      {
+        "id": "endless-inversion-loop",
+        "description": "MoIE debate does not converge; Critic keeps inverting without resolution.",
+        "detection": "Logic loop exceeds max_iterations (default 5) or identical inversions recur.",
+        "recovery": "Force synthesis with Synthesizer override, reduce iteration limit, flag for human."
+      }
+    ]
+  },
+  {
+    "input": {
+      "assumption_debt": 6,
+      "fts": 0.8
+    },
+    "output": [
+      {
+        "id": "assumption-debt-overload",
+        "description": "Too many untested high-risk assumptions accumulated.",
+        "detection": "Assumption debt exceeds critical threshold (e.g., 5).",
+        "recovery": "Pause generation, run empirical checks, escalate to human."
+      },
+      {
+        "id": "confident-hallucination-with-falsification",
+        "description": "System generates falsifiable predictions that are wrong but phrased confidently.",
+        "detection": "High FTS and low prediction validation rate post-hoc.",
+        "recovery": "Increase empirical connection attempts; lower confidence calibration; run drift check."
+      }
+    ]
+  },
+  {
+    "input": {
+      "cache_miss_rate": 0.4,
+      "retry_rate": 0.2
+    },
+    "output": []
+  },
+  {
+    "input": {
+      "loop_iterations": 2,
+      "assumption_debt": 1
+    },
+    "output": []
+  }
+]

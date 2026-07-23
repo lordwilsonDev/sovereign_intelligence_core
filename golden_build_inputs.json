@@ -1,25 +1,21 @@
 [
   {
     "input": {
-      "text": "Build a REST API for task management.",
+      "text": "build API",
       "assumptions": [
         {
-          "text": "PostgreSQL is available",
-          "risk": "HIGH",
-          "testability": "now"
+          "text": "team can ship"
         }
       ],
       "predictions": [
         {
-          "statement": "P99 latency < 200ms",
-          "horizon": "2 weeks",
-          "measurement": "load test",
-          "baseline": "current 350ms"
+          "statement": "latency drops",
+          "horizon": "now"
         }
       ]
     },
     "output": {
-      "text": "text: Build a REST API for task management.\nassumptions: {'text': 'PostgreSQL is available', 'risk': 'HIGH', 'testability': 'now'}\npredictions: {'statement': 'P99 latency < 200ms', 'horizon': '2 weeks', 'measurement': 'load test', 'baseline': 'current 350ms'}",
+      "text": "text: build API\nassumptions: {'text': 'team can ship'}\npredictions: {'statement': 'latency drops', 'horizon': 'now'}",
       "assumptions": [
         {
           "id": "A-001",
@@ -33,18 +29,18 @@
           "id": "A-002",
           "source": "payload",
           "type": "factual",
-          "testability": "now",
-          "risk": "HIGH",
-          "text": "PostgreSQL is available"
+          "testability": "later",
+          "risk": "MEDIUM",
+          "text": "team can ship"
         }
       ],
       "predictions": [
         {
           "id": "P-001",
-          "statement": "P99 latency < 200ms",
-          "horizon": "2 weeks",
-          "measurement": "load test",
-          "baseline": "current 350ms",
+          "statement": "latency drops",
+          "horizon": "now",
+          "measurement": "provided",
+          "baseline": "unstated",
           "status": "untested"
         }
       ]
@@ -52,12 +48,12 @@
   },
   {
     "input": {
-      "text": "Deploy the experimental build.",
+      "text": "train model",
       "assumptions": [],
       "predictions": []
     },
     "output": {
-      "text": "text: Deploy the experimental build.\nassumptions: \npredictions: ",
+      "text": "text: train model\nassumptions: \npredictions: ",
       "assumptions": [
         {
           "id": "A-001",
@@ -82,18 +78,24 @@
   },
   {
     "input": {
-      "text": "Evaluate startup viability.",
+      "text": "deploy service",
       "assumptions": [
         {
-          "text": "Market exists",
-          "risk": "MEDIUM",
-          "testability": "later"
+          "text": "capacity exists"
+        },
+        {
+          "text": "auth works"
         }
       ],
-      "predictions": []
+      "predictions": [
+        {
+          "statement": "uptime >99.9",
+          "horizon": "week"
+        }
+      ]
     },
     "output": {
-      "text": "text: Evaluate startup viability.\nassumptions: {'text': 'Market exists', 'risk': 'MEDIUM', 'testability': 'later'}\npredictions: ",
+      "text": "text: deploy service\nassumptions: {'text': 'capacity exists'}, {'text': 'auth works'}\npredictions: {'statement': 'uptime >99.9', 'horizon': 'week'}",
       "assumptions": [
         {
           "id": "A-001",
@@ -109,17 +111,25 @@
           "type": "factual",
           "testability": "later",
           "risk": "MEDIUM",
-          "text": "Market exists"
+          "text": "capacity exists"
+        },
+        {
+          "id": "A-003",
+          "source": "payload",
+          "type": "factual",
+          "testability": "later",
+          "risk": "MEDIUM",
+          "text": "auth works"
         }
       ],
       "predictions": [
         {
           "id": "P-001",
-          "statement": "Unfalsifiable narrative detected.",
-          "horizon": "none",
-          "measurement": "none",
-          "baseline": "none",
-          "status": "unavailable"
+          "statement": "uptime >99.9",
+          "horizon": "week",
+          "measurement": "provided",
+          "baseline": "unstated",
+          "status": "untested"
         }
       ]
     }

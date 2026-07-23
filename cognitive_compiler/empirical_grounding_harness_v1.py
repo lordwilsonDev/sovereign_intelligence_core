@@ -172,23 +172,28 @@ class EmpiricalGroundingHarness(BaseHarness):
             predictions = self._merge_explicit_predictions(explicit_predictions, predictions)
         return predictions
 
+    def _normalize_explicit_prediction(self, idx: int, item: dict) -> Optional[PredictionRecord]:
+        if not isinstance(item, dict):
+            return None
+        statement = str(item.get("statement") or item.get("text") or item.get("prediction") or "").strip()
+        if not statement:
+            return None
+        return PredictionRecord(
+            id=f"P-{idx:03d}",
+            statement=statement[:160],
+            horizon=str(item.get("horizon") or item.get("time_horizon") or "unknown"),
+            measurement=str(item.get("measurement") or item.get("method") or "provided"),
+            baseline=str(item.get("baseline") or item.get("null_expectation") or "unstated"),
+            status=str(item.get("status") or item.get("state") or "untested").lower(),
+        )
+
     def _merge_explicit_predictions(self, explicit_predictions: list, predictions: List[PredictionRecord]) -> List[PredictionRecord]:
         merged: List[PredictionRecord] = []
         idx = 1
         for item in explicit_predictions[:40]:
-            if not isinstance(item, dict):
-                continue
-            statement = str(item.get("statement") or item.get("text") or item.get("prediction") or "").strip()
-            if not statement:
-                continue
-            merged.append(PredictionRecord(
-                id=f"P-{idx:03d}",
-                statement=statement[:160],
-                horizon=str(item.get("horizon") or item.get("time_horizon") or "unknown"),
-                measurement=str(item.get("measurement") or item.get("method") or "provided"),
-                baseline=str(item.get("baseline") or item.get("null_expectation") or "unstated"),
-                status=str(item.get("status") or item.get("state") or "untested").lower(),
-            ))
+            record = self._normalize_explicit_prediction(idx, item)
+            if record is not None:
+                merged.append(record)
             idx += 1
         if merged:
             predictions = merged
@@ -279,47 +284,63 @@ class EmpiricalGroundingHarness(BaseHarness):
                 parts.append(f"{k}: {self._payload_to_text(v)}")
         return "\n".join(parts)
 
-    def _extract_assumptions(self, text: str) -> List[AssumptionRecord]:
-        assumptions: List[AssumptionRecord] = []
+    def _match_assumption_snippets(self, text: str) -> List[str]:
         patterns = [
             r"\bassume[sd]?\b[^.\n]{0,120}",
             r"\bwe (?:believe|expect|need|must)\b[^.\n]{0,120}",
             r"\bif .+ then .+\b[^.\n]{0,120}",
             r"\b(user|customer|system|service|api)\b[^.\n]{0,120} (?:always|never|must|only)\b[^.\n]{0,120}",
         ]
-        seen = set()
-        idx = 1
+        seen: set = set()
+        snippets: List[str] = []
         for pat in patterns:
             for match in re.finditer(pat, text, re.IGNORECASE):
                 snippet = match.group(0).strip()
                 if not snippet or snippet.lower() in seen:
                     continue
                 seen.add(snippet.lower())
-                risk = "MEDIUM"
-                testability = "later"
-                low = snippet.lower()
-                if any(w in low for w in ["must", "always", "never", "critical", "security", "safe"]):
-                    risk = "HIGH"
-                if any(w in low for w in ["current", "today", "now", "existing", "observed"]):
-                    testability = "now"
-                if any(w in low for w in ["definition", "by definition", "always true", "tautology"]):
-                    testability = "never"
-                if len(snippet) > 140:
-                    snippet = snippet[:140] + "..."
-                assumptions.append(AssumptionRecord(
-                    id=f"A-{idx:03d}",
-                    source="extracted",
-                    type="factual",
-                    testability=testability,
-                    risk=risk,
-                    text=snippet,
-                ))
-                idx += 1
-                if idx > 40:
+                snippets.append(snippet)
+                if len(snippets) >= 40:
                     break
-            if idx > 40:
+            if len(snippets) >= 40:
                 break
-        return assumptions or [AssumptionRecord(id="A-001", source="fallback", type="factual", testability="later", risk="MEDIUM", text="Implicit payload assumptions")]
+        return snippets
+
+    def _score_assumption_snippet(self, snippet: str) -> Dict[str, str]:
+        low = snippet.lower()
+        risk = "MEDIUM"
+        testability = "later"
+        if any(w in low for w in ["must", "always", "never", "critical", "security", "safe"]):
+            risk = "HIGH"
+        if any(w in low for w in ["current", "today", "now", "existing", "observed"]):
+            testability = "now"
+        if any(w in low for w in ["definition", "by definition", "always true", "tautology"]):
+            testability = "never"
+        return {"risk": risk, "testability": testability}
+
+    def _build_assumption_records(self, snippets: List[str], idx_start: int = 1) -> List[AssumptionRecord]:
+        records: List[AssumptionRecord] = []
+        for idx, snippet in enumerate(snippets[:40], start=idx_start):
+            scores = self._score_assumption_snippet(snippet)
+            text = snippet[:140]
+            if len(snippet) > 140:
+                text = text + "..."
+            records.append(AssumptionRecord(
+                id=f"A-{idx:03d}",
+                source="extracted",
+                type="factual",
+                testability=scores["testability"],
+                risk=scores["risk"],
+                text=text,
+            ))
+        return records
+
+    def _extract_assumptions(self, text: str) -> List[AssumptionRecord]:
+        snippets = self._match_assumption_snippets(text)
+        records = self._build_assumption_records(snippets)
+        if not records:
+            return [AssumptionRecord(id="A-001", source="fallback", type="factual", testability="later", risk="MEDIUM", text="Implicit payload assumptions")]
+        return records
 
     def _extract_predictions(self, text: str) -> List[PredictionRecord]:
         predictions: List[PredictionRecord] = []

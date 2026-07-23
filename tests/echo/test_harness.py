@@ -69,3 +69,20 @@ def test_evaluate_api_mounted() -> None:
     assert "/echo/evaluate" in schema["paths"]
     assert "/echo/history" in schema["paths"]
     assert "/echo/status" in schema["paths"]
+
+
+def test_critical_echo_fires_snh(harness: EchoHarness, monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[dict] = []
+
+    def fake_notify(self, decision: dict) -> None:
+        calls.append(decision)
+
+    monkeypatch.setattr(EchoHarness, "_notify_critical", fake_notify)
+    decision = harness.evaluate({
+        "intent": {"action": "shutdown", "raw_text": "shutdown everything", "is_destructive": True, "has_universal_quantifier": True},
+        "blast_analysis": {"score": 0.95, "affected": 100, "total": 100, "stateful_at_risk": 10, "details": []},
+    })
+    assert decision["should_echo"] is True
+    assert decision["severity"] == "critical"
+    assert len(calls) == 1
+    assert calls[0]["decision_id"] == decision["decision_id"]

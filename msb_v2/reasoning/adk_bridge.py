@@ -75,21 +75,7 @@ def from_adk_event(data: dict[str, Any]) -> ExecutionEvent:
     return _dict_to_execution_event(data_n)
 
 
-def branch_trace_adk(
-    stream: Any,
-    trace_id: str,
-    branch_step: int | None = None,
-    flip_verdict: bool = True,
-    new_kind: str | None = None,
-) -> dict[str, Any]:
-    original = stream.events_for_trace(trace_id)
-    if not original:
-        raise ValueError("trace not found")
-
-    original_dicts = [_event_to_dict(e) for e in original]
-    original_score = _score_from_trace(original)
-
-    branched = copy.deepcopy(original_dicts)
+def _apply_branch(branched, branch_step, flip_verdict, new_kind):
     chosen_index = None
     if branch_step is not None:
         chosen_index = next((i for i, e in enumerate(branched) if e.get("sequence") == branch_step), None)
@@ -108,19 +94,20 @@ def branch_trace_adk(
             except ValueError:
                 event["kind"] = new_kind
             branched[chosen_index] = event
+    return branched, chosen_index
 
-    cf_score = score_from_events(branched)
-    chosen_dict = branched[chosen_index] if chosen_index is not None else None
 
-    def _as_adk_optional(event_dict):
-        event_cls = _get_adk_event_class()
-        if event_cls is None:
-            return event_dict
-        try:
-            return event_cls.model_validate(event_dict).model_dump(mode="json", by_alias=True)
-        except Exception:
-            return event_dict
+def _as_adk_optional(event_dict):
+    event_cls = _get_adk_event_class()
+    if event_cls is None:
+        return event_dict
+    try:
+        return event_cls.model_validate(event_dict).model_dump(mode="json", by_alias=True)
+    except Exception:
+        return event_dict
 
+
+def _assemble_branch_trace_result(trace_id, original_dicts, original_score, branched, branch_step, chosen_index, cf_score, chosen_dict):
     return {
         "trace_id": trace_id,
         "adk_available": _get_adk_event_class() is not None,
@@ -149,6 +136,31 @@ def branch_trace_adk(
             "entropy": round(cf_score.entropy - original_score.entropy, 6),
         },
     }
+
+
+def branch_trace_adk(
+    stream: Any,
+    trace_id: str,
+    branch_step: int | None = None,
+    flip_verdict: bool = True,
+    new_kind: str | None = None,
+) -> dict[str, Any]:
+    original = stream.events_for_trace(trace_id)
+    if not original:
+        raise ValueError("trace not found")
+
+    original_dicts = [_event_to_dict(e) for e in original]
+    original_score = _score_from_trace(original)
+
+    branched = copy.deepcopy(original_dicts)
+    branched, chosen_index = _apply_branch(branched, branch_step, flip_verdict, new_kind)
+
+    cf_score = score_from_events(branched)
+    chosen_dict = branched[chosen_index] if chosen_index is not None else None
+
+    return _assemble_branch_trace_result(
+        trace_id, original_dicts, original_score, branched, branch_step, chosen_index, cf_score, chosen_dict
+    )
 
 
 _add_adk_prefix_marker = False

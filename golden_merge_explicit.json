@@ -1,0 +1,69 @@
+[
+  {
+    "input": {
+      "explicit": [
+        {
+          "id": "p1",
+          "explicit": true
+        }
+      ],
+      "predictions": [
+        {
+          "id": "P-001",
+          "statement": "x",
+          "horizon": "now",
+          "measurement": "m",
+          "baseline": "b",
+          "status": "untested"
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "P-001",
+        "statement": "x",
+        "horizon": "now",
+        "measurement": "m",
+        "baseline": "b",
+        "status": "untested"
+      }
+    ]
+  },
+  {
+    "input": {
+      "explicit": [
+        {
+          "id": "p2",
+          "explicit": false
+        }
+      ],
+      "predictions": []
+    },
+    "output": []
+  },
+  {
+    "input": {
+      "explicit": [],
+      "predictions": [
+        {
+          "id": "P-001",
+          "statement": "y",
+          "horizon": "week",
+          "measurement": "m2",
+          "baseline": "b2",
+          "status": "untested"
+        }
+      ]
+    },
+    "output": [
+      {
+        "id": "P-001",
+        "statement": "y",
+        "horizon": "week",
+        "measurement": "m2",
+        "baseline": "b2",
+        "status": "untested"
+      }
+    ]
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "input": {
+      "text": "The system assumes user is authenticated."
+    },
+    "output": [
+      {
+        "id": "A-001",
+        "source": "extracted",
+        "type": "factual",
+        "testability": "later",
+        "risk": "MEDIUM",
+        "text": "assumes user is authenticated"
+      }
+    ]
+  },
+  {
+    "input": {
+      "text": "Given that the network is reliable..."
+    },
+    "output": [
+      {
+        "id": "A-001",
+        "source": "fallback",
+        "type": "factual",
+        "testability": "later",
+        "risk": "MEDIUM",
+        "text": "Implicit payload assumptions"
+      }
+    ]
+  },
+  {
+    "input": {
+      "text": "Assuming a standard distribution... backed by prior evidence."
+    },
+    "output": [
+      {
+        "id": "A-001",
+        "source": "fallback",
+        "type": "factual",
+        "testability": "later",
+        "risk": "MEDIUM",
+        "text": "Implicit payload assumptions"
+      }
+    ]
+  }
+]

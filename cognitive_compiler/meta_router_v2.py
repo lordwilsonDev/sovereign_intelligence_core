@@ -73,18 +73,24 @@ class MetaRoutingHarness:
         self.non_task_domains = {"desktop": ["ui", "screenshot", "mouse", "click", "launch", "open app", "finder", "browser"]}
         self.triviality_threshold_words = 10
 
-    def classify(self, query: str, context: Dict[str, Any] = None) -> HarnessDecision:
-        context = context or {}
-        q = query.lower()
-        words = q.split()
-
+    def _detect_explicit_override(self, context: Dict[str, Any]) -> Optional[str]:
         explicit = context.get("preferred_harness")
         if explicit:
-            return HarnessDecision(
-                primary=explicit,
-                confidence=0.95,
-                justification="User explicit override"
-            )
+            return explicit
+        return None
+
+    def _score_harness_matches(self, query: str) -> Dict[str, int]:
+        q = query.lower()
+        scores: Dict[str, int] = {}
+        for harness, markers in self.keyword_map.items():
+            if not markers:
+                continue
+            scores[harness] = sum(1 for m in markers if m in q)
+        return scores
+
+    def _resolve_classification(self, scores: Dict[str, int], query: str) -> HarnessDecision:
+        q = query.lower()
+        words = q.split()
 
         if len(words) < self.triviality_threshold_words and not any(
             marker in q for markers in self.keyword_map.values() for marker in markers
@@ -94,12 +100,6 @@ class MetaRoutingHarness:
                 confidence=0.9,
                 justification="Trivial query: short, no domain markers"
             )
-
-        scores = {}
-        for harness, markers in self.keyword_map.items():
-            if not markers:
-                continue
-            scores[harness] = sum(1 for m in markers if m in q)
 
         if not scores or max(scores.values()) == 0:
             return HarnessDecision(primary="base_are", confidence=0.8, justification="No domain markers matched")
@@ -113,15 +113,13 @@ class MetaRoutingHarness:
         confidence = best_score / total if total else 0.8
 
         if second and second_score > 0 and (best_score - second_score) <= 1:
-            primary = best
-            secondary = second
-            order = self._determine_order(primary, secondary, q)
+            order = self._determine_order(best, second, q)
             return HarnessDecision(
-                primary=primary,
-                secondary=secondary,
+                primary=best,
+                secondary=second,
                 order=order,
                 confidence=min(confidence + 0.1, 0.79),
-                justification=f"Close tie between {primary} and {secondary}; hybrid with {order} execution"
+                justification=f"Close tie between {best} and {second}; hybrid with {order} execution"
             )
 
         if confidence >= 0.8:
@@ -129,6 +127,20 @@ class MetaRoutingHarness:
         if confidence >= 0.6:
             return HarnessDecision(primary=best, secondary=second, confidence=confidence, justification=f"Weak match; adding {second} support")
         return HarnessDecision(primary="base_are", confidence=confidence, justification="Low match; defaulting to base ARE")
+
+    def classify(self, query: str, context: Dict[str, Any] = None) -> HarnessDecision:
+        context = context or {}
+
+        explicit = self._detect_explicit_override(context)
+        if explicit:
+            return HarnessDecision(
+                primary=explicit,
+                confidence=0.95,
+                justification="User explicit override"
+            )
+
+        scores = self._score_harness_matches(query or "")
+        return self._resolve_classification(scores, query or "")
 
     def _determine_order(self, primary: str, secondary: str, query: str) -> str:
         if self._is_serial_order(primary, secondary):

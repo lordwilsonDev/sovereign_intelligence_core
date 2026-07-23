@@ -373,54 +373,48 @@ class OuroborosEvolver:
     PROTECTED_KERNELS = {"graph", "decision", "bus"}
 
     @staticmethod
-    def evolve(metabolism: Metabolism, available_adapters: List[str],
-               protected: Optional[List[str]] = None) -> Dict[str, Any]:
-        """
-        Calculate VDR and suggest pruning targets.
-        """
-        if protected is None:
-            protected = OuroborosEvolver.PROTECTED_KERNELS
-
-        # Vitality (V) = successful impact rate
+    def _calculate_vitality_density(metabolism: Metabolism, available_adapters: List[str]) -> tuple[float, float, float]:
         total = metabolism.total_queries
-        if total == 0:
-            V = 0.5
-        else:
-            V = metabolism.successful_impacts / total
-
-        # Density (D) = number of active adapters + complexity
-        D = len(available_adapters)
-
-        # VDR = V / D
+        V = 0.5 if total == 0 else metabolism.successful_impacts / total
+        D = float(len(available_adapters))
         vdr = V / D if D > 0 else 0.0
+        return V, D, vdr
 
+    @staticmethod
+    def _record_vdr(metabolism: Metabolism, vdr: float, V: float, D: float) -> None:
         metabolism.vdr_history.append({"timestamp": time.time(), "V": V, "D": D, "VDR": vdr})
         if len(metabolism.vdr_history) > 1000:
             metabolism.vdr_history.pop(0)
 
+    @staticmethod
+    def _score_pruning_candidates(metabolism: Metabolism, available_adapters: List[str], protected: List[str]) -> List[str]:
+        scored = []
+        for name in available_adapters:
+            if name in protected:
+                continue
+            trust = metabolism.trust_scores.get(name, 0.5)
+            scored.append((trust, name))
+        scored.sort(key=lambda x: x[0])
+        to_remove = scored[:max(1, int(len(scored) * 0.2))]
+        removed_adapters = [name for _, name in to_remove]
+        for name in removed_adapters:
+            metabolism.trust_scores.pop(name, None)
+        return removed_adapters
+
+    @staticmethod
+    def evolve(metabolism: Metabolism, available_adapters: List[str], protected: Optional[List[str]] = None) -> Dict[str, Any]:
+        """Calculate VDR and suggest pruning targets."""
+        if protected is None:
+            protected = list(OuroborosEvolver.PROTECTED_KERNELS)
+
+        V, D, vdr = OuroborosEvolver._calculate_vitality_density(metabolism, available_adapters)
+        OuroborosEvolver._record_vdr(metabolism, vdr, V, D)
+
+        removed_adapters: List[str] = []
         pruned = False
-        removed_adapters = []
-
-        # Trigger pruning if VDR critically low
         if vdr < 0.6 and len(available_adapters) > 3:
-            # Score adapters by trust (lowest trust = prune candidate)
-            scored = []
-            for name in available_adapters:
-                if name in protected:
-                    continue  # Protected from pruning
-                trust = metabolism.trust_scores.get(name, 0.5)
-                scored.append((trust, name))
-
-            scored.sort(key=lambda x: x[0])  # Lowest trust first
-            # Prune bottom 20%
-            to_remove = scored[:max(1, int(len(scored) * 0.2))]
-            removed_adapters = [name for _, name in to_remove]
+            removed_adapters = OuroborosEvolver._score_pruning_candidates(metabolism, available_adapters, protected)
             pruned = len(removed_adapters) > 0
-
-            # Mark as pruned
-            for name in removed_adapters:
-                if name in metabolism.trust_scores:
-                    del metabolism.trust_scores[name]
 
         return {
             "vdr": vdr,
@@ -428,7 +422,7 @@ class OuroborosEvolver:
             "D": D,
             "pruned": pruned,
             "removed_adapters": removed_adapters,
-            "health": "healthy" if vdr > 1.0 else "metabolic_stress"
+            "health": "healthy" if vdr > 1.0 else "metabolic_stress",
         }
 
 

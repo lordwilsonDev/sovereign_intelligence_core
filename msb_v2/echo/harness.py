@@ -228,7 +228,37 @@ class EchoHarness:
             decision.reasons = ["blocked by sovereign immune system"]
             decision.echo_message = "This command is blocked by the Sovereign Immune System."
             decision.alternatives = []
-        return decision.to_dict()
+        result = decision.to_dict()
+        if result.get("should_echo") and result.get("severity") == "critical":
+            self._notify_critical(result)
+        return result
+
+    @staticmethod
+    def _notify_critical(decision: Dict[str, Any]) -> None:
+        try:
+            from msb_v2.sn.engine import NotificationEngine
+            from msb_v2.sn.models import NotificationRequest, Priority
+            from msb_v2.sn.policy_engine import PolicyEngine
+            from msb_v2.sn.template_renderer import TemplateRenderer
+
+            payload = NotificationRequest(
+                source="echo",
+                priority=Priority.critical,
+                template="echo_critical",
+                template_data={
+                    "decision_id": decision.get("decision_id", ""),
+                    "severity": decision.get("severity", "critical"),
+                    "echo_message": decision.get("echo_message", ""),
+                    "reasons": decision.get("reasons", []),
+                    "timestamp": _utcnow(),
+                },
+                channels=["console"],
+                require_ack=False,
+                expires_in_seconds=3600,
+            )
+            NotificationEngine(renderer=TemplateRenderer(), policy=PolicyEngine()).notify(payload)
+        except Exception:
+            pass
 
     def history(self, limit: int = 50) -> list[dict]:
         return self._engine.history[-max(0, limit):]
