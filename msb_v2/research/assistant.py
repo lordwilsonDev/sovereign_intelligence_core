@@ -141,6 +141,35 @@ class SovereignResearchAssistant:
             "phase_results": {},
         }
         self.root.mkdir(parents=True, exist_ok=True)
+        try:
+            from msb_v2.local_ai.client import LocalInferenceClient
+            self.local_model = LocalInferenceClient()
+        except Exception:
+            self.local_model = None
+
+    def invert_topic(self, topic: str) -> Dict[str, Any]:
+        """Use the local model to perform axiom inversion on the topic."""
+        if not self.local_model:
+            return {"assumption": "no local model", "inversion": "", "predictions": []}
+        prompt = (
+            "You are an Axiom Inversion Logic engine. Given the topic:\n"
+            f"{topic}\n\n"
+            "1. Extract the hidden assumption behind the conventional view.\n"
+            '2. Invert that assumption: "What if the opposite is true?"\n'
+            "3. Generate 3 falsifiable predictions that would follow from the inversion.\n\n"
+            "Return the result as JSON with keys: assumption, inversion, predictions."
+        )
+        response = self.local_model.generate(prompt, max_tokens=512)
+        try:
+            import json
+            result = json.loads(response)
+        except Exception:
+            result = {
+                "assumption": "Unable to parse model output",
+                "inversion": response[:200],
+                "predictions": [],
+            }
+        return result
 
     def _check_gates(self, phase: str, action_hint: str) -> Dict[str, Any]:
         event = {"phase": phase, "action": action_hint, "allowed": True, "sac": {}, "systems": {}, "echo": {}}
