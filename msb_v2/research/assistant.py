@@ -394,6 +394,13 @@ class SovereignResearchAssistant:
         }
         self._notify("pipeline_start", f"Starting research on: {self.topic}")
 
+        preflight = self._preflight_checks()
+        summary["phases"]["preflight"] = preflight
+        if not preflight.get("passed"):
+            summary["status"] = "blocked_by_preflight"
+            self._notify("pipeline_blocked", "Pre-flight checks failed", "high")
+            return summary
+
         if not self._sac_gate("pipeline_start"):
             summary["status"] = "blocked_by_sac"
             self._notify("pipeline_blocked", "SAC gate blocked pipeline start", "high")
@@ -545,6 +552,19 @@ class SovereignResearchAssistant:
         except Exception:
             pass
         return status
+
+    def _preflight_checks(self) -> Dict[str, Any]:
+        """Run pre-mission readiness probes."""
+        try:
+            import requests
+            checks = {
+                "health": bool(requests.get("http://127.0.0.1:8766/health", timeout=3).ok),
+                "schh": self._health_check().get("schh") == "GREEN",
+                "sac": self._sac_gate("preflight"),
+            }
+            return {"checks": checks, "passed": all(checks.values())}
+        except Exception as exc:
+            return {"checks": {}, "passed": False, "error": str(exc)}
 
     def _run_evolution_scan(self) -> Dict[str, Any]:
         """Run Ouroboros metabolic scan and return findings."""

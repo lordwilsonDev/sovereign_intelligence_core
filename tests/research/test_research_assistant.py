@@ -39,6 +39,10 @@ def test_research_dag_pipeline_phases() -> None:
 def test_full_pipeline_with_sac_block(monkeypatch: pytest.MonkeyPatch) -> None:
     assistant = SovereignResearchAssistant("immune test")
 
+    def mock_preflight(*_args: Any, **_kwargs: Any) -> Dict[str, Any]:
+        return {"checks": {"health": True, "schh": True, "sac": True}, "passed": True}
+    monkeypatch.setattr(assistant, "_preflight_checks", mock_preflight)
+
     def mock_sac_low(*_args: Any, **_kwargs: Any) -> bool:
         return False
     monkeypatch.setattr(assistant, "_sac_gate", mock_sac_low)
@@ -95,6 +99,10 @@ def test_pipeline_notifies_on_sac_block(monkeypatch: pytest.MonkeyPatch) -> None
 
     assistant = SovereignResearchAssistant("snh block")
     calls: list[tuple[str, str, str]] = []
+
+    def mock_preflight(*_args: Any, **_kwargs: Any) -> Dict[str, Any]:
+        return {"checks": {"health": True, "schh": True, "sac": True}, "passed": True}
+    monkeypatch.setattr(assistant, "_preflight_checks", mock_preflight)
 
     def mock_sac_block(*args: Any, **kwargs: Any) -> bool:
         return False
