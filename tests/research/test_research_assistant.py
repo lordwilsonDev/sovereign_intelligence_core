@@ -54,6 +54,7 @@ def test_full_pipeline_with_sac_block(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_full_pipeline_with_echo_block(monkeypatch: pytest.MonkeyPatch) -> None:
     assistant = SovereignResearchAssistant("immune test")
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: False)
 
@@ -64,6 +65,7 @@ def test_full_pipeline_with_echo_block(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_health_check_included_in_result(monkeypatch: pytest.MonkeyPatch) -> None:
     assistant = SovereignResearchAssistant("immune test")
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(assistant, "_health_check", lambda: {"schh": "GREEN", "sshh": "healthy"})
@@ -80,6 +82,7 @@ def test_full_pipeline_sends_notifications(monkeypatch: pytest.MonkeyPatch) -> N
     assistant = SovereignResearchAssistant("snh test")
     calls: list[tuple[str, str]] = []
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
 
@@ -123,6 +126,7 @@ def test_full_pipeline_includes_evolution_and_optimization(monkeypatch: pytest.M
 
     assistant = SovereignResearchAssistant("self-improvement")
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
@@ -147,6 +151,7 @@ def test_evolution_scan_unreachable_is_handled(monkeypatch: pytest.MonkeyPatch) 
 
     assistant = SovereignResearchAssistant("self-improvement")
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
@@ -163,6 +168,7 @@ def test_full_pipeline_includes_continuity_and_memory(monkeypatch: pytest.Monkey
 
     assistant = SovereignResearchAssistant("continuity-memory")
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
@@ -182,6 +188,7 @@ def test_continuity_unreachable_is_handled(monkeypatch: pytest.MonkeyPatch) -> N
 
     assistant = SovereignResearchAssistant("continuity-down")
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
@@ -200,6 +207,7 @@ def test_mesh_distribution_included_in_pipeline(monkeypatch: pytest.MonkeyPatch)
 
     assistant = SovereignResearchAssistant("mesh-test")
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
@@ -232,6 +240,7 @@ def test_mesh_distribution_graceful_with_no_peers(monkeypatch: pytest.MonkeyPatc
 
     assistant = SovereignResearchAssistant("mesh-empty")
 
+    monkeypatch.setattr(assistant, "_preflight_checks", lambda: {"checks": {}, "passed": True})
     monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
     monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
     monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
