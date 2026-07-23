@@ -16,7 +16,8 @@ class ReadinessGate:
 
         Stub: will call SAC endpoint once consolidation is complete.
         """
-        return True
+        verdict = self.attestation_verdict()
+        return verdict.get("verdict") != "TAMPERED"
 
     def attestation_verdict(self) -> Dict[str, Optional[str]]:
         from pathlib import Path

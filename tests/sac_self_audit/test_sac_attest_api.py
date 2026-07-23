@@ -39,3 +39,20 @@ def test_readiness_gate_attestation_verdict() -> None:
         mock_run.return_value = type("R", (), {"returncode": 0, "stdout": "deadbeef\n"})()
         verdict = gate.attestation_verdict()
         assert verdict["verdict"] in {"OK", "TAMPERED", "TRUST_NOT_ESTABLISHED"}
+
+
+def test_readiness_gate_blocks_on_tamper() -> None:
+    gate = ReadinessGate()
+    with patch("msb_v2.verification.hardware_attestation.subprocess.run") as mock_run:
+        mock_run.return_value = type("R", (), {"returncode": 0, "stdout": "abc123\n"})()
+        assert gate.is_ready() is False
+
+
+def test_readiness_gate_ready_when_ok() -> None:
+    gate = ReadinessGate()
+    original_verdict = gate.attestation_verdict
+    try:
+        gate.attestation_verdict = lambda: {"verdict": "OK"}
+        assert gate.is_ready() is True
+    finally:
+        gate.attestation_verdict = original_verdict
