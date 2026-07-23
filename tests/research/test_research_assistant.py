@@ -148,3 +148,40 @@ def test_evolution_scan_unreachable_is_handled(monkeypatch: pytest.MonkeyPatch) 
     result = assistant.run_full_pipeline()
     assert result["status"] == "completed"
     assert result["evolution"]["proposal_count"] == -1
+
+
+def test_full_pipeline_includes_continuity_and_memory(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.research.assistant import SovereignResearchAssistant
+
+    assistant = SovereignResearchAssistant("continuity-memory")
+
+    monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
+    monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
+    monkeypatch.setattr(assistant, "_run_evolution_scan", lambda: {})
+    monkeypatch.setattr(assistant, "_run_optimization_analysis", lambda: {})
+    monkeypatch.setattr(assistant, "_run_continuity_checkpoint", lambda: {"checkpointed": True, "token_preview": "abc123"})
+    monkeypatch.setattr(assistant, "_run_memory_consolidation", lambda: {"consolidated": True, "status": "ok"})
+
+    result = assistant.run_full_pipeline()
+    assert result["status"] == "completed"
+    assert result["continuity"]["checkpointed"] is True
+    assert result["memory"]["consolidated"] is True
+
+
+def test_continuity_unreachable_is_handled(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.research.assistant import SovereignResearchAssistant
+
+    assistant = SovereignResearchAssistant("continuity-down")
+
+    monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
+    monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
+    monkeypatch.setattr(assistant, "_run_evolution_scan", lambda: {})
+    monkeypatch.setattr(assistant, "_run_optimization_analysis", lambda: {})
+    monkeypatch.setattr(assistant, "_run_continuity_checkpoint", lambda: {"checkpointed": False, "error": "continuity_unreachable"})
+    monkeypatch.setattr(assistant, "_run_memory_consolidation", lambda: {})
+
+    result = assistant.run_full_pipeline()
+    assert result["status"] == "completed"
+    assert result["continuity"]["checkpointed"] is False

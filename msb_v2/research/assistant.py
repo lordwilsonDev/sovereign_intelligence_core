@@ -454,6 +454,12 @@ class SovereignResearchAssistant:
         # Phase 6: SOH optimization analysis
         summary["optimization"] = self._run_optimization_analysis()
 
+        # Phase 7: Continuity checkpoint
+        summary["continuity"] = self._run_continuity_checkpoint()
+
+        # Phase 7: Memory consolidation
+        summary["memory"] = self._run_memory_consolidation()
+
         completion = self.record_completion()
         summary["completion"] = completion
         summary["status"] = "completed"
@@ -565,6 +571,39 @@ class SovereignResearchAssistant:
         except Exception:
             pass
         return {"count": -1, "error": "optimization_unreachable"}
+
+    def _run_continuity_checkpoint(self) -> Dict[str, Any]:
+        """Generate a continuity token so this run can be resumed."""
+        try:
+            import requests
+            resp = requests.get(
+                "http://127.0.0.1:8766/continuity/resume-prompt",
+                timeout=5,
+            )
+            if resp.ok:
+                token = resp.text[:200]
+                return {"checkpointed": True, "token_preview": token}
+        except Exception:
+            pass
+        return {"checkpointed": False, "error": "continuity_unreachable"}
+
+    def _run_memory_consolidation(self) -> Dict[str, Any]:
+        """Consolidate short-term memories into long-term storage."""
+        try:
+            import requests
+            resp = requests.post(
+                "http://127.0.0.1:8766/memory/consolidate",
+                timeout=5,
+            )
+            if resp.ok:
+                try:
+                    data = resp.json()
+                except Exception:
+                    data = {}
+                return {"consolidated": True, "status": data.get("status", "ok")}
+        except Exception:
+            pass
+        return {"consolidated": False, "error": "memory_unreachable"}
 
     def _persist(self, payload: Any, artifact_name: str) -> Path:
         safe_name = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in artifact_name)
