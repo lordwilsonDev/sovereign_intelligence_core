@@ -295,6 +295,11 @@ def _load_routers() -> None:
         _register(truth_beat_router, "/truth-beat")
     except Exception:
         pass
+    try:
+        from msb_v2.api.snapshot import router as snapshot_router
+        _register(snapshot_router, "/snapshot")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:

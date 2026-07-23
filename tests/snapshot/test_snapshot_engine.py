@@ -1,23 +1,22 @@
-"""Encrypted local snapshot backup engine."""
+"""Encrypted local snapshot backup tests."""
 from __future__ import annotations
 
-import os
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict
 
-import pyzipper
+import pytest
 
 from msb_v2.snapshot.engine import SnapshotEngine
 
 
-def test_snapshot_engine_list_empty_when_no_backups(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_list_snapshots_empty_when_no_backups(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    empty = tmp_path / "empty"
+    empty.mkdir(parents=True, exist_ok=True)
     engine = SnapshotEngine(repo_path=tmp_path)
-    monkeypatch.setattr(engine, "backup_dir", tmp_path / "empty")
+    monkeypatch.setattr(engine, "backup_dir", empty)
     assert engine.list_snapshots() == []
 
 
-def test_snapshot_capture_returns_envelope(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_capture_returns_envelope(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     engine = SnapshotEngine(repo_path=tmp_path)
     monkeypatch.setattr(engine, "backup_dir", tmp_path / "backups")
     (tmp_path / "data").mkdir(parents=True, exist_ok=True)
@@ -26,3 +25,4 @@ def test_snapshot_capture_returns_envelope(monkeypatch: pytest.MonkeyPatch, tmp_
     assert result["status"] == "captured"
     assert result["snapshot_id"]
     assert result["path"].endswith(".zip")
+    assert Path(result["path"]).exists()

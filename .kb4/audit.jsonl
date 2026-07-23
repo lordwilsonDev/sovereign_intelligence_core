@@ -1560,3 +1560,225 @@
 {"event": {"type": "kb4", "intent": "Find case studies related to continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "1cbf7fe2337f6db505c7b805b402c2d2138d7c9d36d305e394110c26aff17f47"}
 {"event": {"type": "mutation", "score": 50.0}, "hash": "6889c3a93ac259e8bf6b59ce65a85c026ef914a02ab004bdc1c25507b2221e13"}
 {"event": {"type": "kb4", "intent": "Gather statistical data about continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "bdf52a100cb039e0d8ba33cd6678d5cdedf31f3ab00346167e420d828d232968"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "b5eee11fba3ae39ec19abd9d03d5ffc9b5e296f683c0877c6666c3079c52027f"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "5d7e00a5186a4bcc62dddec1f27c6afaadb537afab844b3e150889b8e065a355"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "11fecfbdfd213b3be5bedf456754ce6aad0a26ab129efa3079a7749a46fb566a"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "aa9ac3725dc38e3cbdbb2de68392ab35b7e5f037364f7b33bf0f7c92c89e0265"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "6a44382bf9bd9bbb9d1fb0679bf11f100b4a3cf7ccfd05e362147b859d08433f"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "3f60716d8b19f5f12dd241cab97396bc215a31ff3b11394a78679ac83733968b"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "5b6c35bf8e8592102b979a8d61d5600bd2be47080301bcc3ceceb038f9cf3c15"}
+{"event": {"type": "kb4", "intent": "Find case studies related to immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "f8efb202d8345dc45aecdff3ce3d5d616fcf999f9c195ec04a875d4f6369541a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "411560a096c0576e087ba196a45c228059303f731228cc654a18b6ca4ef073e4"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c2687c2a8f41002c2f0e68a585b6e0a2da2edade8b3af8a2b628fcff91b3e102"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "db1ffea6a2c4c96deb7a5401cdaf7362189808fb0e8a4e3e2d5c5b3d0d875c20"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "1bd2620492d503ac7b95ffa9cfd61764623ba60ed57c32305257f44032cad331"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "16b9bbb7948332545c9cbf9b73e85a1feb59743ac265269b35781e7ce256e574"}
+{"event": {"type": "kb4", "intent": "Find case studies related to immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "5d0ac9407edce7d51e2a8be5603a9f68efb415e07d7bec0aae0dd47784a3146f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "b8b05b2daabc1ba2d4281ba79eb7b3316a0811aa734f084cd0b1f7a1f309ec19"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "aa18db4dca0ef162925f1781676c2a96f522896c88ce6ae76935ea72fb95ec05"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "acf1c259babc56049c03665d28e77a09c4c2c482b4cd59a62450b334305ab411"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "83bc2bdefcf69f45e00ec744d703c982fbd1b6045f100f4b30bb1edb431be8d1"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "b0615092d8aa49af9ff34b6c5b4224ce42b11a98ebf894f4b8daf7ee8f56b1f8"}
+{"event": {"type": "kb4", "intent": "Find case studies related to snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "eb4b23ab09601ec39badea20888446f35bfa0021bf4730007a8d5fbbd62c7aa7"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "6687fb739436b370fc8035da726537a3e12a55560771ffe828df6434f2937ebc"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "0019a015dadafec6ca259b8608498e19dc655f49140d8ba8ac8ec09df209715f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "2945c531226c413077d8db705de87f5cfce5e647c0fc8147ea22452cd88cdc6f"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "3776075590873d7732a94e5f5049810d2a70907bf22b5a314b607aa0dc2beca8"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "9fea2e6cc12f8efffe42c17a91169891f273623bd6368e73d4996f84d77ec789"}
+{"event": {"type": "kb4", "intent": "Find case studies related to self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "1cdd7f0fa184affce1d0d705e260c0161f5b011569f9bc540dcca1d3f2c03376"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e7ba2696fb2674f6f8363d4e3e4c11c6f1058368dc809a0fe24740da5e6d8360"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "e90b6d5930c8b112846a549267e1d8d3a1c1d8513622c91cbfbff793100032ae"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "8ed6d9e21c29260cd139b53b55e4aa816d5a840a04f94eee3089a25d201eb2f3"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "442e0f5c473e32f8cb464beb220f3490a3300dc66fd5f116be3602f4afd176a1"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "4403a27c6e7dc08bff5e24a3fc0ed03c679528edb8fd15f4ab0b02e8d37efff2"}
+{"event": {"type": "kb4", "intent": "Find case studies related to self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "074582cf45c305fdfcfd54b3a15c114353ccb4c9ec934391d988502b1a71ecf1"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "3d7e56edb7b1d5d2767aa29c39f870cc76cce3652ee84c1b8f004e08a00de9e2"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "640443252bdab87651d634f9f718422c90d8f0e95920e56ef87ffa1f072fe1d8"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "43069688aff6c9dcc4c55137fdf79bed2a71bc9a71946b226354219643a2c5ce"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "a077a621453e0cb6f9b21036ef7b93d25dd2fa5f857fb3050abd2d116b89d56c"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "7e9b81093574840889f8fe2fac5fec221dc6af7cff2eee5cc301bf3998fc03ac"}
+{"event": {"type": "kb4", "intent": "Find case studies related to continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "3ff75340a6e62a02d4990f8614a33558bead7918e1b9fbdb22643be340f937aa"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "a4336f93ea9abd908af3a37136c90a26d8d5c4ade5690033d0852a108d8eab23"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "b162ef96710d0330925c8dce9bd5f3442a88803242ad9636cd372b0a0ceb9229"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "947f36f996e920dcb54f95b0e15e5024cab5388e633e1279d13ac6184945e8a7"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "fd2f4cb103d951ea87618fce18ade6f8d6575eb0829fb009ab84528090873b8f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e1400a234a6bcd1961a023b715520a30a6ae606f8fdac7a18f6c1f1ff9d686c8"}
+{"event": {"type": "kb4", "intent": "Find case studies related to continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "2734cd4f92f4b506eac905a26dc2303fea0ae143be996d8029b5f32f5e5d55f0"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "a9c2d457092a30d251a7d44254e620ca1d7d298caf9eff118ebbc75ab2209c7b"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "676a36e6c10eaf78e1e20fc9746ef933b6ad0c7db449e4c2f2229f8dff0c4851"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d8b753f058b9d8711692f22e7c47c6524b884239ed0b4433734df50e8bb0f3e3"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "9e46a050690b1c132ce6f592b8a67cec3b0c9512d0f5c3a5b7f030d07fa83378"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "3246bc1ee65ba0cdedcfa2cbfe75211b7bccc61e8ea437334480100d1e43ccac"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "e65a8d202595afec6c1b47ee8eca22cf175692114de49211aefc6a32f793bb47"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "03caacd2196be35a4df98b70cbf419298f2cac34f8cbc23ef88f0e0ad94f4e80"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c5633fe519b7457fde3ccbdd870df0aad8e061a4e73cf1672a96ab05a1bc4c17"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "66b410fc48d742ca6869b41d47f1ca8020de9bd76ae19c506d65b63786b0b5bb"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "7d87d754bfb85104c57d0264e51b95657310c3a0b834a73ebb2c661d2d432e6f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "da19100272ec20b3323fad5b76552d16e702da472c333aa931a5d26cbf7e0021"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "cd6a81fdcc38656218a1e1c8054ab640caa5943d4f74ab24f6aac2d48b8cf3cc"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "c0dd5e70369a083f26b9a706978275072586efb44804cc33b2edfdb2515b9dd0"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "ba24d2a39117c482ed71f2bbf5808c1f1dc8f420ec0f933a44642d40614994c0"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d7137f05e8635753e43bc0e43f8d41d9f7e53af158455833339fc51e28a508fe"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "57f3adee07f166bbef3b9a5a6b1c1606e6e2b4403b3de52ffaa52dd4a0b46a1a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "aac48b484388d4e8db27fe4dc1f254bd401282d8a7118e4169f087343a1213d8"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "f8b81d4ff0bece556efb203ecb850ad1281ccc7b9d6a1e7ee08bfb00b71d1b55"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "468331aaf1eea3eeb177c57eea69d675377b8d6aa079b9dd32e52ef84ddc4497"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "8f9c97e7cfd49b5432790399a0a030d436641c7182b4f73fe44c0569124f870b"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e8957f5608cb05d3c26bb80d12a44c11e8b61599b413131cb02d84552940f320"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "748129c4d076ff97b5aabb41357ae567518236c2aaeae6fce1e343699caca8e3"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "3e9512ea915a935aebb26df62bc670702bc3ec857486e0574e02ba03902046a0"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "1e1f058b4f721587ad166e17bf2b8a29de8065e68b74b49d9f16fd854d0546a4"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "4e0dd88d49366707c3492a429f4337e62de4d2cd89b10779e71677fa4f818e4e"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "20f889e599fab1b8d6437ef1b859513ff3813f0666ed0adbac13c63f4117f3aa"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "eb48ec2124aaf08bcc1127041793924a1c6aa214d206a7422d33d90180f41b4c"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4dc5139f11d98ab7c1375d2c9b527c1416ea1bbda3f293c4ed8f9cd2b5590093"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f95b686c5e0867de1f73f3a3ace2ed40a0cc1cd0f327701006d21647ccf4d876"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "f01dc322ecab90993fa9d2c6ec87ccaf86fab29e3ebcc5d2f05ea2cf98e1b836"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f83ad87405ae041c697b919205f0500b0a2108b38e9c9b7af67175a019f070fc"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "0d44b3ac0afca623ffa070418edb4d64f609263c2ac2f29b76c8b5e69609c431"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "fcf461cb0f4bcea0440ce2b747499471e929b6528a6e760be68a0d4256ddcab5"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "778d2527923a60f59e81c57d9cc9e8ac4c3b1538014deddbe74a7dc6a3b23a80"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "379290f6f3c4bc5ca38f14049e3edce30a9bfc1b263725e671ad295813928407"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "f444f6e43b92ba0fdb712ae174c3ddafbf40a66d839aa2aa4789f433d6006e7a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "2594b872b60ebd805dd67d88e99d16d2b4c6ea1b9618215d8d1fe8b0822b5212"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "dbc3f60d4b2aa7f4e9823723f049fce0f4753d1b493e9b8a08af17a01a1414bd"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "101c15c8107c38a7550a4117f90d707dba943034d899326efab739b1d8242bb6"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4b05baeb51d115ffe04d4d9a084644008339c9125c3385f87ce990cda599edbf"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "7a33a069704825757158ec191a77386d2f3e75ee2d85f086da9ef688eae8248a"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "431ff5e309d438c2e8cafbbfafbb158e5a0749a5eecf320b8b5144a8ce2cee2c"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "427e29d4e7443c79025a5d2ef2ac99c0635d20d02930caa76571749c8c9ca69e"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "54765fe71243586a9a0a737e3cdfc5cb7cc1b766255b3404e4a8691d6a037529"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "a2204d765bdf9be52d0115a8dd81b993ae804abac796da78ebb9c10ee5b5731a"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "e08570f773d17aa026f7f7c63965232bf8fdc805e6b91f242690f38823fe8d95"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "6ede496fc9d5e2ef800b29bfb421fa88cbbd461bd33bdf303f63f19648b3cb5e"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "9a934fab69e9bccda36c5d6ea446ef59575154e8bdf242e4a0127c5153a97075"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "ab9ea61dd493d3c4609cb670fb136794eaa2f23ebb1d9493117c5520ac736cf9"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "07ae8f0dcb3c8b51b9fb0e5608a1725d1a5d77102c8dfd4ca290d969b2fdef05"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "25f249c3afc888f69c9ab0563cb52758f01c288d93742158c0cc6ebad8b4353b"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "1171c2adff8e7488e4d0b7156c2ec9a0aadf0045d9fb39ad346fe6d6d37ecfa8"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "ad8977ce25cf26c6cd50264bc103c5683e965a131f2d99c14cb20ba91199fab6"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "02a7ade99ee180f0ae84708e46abcfb3cca1b1ff7fd19308ddbe1ccf2567b1cc"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "5fc72340a5868bdae0685c78a5a2fecc68b29a767594f57a8fd6bd96143f1f13"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "5db5bee669bbf3a851859a81f33993fec12ab7d9bc0b2c2fc435200c3d11d77e"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f9446a0d2c9c59ef432bd492f39a5db76d7904c4786508770011bf02150b65e6"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "bf20dd34dd4b91665e8674c5fc81dcb39de38aeaa156983f8723be5672e8028d"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "9fa37e3fb0066b90c09f3ed7dc4ae5a9048e4dc08778f7242d2bbf2afe06ef16"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "35ea654e395604bff94ad040e3675a7ef9507b04a215585d5c97c1189cdb0db3"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "793ea9490229fcb50653313a716d6a6b56bc931247e80d8116b039ad31c62714"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4925c419922349567809e71be4775a1919ec3aa5a8a4de9c624c1e72668adc93"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e7afd11c3f98e671520182eefa5a5edbb7c27d06c275440b15cbb5696fda87f0"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "9367e57329501460f5263d775b2c2713add64f29b1f27991663e7715bb12ee8e"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "fc0a6d346a41910b7d5e2c2cfca2e96a62e765f6f341cb2b861bdf773b6f9229"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "26b3bb8da1415a3c08ff0fcdf0c6554ee7e4e34a81e969accc597b1d50817347"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "a020227a2110186bdba62c2382fa49751fa7a3d01d2a950db419eddddf5fc554"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "3680ebf96a5f3a3c7bbc118f71266293887265913958d91b5c18fe82831990f3"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "56dc98687d9cc93fb9c3b2cbadbc4de9f40599500620e3fbf5096edf68be761e"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "b5ee5c7d3ed5d1749801e2e98a4d0c26eeb6fc795b00df1441594467c440d9b0"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "590b5cb4f50400232ebf421eaa19ee479650706431ea303fc1c1cf2f4a99148e"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "0f9355eecef8adcdd4afd0f5fe587f08ee35f4be4cb11d334bd8aed721d5b7ba"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "45d33a7990b083e49d9cd9b82e61c2a1fd00c392fa9e238b8b824b910aa7377a"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "407dabf9abdb1a9096438eb90873f725f2548967a228485f595939c4886b2c67"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "3f33e08845f7dec4c94645dc8c8658dee74c0afed5457601e801a0a8a3280489"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c5453ca220f9e43b07f806545a46344a245465f21179a249e5893929c23ab55c"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f2faec57295b915662efd6e7d3b531e7e25f1e71b6d53e2a194dae6dde3731e1"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "84c25680d2156d4a322130a6b5ec3aa4220e163317fa8e7b5e977fe5f18b34fd"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "dafe420c782c743c2c11d92651609a7aaf049a2611ca657c13e386663472d288"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "e579e2bfec78b01543b8bd7adcea85a0955ccdf56739e75e56761ead10fb16f3"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d38c1803614358e7bc26c9f2f2e8d86e8adfa6a54e18f6e146625729b692469d"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "d6b1892d73f67fc4e15d1c0e127b210879b63b9265bd3e214e54ff9a9d5bedc2"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d0419591eb1ab9d56bea065372eef0d56bb8875a294d1de11173fe6eecf79759"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c781af3dfa006d0c96c555972c6867355e4a6608d303d1d71a0f172d2c071b00"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "ddc5c2aa8daebd5f78acf3c6cf5746af73018a71fa7d481ff1a5053f480f837f"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "eca2f3a0498a084bffd0f077653821e58d1167be56fbd96edb1da1ec1441e827"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "73f696d257df2bcafd226536775530b0b8cf3d413606ba2d46d91627028cec07"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "38660a3d42a05bb8b23ec11df7767d19f851f3f1ffdca4a89bbbc0d666413428"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "85552ed0f3281dc9dd9ed8f2473c1a98aff0aa3baef1a83ef1d4c6bc52c14fa2"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4137a4d14aa8c2c4560bba1bdd98b9258745bf8624b9928dfc77229d9e985669"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "c50a6ae1f37af5ed999ae86391ba92f6522c32855936e399f187bb75cecf38b1"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "5ca30c7606b5d16bc520fe2d49b6b437b1820c52785c37ad775ef0d33aa15120"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "dd326be5dc7a9e0b61a1c302a411ad89b96d632df337da60ec4ec7abdfc14720"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "30c7a3fb1f94341ea21a1def193f5b911b6814c986c505e5a38c8b1ba51a1058"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "837ff4a8f5470c8a515fe077344819f4c0aeea78bdf29c46907e9211c6c81c6f"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "cb85b158548c9257ec1559c0ae8c2bfed358bef36cdcea0721c6f7bcbf3c9df5"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "44a8ab0fe472f22234e586d0bb9b556e840a029696c99e949765672b1f511ef0"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "7306eb9b7f8eeaf1e9a6d92c0b7046666437317895b3eb51ba1da985f35fd35a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "9ce08b012822a9bb0ee46941c596e2f558c514f571dab565a35f8467b80cb5fc"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "a387ddfb9ef2a239b06615b586460ab68f33f6ce0f2e3e10c0b2df7d3a8ef310"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d867814b6774fbea8fb7d0895ef68936f686d8482917111e44d02ef837418f68"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "e01f733154fdb0668c45f1a35f5ef09aa6e7e7e8c688d03733c33adf91f52916"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "884ddea30ec07e112cca9aaafef75e51efc669731bea1f6e12c6d5637bddc77b"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "7ac4ec1970ba7a3bf5ea6f2f306f3533256f45820b65381a083e835991a05537"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "1173a730613ab9f9399dc3f92f950253c1200b7046fc9f9705ed5c9e669c77a1"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "8b7a6cce6483e757b79672a7d4c4832b244361f9ce3821e77a9e4f9c838af852"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f8004856fce48e99e6afd3becc08af7cb27b829696f1e402306efbc5084af7e6"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "297ff2f921b2c1926e11480b5c59ac14fb3857b0a4b9f139b218956ae4dae519"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "473eb5c4e36aa51ef1ca305e9bc5b7dae508d02677c58c1ea69004b06c3dff34"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "8392d8a7f1915d077216a9e26eb538b991413000641325f2a692d4fd8d37a978"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "0a0a9a53380d1d5dcd9f166e34618d5fce2f675ccc97b61c51d506420a068d8f"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "96c26ab1f590df90e16aa485e3fe3a07b03ed6de856a5c3a3e8f38c23e8a8f6e"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "261a4f99bbbc3529c088abb86e091fb8c9245008eb05257c9fc77676249f0787"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c631cdad764e7a3986b634227d8afcb5667ca2260b7cd495d33a6465342db094"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "48a2646539fc53a87c4941b881f06117a99021ff1e22ba2c3a6760ba7f24974b"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "92b4fc929389fd5e2fb42aaa61fdf3aefe9b336b3296646ffd97f6d83790c5e7"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "ad1b905a71fc45be2668d1872cf45651634882192dcb7d29e319f4a6fdeadeea"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "1729a347a2044f376566134b40cd87d63228ad790c15dd337b0d4f706104ecd2"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f5fec8f4069ee1cec728305706d75b133d102266a3b051fe1c2eae07d50305b3"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "3c4f54dc327279f9dcbc62829a07d6c12f1f98de5376ce9b80f331132ed97bc3"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "aa51383a7cb89143e9d8c0bcaa21cc0a20ca6c1a6c2864f0413ae6b3e2135542"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "9153c4ec9ca8121aa48370a0c8b285cbc0fe615cda8f60770e5c5ff89c16bb81"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "ca6f4f0a7a1140d31cda424a07aa1bd9722936962ce9f158e00e2a7a90699025"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "b34a3ad53bd5fcdd72abed46060a2beee45c4662a7970b675f5af0b0be7aee5a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "a5af9a1ffcce1a14818204da76f4fef3b664b15f0393616b014bc2b64cd298bf"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "d4f6b347758a8516aef4c3f102546c6608fffb2bff08d8227311ec8f0ffc136a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d8a73fcf1ee468f0388b96cf21b3e52adc7d02ce7eddb92e90ccfef9728de63b"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "ec5db01cf0d2bdfd5592b3712a491aca4e15ff3ca9f75d8abf238c5e355ab764"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "ab648bd41a88ffa0e80837e81f2fe4452f44a5e9ac9fd6d0b016db962c80f1ca"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "18cc5cb6673e3e8b0c334af5376e703e568d6fedd00ae4f1fd6e63ed902e3093"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "95a0d170e0d2e5d0ea889b2887cf221804f3938789b2b5648a7ef3e7758cd83a"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "88c2f3bd0d14dbdfb0ded486f7953a43539d7daaf1d90caf30a38e96c4c479d0"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "23c4dddd658fd849cb95202d88a2c955d32d5bb8f528272da013f43542e910bc"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "6a13c66771520948b6f304dc65e737b225d87b6fa2999902729c2b5851649d23"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "22b36c2bd461e521d34cd80d1d870fdd72f4b43e2f61a3b5928b94a8d70e8b17"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "f1239d39c910dd099c7cfe92292067db75beafe0e68d314212c5dca58596c4ae"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e18703ee5b281c88f7fb6f4c97f516eb89a104c6bbdab156d4ff7601ec63b6f1"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "8f3ca2ce52e6e1a847ad9a4fdc4ff534c768884121fef193fcac0bda22bd5df6"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "3ad1e9a116cd6cedf16cf91a5976d62d22e5fe5b40c25b9f68ca87ed112ff029"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "89bc646113b8a29ccffd1b8100a9a43267467dc33232f05c8ad1298e58b7d320"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "427f9e743040108e1da2ff98d6e003be300af4516f9ac30dd49e17c60e69b143"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "44974feaffbd5ad9c10281977e9e897821b192ec58bf7fae1ccbc55edba6b023"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "835ffc670ba4ffb879c770bb6b50baadf8a85202026a9ad4e9bb37b75c16820e"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "1d8e7167595047e26288cac54e34d882a6be014098c96c39ab3cbdd5c2e860d4"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "a0553f603e768460cd53a1c31f2e11c82dd657cfacd6bb771ae0333a099e8df7"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "520eb447a7b50f7ddab9f1ff0735113a9a92b0eb581b850edbf7fe1c0dc4a9bf"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f5325d6ddc39e5e8bb7818987842bf98edd10ece799cd2946037647b8284d9ea"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "0170ed5bcc71ebd5f9a2e6fcdc413aa008be2bd687632d39ba6be6432b1dcd3d"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "4fd760ec13ebb1cbb04234784bba3c63c5683475874bda5f5b73f78f9373d1ef"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "d4afaa87f42fbb329dfbc330f3aadea9fedb58c5d1849cf918e72f35c5f7dbae"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "9da91ef5b2912ed1106fa65a8ed6434cf6bd676ce60b19034f882717ec773de9"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "108cf6365ae59caaa51dc5652174157a2ad2eb20609fb5bc6e5515b658d56c42"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "97f2ff0daf169c915d071881e552bcafb50c240f434c03817e03bb6a2d8b0793"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "3ce196d1144d3313f8643692f96c4476964cd0e65654e8742d295ff24bdde50d"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "cac140dfef175ca2e3ac44fc589d2b132ed8f097d3c39e7c4184f2f9c7e33d10"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "0696bff77b3e7b22f383afaa0d677baf13fdf8a8f08f8991d004192728ae446a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "5f7e38dca963dde31a60ccbdb8904397e015bc5661385e5ecf500fd8dc7be638"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "fd9e76124ad9edcd8a04b24514a10670b8604d9fb01a9c9f8959911801bc0e8b"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e72d5a0500c1b17c7dd78782e1c697a9fd46e166efb272e0b4e155a1fc170b90"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "3b11bfb7691ab46633076005db333cf7aaef36edb2e92bc915e30c40ecd14c71"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "db9be2db2377709c27adcdbc0967fac6c2d26b6117fe06203fd82e08592d24f8"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "fb118071301ec7977c3ec401a2dcb9ea055bca92f138374afe62e58223d54ee5"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e5b6041962b546c8974db51c07f6af155c88bbdae8f897e1a55702149d6634bc"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "43574122b08f675c957dc422a63529de72b53def9bbd003151f2a29acab7f748"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "27ea5d4ab8e6068f5f380fc53f03039cf0ffa495a4f1fa2d78863897ad5ed7d3"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "97146bfee2c1e829082adcc3fb5b5dfb8b0703ee048d5eca0f74e05601488f73"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "8c33a4d8eb0b09c6201cdd5c1adce3f1f71ab1b4826a1ad7b4b9b32d3a3cd332"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "05a758f17232d047e481f8587bb3693aa959377e3dcf5070c3cf3b6c4185412d"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e5613207e270977cd43bffa5d3f0b5af513fcabbc206f5961e8c2fdebfb78566"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about x", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c899a0bc9f83a9ec02e421c7579352fa3378f220fab127165f88d50fe7ccc03f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "c7aaad46582bf732b88fb13b7a0c77c5ffc640da51ca632b20d50e1a81d35c39"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "03378d4f4bbce7c01c978ca4fb8fe4a88045ee18fd28e49f030942aab54c0f37"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "5b533fad946fa4d33b5784a772cbbeb2179ce66e03b06d263577d6c0389e283e"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "2b542a259ebb52262df62e0ec419ba9d1029b184660a37626cc56024731b9406"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "8f5be9132e88087dc4d21123f60ddf603766e6dbf5618fe8e89bbcdeafb946c2"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "d4645e2cef0439c8fd586ca80748cffe12de89254f908720169617c2a7a24450"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "4107a4b826214e6a3f754c58f27ea23fe10a5606fbf38edc80f78a10adc5e6c4"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about AI will replace all human jobs by 2030", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4094272be0b35dea873ca8f0cdd24585fc74b92796f21e9ce28f5bb69950f76f"}

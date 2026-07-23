@@ -10,7 +10,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/truth-beat", tags=["truth-beat"])
+router = APIRouter(tags=["truth-beat"])
 
 
 class TruthBeat:

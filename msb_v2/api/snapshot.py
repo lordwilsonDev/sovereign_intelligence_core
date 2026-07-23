@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 from msb_v2.snapshot.engine import SnapshotEngine
 
-router = APIRouter(prefix="/snapshot", tags=["snapshot"])
+router = APIRouter(tags=["snapshot"])
 _engine = SnapshotEngine()
 
 

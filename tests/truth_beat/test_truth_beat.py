@@ -29,5 +29,5 @@ def test_truth_beat_router_routes_include_expected_paths() -> None:
     from msb_v2.truth_beat.harness import router as truth_beat_router
 
     routes = {r.path for r in truth_beat_router.routes}
-    assert "/truth-beat/pulse" in routes
-    assert "/truth-beat/strip" in routes
+    assert "/pulse" in routes
+    assert "/strip" in routes
