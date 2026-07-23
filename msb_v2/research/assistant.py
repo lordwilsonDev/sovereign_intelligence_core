@@ -8,6 +8,8 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from msb_v2.observer_log.thought_emitter import emit_thought as _research_emit_thought
+
 
 _TOPIC_SLUG_FORBIDDEN = {"/", "\\", "..", "~", ":", "*", "?", '"', "<", ">", "|"}
 
@@ -422,12 +424,14 @@ class SovereignResearchAssistant:
             "phases": {},
         }
         self._notify("pipeline_start", f"Starting research on: {self.topic}")
+        _research_emit_thought("research-assistant", f"Starting research on: {self.topic}")
 
         preflight = self._preflight_checks()
         summary["phases"]["preflight"] = preflight
         if not preflight.get("passed"):
             summary["status"] = "blocked_by_preflight"
             self._notify("pipeline_blocked", "Pre-flight checks failed", "high")
+            _research_emit_thought("research-assistant", "Pipeline blocked by preflight checks", "high")
             return summary
 
         if not self._sac_gate("pipeline_start"):
@@ -438,6 +442,7 @@ class SovereignResearchAssistant:
         self._notify("inversion_start", "Running axiom inversion")
         summary["phases"]["inversion"] = self.run_inversion()
         self._notify("inversion_complete", "Axiom inversion complete")
+        _research_emit_thought("research-assistant", "Axiom inversion complete")
 
         if not self._sac_gate("evidence_grounding"):
             summary["status"] = "blocked_during_evidence"
@@ -446,6 +451,7 @@ class SovereignResearchAssistant:
         self._notify("evidence_start", "Grounding evidence")
         summary["phases"]["evidence"] = self.ground_evidence()
         self._notify("evidence_complete", "Evidence grounding complete")
+        _research_emit_thought("research-assistant", "Evidence grounding complete")
 
         # Phase 8: Mesh distribution (parallel evidence grounding)
         mesh_results = self._distribute_evidence_grounding(self.topic)
@@ -464,6 +470,7 @@ class SovereignResearchAssistant:
         self._notify("report_start", "Generating research report")
         summary["phases"]["report"] = {"path": str(self.draft_report())}
         self._notify("report_complete", "Research report generated")
+        _research_emit_thought("research-assistant", "Research report generated")
 
         report_text = ""
         try:

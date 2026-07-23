@@ -9,6 +9,8 @@ import requests
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+from msb_v2.observer_log.thought_emitter import emit_thought as truthbeat_emit_thought
+
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["truth-beat"])
 
@@ -21,21 +23,20 @@ class TruthBeat:
 
     def strip(self, claim: str) -> Dict[str, Any]:
         """Run the full truth-stripping pipeline on a single claim."""
-        inversion = self._call_research("invert", claim)
-        moie = self._call_kb4(
-            f"Use Mixture of Inversion Experts to debate the following claim, "
-            f"identify hidden assumptions, and produce a Unified Inversion Model: {claim}"
-        )
-        sac = self._call_sac(claim)
-        grounding = self._call_grounding(claim)
-        return {
+        result = {
             "original": claim,
-            "inversion": inversion,
-            "moie_dialectic": moie,
-            "sac_verdict": sac,
-            "empirical_grounding": grounding,
-            "verdict": "TRUTH" if sac.get("risk") != "HIGH" else "LIE",
+            "inversion": self._call_research("invert", claim),
+            "moie_dialectic": self._call_kb4(
+                f"Use Mixture of Inversion Experts to debate the following claim, "
+                f"identify hidden assumptions, and produce a Unified Inversion Model: {claim}"
+            ),
+            "sac_verdict": self._call_sac(claim),
+            "empirical_grounding": self._call_grounding(claim),
+            "verdict": "TRUTH" if self._call_sac(claim).get("risk") != "HIGH" else "LIE",
         }
+        if result["verdict"] == "LIE":
+            truthbeat_emit_thought("truth-beat", f"Lie detected in claim: {claim[:80]}", "high")
+        return result
 
     def _call_research(self, phase: str, topic: str) -> Dict[str, Any]:
         try:
