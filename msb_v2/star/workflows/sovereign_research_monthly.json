@@ -1,12 +1,13 @@
 {
   "id": "sovereign-research-monthly",
   "name": "Monthly Report Synthesis & Publication",
-  "schedule": "0 10 1 * *",
   "harness_action": {
     "type": "http",
     "method": "POST",
     "url": "http://127.0.0.1:8766/research/assistant/run",
-    "body": {"phase": "report_synthesis"}
+    "body": {
+      "phase": "report_synthesis"
+    }
   },
   "retry_policy": {
     "max_retries": 1,
@@ -17,5 +18,8 @@
     "alert_template": "research_assistant_failure"
   },
   "active": true,
-  "depends_on": ["sovereign-research-weekly"]
+  "depends_on": [
+    "sovereign-research-weekly"
+  ],
+  "cron": "0 10 1 * *"
 }

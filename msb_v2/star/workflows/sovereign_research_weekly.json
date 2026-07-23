@@ -1,12 +1,13 @@
 {
   "id": "sovereign-research-weekly",
   "name": "Weekly Hypothesis Generation & Inversion",
-  "schedule": "0 9 * * 1",
   "harness_action": {
     "type": "http",
     "method": "POST",
     "url": "http://127.0.0.1:8766/research/assistant/run",
-    "body": {"phase": "hypothesis_generation"}
+    "body": {
+      "phase": "hypothesis_generation"
+    }
   },
   "retry_policy": {
     "max_retries": 1,
@@ -17,5 +18,8 @@
     "alert_template": "research_assistant_failure"
   },
   "active": true,
-  "depends_on": ["sovereign-research-daily"]
+  "depends_on": [
+    "sovereign-research-daily"
+  ],
+  "cron": "0 9 * * 1"
 }

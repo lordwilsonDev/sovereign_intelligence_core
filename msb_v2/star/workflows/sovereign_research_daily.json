@@ -1,12 +1,13 @@
 {
   "id": "sovereign-research-daily",
   "name": "Daily Literature Scan & Hypothesis Check",
-  "schedule": "0 8 * * *",
   "harness_action": {
     "type": "http",
     "method": "POST",
     "url": "http://127.0.0.1:8766/research/assistant/run",
-    "body": {"phase": "literature_scan"}
+    "body": {
+      "phase": "literature_scan"
+    }
   },
   "retry_policy": {
     "max_retries": 2,
@@ -17,5 +18,6 @@
     "alert_template": "research_assistant_failure"
   },
   "active": true,
-  "depends_on": []
+  "depends_on": [],
+  "cron": "0 8 * * *"
 }

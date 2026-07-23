@@ -20,10 +20,12 @@ class JobDefinition:
     name: str = ""
     description: str = ""
     cron: str = "*/15 * * * *"
+    schedule: Dict[str, Any] = field(default_factory=dict)
     harness_action: Dict[str, Any] = field(default_factory=dict)
     retry_policy: Dict[str, Any] = field(default_factory=lambda: {"max_retries": 2, "backoff_factor": 2.0})
-    failure_policy: str = "alert"
+    failure_policy: Dict[str, Any] = field(default_factory=lambda: {"on_failure": "alert"})
     active: bool = True
+    depends_on: List[str] = field(default_factory=list)
     created_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
@@ -41,10 +43,12 @@ class JobRun:
 
 
 class JobStore:
-    def __init__(self, jobs_path: Path = DEFAULT_JOBS_PATH) -> None:
+    def __init__(self, jobs_path: Path = DEFAULT_JOBS_PATH, workflows_path: Path = ROOT / "star" / "workflows") -> None:
         self._jobs_path = jobs_path
+        self._workflows_path = workflows_path
         self._jobs: Dict[str, JobDefinition] = {}
         self._load()
+        self._load_workflows()
 
     def _load(self) -> None:
         if not self._jobs_path.exists():
@@ -53,6 +57,17 @@ class JobStore:
         for item in payload.get("jobs", []):
             job = JobDefinition(**{k: v for k, v in item.items() if k in JobDefinition.__dataclass_fields__})
             self._jobs[job.id] = job
+
+    def _load_workflows(self) -> None:
+        if not self._workflows_path.exists():
+            return
+        for path in self._workflows_path.glob("*.json"):
+            try:
+                data = json.loads(path.read_text())
+            except Exception:
+                continue
+            job = JobDefinition(**{k: v for k, v in data.items() if k in JobDefinition.__dataclass_fields__})
+            self._jobs.setdefault(job.id, job)
 
     def _persist(self) -> None:
         self._jobs_path.parent.mkdir(parents=True, exist_ok=True)
@@ -163,9 +178,11 @@ def _job_to_dict(job: JobDefinition) -> Dict[str, Any]:
         "name": job.name,
         "description": job.description,
         "cron": job.cron,
+        "schedule": job.schedule,
         "harness_action": job.harness_action,
         "retry_policy": job.retry_policy,
         "failure_policy": job.failure_policy,
         "active": job.active,
+        "depends_on": job.depends_on,
         "created_at": job.created_at,
     }

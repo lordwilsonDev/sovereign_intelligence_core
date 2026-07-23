@@ -285,6 +285,11 @@ def _load_routers() -> None:
         from msb_v2.api import cloud_agent_contracts
     except Exception:
         pass
+    try:
+        from msb_v2.api.research import router as research_router
+        _register(research_router, "/research")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:

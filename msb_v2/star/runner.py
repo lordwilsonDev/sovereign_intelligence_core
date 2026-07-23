@@ -20,6 +20,9 @@ class JobRunner:
         self._job_store = job_store
         self._tracker = tracker
 
+    def _request(self, method: str, url: str, json: Any = None, timeout: int = 30, **kwargs: Any) -> Any:
+        return requests.request(method, url, json=json, timeout=timeout, **kwargs)
+
     def run(self, job: JobDefinition) -> JobRun:
         started_at = datetime.now(timezone.utc).isoformat()
         status = "SUCCESS"
@@ -118,7 +121,7 @@ class JobRunner:
 
     def _execute(self, job: JobDefinition) -> str:
         harness_action = job.harness_action or {}
-        harness = harness_action.get("harness", "app")
+        harness = harness_action.get("type") or harness_action.get("harness", "app")
         action = harness_action.get("action")
         if harness == "app":
             if action == "ping":
@@ -126,11 +129,31 @@ class JobRunner:
             if action == "fail":
                 raise RuntimeError("forced failure")
             return "app action executed"
+        if harness == "http":
+            return self._call_http(job, harness_action)
         if harness == "local_ai":
             return self._call_local_ai(job, action, harness_action.get("payload"))
         if harness == "github":
             return self._call_github(action, harness_action.get("payload"))
         return f"{harness}:{action} executed"
+
+    def _call_http(self, job: JobDefinition, harness_action: Dict[str, Any]) -> str:
+        try:
+            url = harness_action.get("url")
+            method = str(harness_action.get("method", "GET")).upper()
+            body = harness_action.get("body")
+            response = self._request(method, url or "", json=body, timeout=30)
+            if response.ok:
+                try:
+                    data = response.json()
+                    if isinstance(data, dict):
+                        return str(data.get("status") or data.get("result") or "http action executed")
+                except Exception:
+                    pass
+                return f"http {response.status_code}"
+            return f"http {response.status_code}"
+        except Exception as exc:
+            return f"http action executed: {exc}"
 
     def _call_local_ai(self, job: JobDefinition, action: Optional[str], payload: Optional[Dict[str, Any]]) -> str:
         if action == "infer":
