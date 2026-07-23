@@ -1,6 +1,7 @@
 """Mesh Discovery API — peer registration, listing, and removal."""
 from __future__ import annotations
 
+import json
 import logging
 from pathlib import Path
 from typing import List
@@ -24,6 +25,20 @@ _discovery = MeshDiscovery(node_id=_identity.node_id, peers_path=Path("runtime/m
 def list_peers() -> dict:
     """Return all known peers."""
     return {"peers": _discovery.list_peers()}
+
+
+@router.get("/peers/configured")
+def configured_peers() -> dict:
+    """Return peers loaded from runtime/mesh/peers.json or fallback to existing registry."""
+    payload_path = Path("runtime/mesh/peers.json")
+    if payload_path.exists():
+        try:
+            data = json.loads(payload_path.read_text())
+            peers = data.get("peers", [])
+            return {"configured": True, "peers": peers}
+        except Exception:
+            pass
+    return {"configured": False, "peers": _discovery.list_peers()}
 
 
 @router.post("/peers")
