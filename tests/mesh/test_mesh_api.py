@@ -70,3 +70,15 @@ def test_list_peers(client: TestClient) -> None:
     r = client.get("/mesh/peers", headers={"Authorization": "Bearer tok"})
     assert r.status_code == 200
     assert r.json()["count"] >= 1
+
+
+def test_peers_health_returns_status_for_each_peer(client: TestClient) -> None:
+    r = client.get("/mesh/discovery/peers/health", headers={"Authorization": "Bearer tok"})
+    assert r.status_code == 200
+    body = r.json()
+    assert "peers" in body
+    assert isinstance(body["peers"], list)
+    assert len(body["peers"]) >= 1
+    for peer_health in body["peers"]:
+        assert "node_id" in peer_health
+        assert "reachable" in peer_health

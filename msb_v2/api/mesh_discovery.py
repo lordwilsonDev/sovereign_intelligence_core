@@ -67,3 +67,10 @@ def announce() -> dict:
 def discover_local() -> dict:
     """Trigger local peer discovery."""
     return {"peers": _discovery.discover_local()}
+
+
+@router.get("/peers/health")
+def peers_health() -> dict:
+    """Return reachability status for configured peers."""
+    peers = _discovery.list_peers()
+    return {"peers": [_discovery.peer_health(peer) for peer in peers]}

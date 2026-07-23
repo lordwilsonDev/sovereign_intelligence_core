@@ -5,7 +5,7 @@ import json
 import socket
 import time
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 
 class MeshDiscovery:
@@ -79,3 +79,33 @@ class MeshDiscovery:
     def discover_local(self) -> List[dict]:
         """Placeholder for mDNS-based local peer discovery."""
         return self.list_peers()
+
+    def peer_health(self, peer: Dict[str, Any]) -> Dict[str, Any]:
+        """Return basic reachability metadata for a configured peer."""
+        try:
+            import urllib.request
+            address = peer.get("address", "127.0.0.1")
+            port = int(peer.get("port", 8766) or 8766)
+            url = f"http://{address}:{port}/health"
+            with urllib.request.urlopen(url, timeout=3) as response:
+                status = response.status
+        except Exception as exc:
+            return {
+                "node_id": peer.get("node_id"),
+                "address": peer.get("address"),
+                "port": peer.get("port"),
+                "reachable": False,
+                "status_code": None,
+                "error": str(exc),
+            }
+        base = {
+            "node_id": peer.get("node_id"),
+            "address": peer.get("address"),
+            "port": peer.get("port"),
+            "reachable": status == 200,
+            "status_code": status,
+        }
+        meta = peer.get("metadata")
+        if isinstance(meta, dict):
+            base["metadata"] = meta
+        return base
