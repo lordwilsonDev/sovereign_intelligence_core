@@ -77,6 +77,17 @@ def _echo_evaluate(action: str) -> Dict[str, Any]:
     return {"available": False, "should_echo": False, "severity": "unknown"}
 
 
+def _snh_notify(title: str, body: str) -> Dict[str, Any]:
+    try:
+        import requests
+        r = requests.post("http://127.0.0.1:8766/sn/notify", json={"title": title, "body": body}, timeout=2)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return {"available": False}
+
+
 class SovereignResearchAssistant:
     """Phase-gated research workflow: define -> invert -> evidence -> report."""
 
@@ -114,6 +125,10 @@ class SovereignResearchAssistant:
             event["allowed"] = False
         self.guard_events.append(event)
         if not event["allowed"]:
+            _snh_notify(
+                "Research Assistant Critical Alert",
+                f"Phase `{phase}` blocked by safety gate. SAC={sac.get('status')} systems={systems.get('status')} echo={echo.get('severity')}",
+            )
             raise RuntimeError(f"Safety gate blocked {phase}: {event}")
         return event
 
@@ -334,6 +349,7 @@ class SovereignResearchAssistant:
         path = self.root / f"{self.slug}_completion.json"
         path.write_text(json.dumps(completion, indent=2), encoding="utf-8")
         self.artifacts["completion"] = path
+        _snh_notify("Research Assistant Progress", f"Research assistant completed phase `{self.topic}`.")
         return completion
 
     def _persist(self, payload: Any, artifact_name: str) -> Path:
