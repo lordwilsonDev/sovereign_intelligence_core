@@ -35,6 +35,48 @@ def _assert_safe_slug(slug: str) -> None:
             raise ValueError(f"unsafe slug part: {part!r}")
 
 
+def _load_json(path: Path) -> Any:
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _sac_status() -> Dict[str, Any]:
+    try:
+        import requests
+        r = requests.get("http://127.0.0.1:8766/sac/status", timeout=2)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return {"available": False, "status": "unknown"}
+
+
+def _systems_health() -> Dict[str, Any]:
+    try:
+        import requests
+        r = requests.get("http://127.0.0.1:8766/systems-health/check", timeout=2)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return {"available": False, "status": "unknown"}
+
+
+def _echo_evaluate(action: str) -> Dict[str, Any]:
+    try:
+        import requests
+        r = requests.post("http://127.0.0.1:8766/echo/evaluate", json={"action": action, "payload": {}}, timeout=2)
+        if r.status_code == 200:
+            return r.json()
+    except Exception:
+        pass
+    return {"available": False, "should_echo": False, "severity": "unknown"}
+
+
 class SovereignResearchAssistant:
     """Phase-gated research workflow: define -> invert -> evidence -> report."""
 
@@ -43,6 +85,7 @@ class SovereignResearchAssistant:
         self.slug = _slugify(topic)
         self.root = Path(root) if root else Path("runtime/research") / self.slug
         self.artifacts: Dict[str, Optional[Path]] = {}
+        self.guard_events: List[Dict[str, Any]] = []
         self.state: Dict[str, Any] = {
             "topic": topic,
             "slug": self.slug,
@@ -55,7 +98,27 @@ class SovereignResearchAssistant:
         }
         self.root.mkdir(parents=True, exist_ok=True)
 
+    def _check_gates(self, phase: str, action_hint: str) -> Dict[str, Any]:
+        event = {"phase": phase, "action": action_hint, "allowed": True, "sac": {}, "systems": {}, "echo": {}}
+        sac = _sac_status()
+        systems = _systems_health()
+        echo = _echo_evaluate(action_hint)
+        event["sac"] = sac
+        event["systems"] = systems
+        event["echo"] = echo
+        if sac.get("status") == "RED":
+            event["allowed"] = False
+        if systems.get("status") == "RED":
+            event["allowed"] = False
+        if echo.get("should_echo") and str(echo.get("severity", "")).lower() == "critical":
+            event["allowed"] = False
+        self.guard_events.append(event)
+        if not event["allowed"]:
+            raise RuntimeError(f"Safety gate blocked {phase}: {event}")
+        return event
+
     def run_inversion(self) -> Dict[str, Any]:
+        self._check_gates("inversion", "run_inversion")
         assumptions = [
             {"id": "a1", "text": f"The topic '{self.topic}' is best studied with advanced tooling.", "validity_probability": 0.4},
             {"id": "a2", "text": "Novel contribution requires hypothesis generation.", "validity_probability": 0.7},
@@ -111,6 +174,7 @@ class SovereignResearchAssistant:
     def ground_evidence(self) -> Dict[str, Any]:
         if not self.state.get("hypotheses"):
             raise RuntimeError("run_inversion() before ground_evidence()")
+        self._check_gates("evidence", "ground_evidence")
         repo_root = Path.cwd()
         local_sources = []
         for path in sorted(repo_root.rglob("*")):
@@ -168,8 +232,9 @@ class SovereignResearchAssistant:
         return ledger
 
     def draft_report(self) -> Path:
-        uim = self._load_artifact("UIM")
-        ledger = self._load_artifact("evidence_ledger")
+        self._check_gates("report", "draft_report")
+        uim = _load_json(self.root / f"{self.slug}_UIM.json")
+        ledger = _load_json(self.root / f"{self.slug}_evidence_ledger.json")
         UIM = uim or {}
         L = ledger or {}
         hypotheses = self.state.get("hypotheses", [])
@@ -225,11 +290,21 @@ class SovereignResearchAssistant:
             "- operator budget and runtime state may change falsification conditions.",
             "- re-run `ground_evidence()` after new local artifacts appear.",
             "",
+            "## Guard Events",
+        ]
+        for ev in self.guard_events[-5:]:
+            lines.append(f"- {ev['phase']}: SAC={ev['sac'].get('status')} systems={ev['systems'].get('status')} echo={ev['echo'].get('severity')}")
+        lines += [
+            "",
+            "## Sovereignty Notes",
+            "- all persisted artifacts are local-only.",
+            "- high-risk external publication paths are logged only, not executed.",
+            "",
             "## Reproducibility Artifacts",
-            f"- UIM: `runtime/research/{self.slug}/<topic>_UIM.json`",
-            f"- evidence ledger: `runtime/research/{self.slug}/<topic>_evidence_ledger.jsonl`",
-            f"- report: `runtime/research/{self.slug}/<topic>_report.md`",
-            f"- review: `runtime/research/{self.slug}/<topic>_review.md`",
+            f"- UIM: `runtime/research/{self.slug}/{self.slug}_UIM.json`",
+            f"- evidence ledger: `runtime/research/{self.slug}/{self.slug}_evidence_ledger.json`",
+            f"- report: `runtime/research/{self.slug}/{self.slug}_report.md`",
+            f"- review: `runtime/research/{self.slug}/{self.slug}_review.md`",
         ]
         report = "\n".join(lines) + "\n"
         report_path = self._persist_text(report, "report")
@@ -240,6 +315,7 @@ class SovereignResearchAssistant:
             "claims_total": len(claims),
             "falsifications": ["none"],
             "follow_up": ["run external license check", "extend local evidence coverage"],
+            "guard_events": self.guard_events[-5:],
         }
         self._persist(review, "review")
         return report_path
