@@ -40,7 +40,7 @@
 
 ### Phase 7 — Continuous Autonomous Mission
 1. Schedule daily STAR scan and weekly STAR synthesis.
-2. Verify `/star/reload` endpoint or document restart-before-reload procedure.
+2. Documented `docs/LONG_HORIZON_PLAN.md`: `/star/reload` does not exist; use server restart after workflow JSON changes. New workflows are ingested on startup.
 3. Open long-lived mission session and monitor artifacts nightly.
 
 ---

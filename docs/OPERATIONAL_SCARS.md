@@ -89,11 +89,27 @@ Restarted the live server. This is a deployment‑process gap, not a code gap.
 
 ---
 
+## Scar 6: Host-state /systems-health/status RED warnings ✅ DOCUMENTED / HOST-LAYER
+
+**Observed behavior:**  
+`/systems-health/status` returns `system_readiness: "RED"` because the host is under resource pressure.
+
+**Current warnings:**  
+- `Disk 95.8% full`  
+- `1 zombie process`
+
+**Resolution:**  
+These are OS-level conditions, not application bugs. Added `docs/HOST_HARDENING.md` with exact remediation commands and periodic monitoring guidance. Application correctly reports host state via `/systems-health/status`; `/schh/status` remains `GREEN`.
+
+**Acceptance:**  
+- Application continues reporting accurate host readiness signals.  
+- Operator executes host cleanup or configures monitoring/alerting.
+
 ## Summary
 
-All documented scars are now closed or characterized as non-code limitations.
+All documented scars are now closed or formally handed off as host-layer/operational items.
 
-**Final hardening priorities:**
-1. Mount `/first-contact` public protocol in production ingress if external access is required.
-2. Add peer configuration for true multi-node mesh distribution.
-3. Monitor `/systems-health/status` host warnings (`Disk 96.x% full`, `zombie process`) outside the application.
+**Final priorities:**  
+1. Mount `/first-contact` public protocol in production ingress if external access is required.  
+2. Add peer configuration for true multi-node mesh distribution.  
+3. Execute host cleanup from `docs/HOST_HARDENING.md` or automate alerts.
