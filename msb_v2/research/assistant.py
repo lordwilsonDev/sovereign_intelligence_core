@@ -604,14 +604,11 @@ class SovereignResearchAssistant:
             import requests
             resp = requests.post(
                 "http://127.0.0.1:8766/memory/consolidate",
+                json={"kind": "procedural", "min_items": 1},
                 timeout=5,
             )
-            if resp.ok:
-                try:
-                    data = resp.json()
-                except Exception:
-                    data = {}
-                return {"consolidated": True, "status": data.get("status", "ok")}
+            if resp.status_code == 200:
+                return {"consolidated": True, "status": "ok"}
         except Exception:
             pass
         return {"consolidated": False, "error": "memory_unreachable"}
