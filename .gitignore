@@ -45,3 +45,6 @@ runtime_events.db
 runtime/
 :memory:
 .pipeline/
+
+snapshots/
+msb-backups/
