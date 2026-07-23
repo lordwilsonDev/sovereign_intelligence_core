@@ -80,3 +80,10 @@ def star_history(job_id: str | None = None, limit: int = 50) -> Dict[str, Any]:
 @router.get("/status")
 def star_status() -> Dict[str, Any]:
     return _engine.status()
+
+
+@router.get("/pulse")
+def star_pulse() -> Dict[str, Any]:
+    """Return a simple heartbeat for the STAR scheduler."""
+    import time
+    return {"status": "beating", "timestamp": time.time()}
