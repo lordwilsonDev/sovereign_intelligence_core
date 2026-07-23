@@ -42,6 +42,9 @@ _register_contract(HarnessContract(route="/studio/status", method="get", allow_a
 _register_contract(HarnessContract(route="/sovereign/status", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/environment/status", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/demo/query", method="post", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/first-contact/start", method="post", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/first-contact/advance", method="post", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/first-contact/status/{session_id}", method="get", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/chat", method="post", allow_anonymous=False, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/runtime/start", method="post", allow_anonymous=False, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/runtime/status", method="get", allow_anonymous=False, max_body_bytes=65536))
@@ -236,6 +239,8 @@ def _load_routers() -> None:
     _register(scth_router, "/scth")
     from msb_v2.api.cloud_agent import router as cloud_agent_router
     _register(cloud_agent_router, "/cloud-agent")
+    from msb_v2.api.first_contact import router as first_contact_router
+    _register(first_contact_router, "/first-contact")
     from msb_v2.api.echo import router as echo_router
     _register(echo_router, "/echo")
     from msb_v2.api.systems_health import router as systems_health_router
