@@ -40,14 +40,17 @@ class MeshDiscovery:
         payload = {"peers": list(self._peers.values()), "updated_at": time.time()}
         self.peers_path.write_text(json.dumps(payload, indent=2))
 
-    def add_peer(self, node_id: str, address: str, port: int = 8766) -> None:
+    def add_peer(self, node_id: str, address: str, port: int = 8766, metadata: Optional[dict] = None) -> None:
         """Manually add a peer to the registry."""
-        self._peers[node_id] = {
+        entry = {
             "node_id": node_id,
             "address": address,
             "port": port,
             "added_at": time.time(),
         }
+        if metadata:
+            entry["metadata"] = metadata
+        self._peers[node_id] = entry
         self.save_peers()
 
     def remove_peer(self, node_id: str) -> bool:
