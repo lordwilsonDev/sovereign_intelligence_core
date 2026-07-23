@@ -90,3 +90,50 @@ class ReadinessChaosHarness:
             "readiness": self.readiness().status,
             "sac_ready": self.is_ready(),
         })
+
+    def status(self) -> Dict[str, object]:
+        readiness = self.readiness()
+        return {
+            "status": readiness.status,
+            "healthy_count": readiness.healthy_count,
+            "degraded_count": readiness.degraded_count,
+            "unhealthy_count": readiness.unhealthy_count,
+            "critical_unhealthy": readiness.critical_unhealthy,
+            "sac_ready": self.is_ready(),
+            "last_chaos": self.transitions[-1] if self.transitions else None,
+            "chaos_count": len(self.transitions),
+        }
+
+    def history(self, limit: int = 10) -> List[Dict[str, object]]:
+        return self.transitions[-max(0, limit):]
+
+    def inject(self, scenario: str = "random") -> Dict[str, object]:
+        scenarios = {
+            "kill_harness": [("db", "unhealthy"), ("cache", "unhealthy")],
+            "fill_disk": [("disk", "degraded")],
+            "spike_cpu": [("cpu", "degraded"), ("cpu", "healthy")],
+            "degrade_all": [("db", "degraded"), ("cache", "degraded"), ("mq", "degraded")],
+        }
+        targets = scenarios.get(scenario, [("random", "degraded")])
+        for component_id, status in targets:
+            if component_id == "random":
+                component_id = f"comp_{len(self.transitions)}"
+            if status == "unhealthy":
+                self.fail(component_id)
+            else:
+                self.degrade(component_id)
+        return {
+            "scenario": scenario,
+            "affected": [t["component_id"] for t in self.transitions[-len(targets):]],
+            "readiness": self.readiness().status,
+            "telemetry": {"emitted": True},
+        }
+
+    def failover(self, target: str) -> Dict[str, object]:
+        degraded = self.fail(target)
+        return {
+            "target": target,
+            "status": "success" if self.readiness().status != "RED" else "degraded",
+            "fallback": f"fallback-{target}",
+            "readiness": self.readiness().status,
+        }

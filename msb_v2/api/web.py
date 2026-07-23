@@ -240,6 +240,8 @@ def _load_routers() -> None:
     _register(systems_health_router, "/systems-health")
     from msb_v2.api.soh import router as soh_router
     _register(soh_router, "/soh")
+    from msb_v2.api.readiness_gate import router as readiness_gate_router
+    _register(readiness_gate_router, "/readiness-gate")
     from msb_v2.api.sshh import router as sshh_router
     _register(sshh_router, "/sshh")
     from msb_v2.api.optimize import router as optimize_router
