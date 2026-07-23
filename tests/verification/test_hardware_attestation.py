@@ -31,7 +31,21 @@ def test_tampered_fails_when_trusted_set(monkeypatch: pytest.MonkeyPatch, tmp_pa
     target = tmp_path / "attestor.bin"
     target.write_bytes(b"x")
     attestation = HardwareAttestation(binary_path=target)
-    monkeypatch.setattr("msb_v2.verification.hardware_attestation.subprocess.run", lambda *args, **kwargs: type("R", (), {"returncode": 0, "stdout": "deadbeef\n"}))
+    monkeypatch.setattr("msb_v2.verification.hardware_attestation.subprocess.run", lambda *args, **kwargs: type("R", (), {"returncode": 0, "stdout": "deadbeef\n"})())
     result = attestation.verify()
     assert result["verdict"] == "TAMPERED"
     assert result["expected"] == "deadbeef"
+
+
+def test_trust_establishes_hash(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    target = tmp_path / "proto.bin"
+    target.write_bytes(b"sovereign")
+    calls = []
+    def fake_run(*args, **kwargs):
+        calls.append(kwargs.get("input") or kwargs)
+        return type("R", (), {"returncode": 0, "stdout": "", "stderr": ""})()
+    monkeypatch.setattr("msb_v2.verification.hardware_attestation.subprocess.run", fake_run)
+    attestation = HardwareAttestation(binary_path=target)
+    result = attestation.trust()
+    assert result["verdict"] == "TRUST_ESTABLISHED"
+    assert result["expected"] == attestation.get_current_hash()

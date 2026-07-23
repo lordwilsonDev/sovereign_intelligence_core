@@ -35,6 +35,25 @@ class HardwareAttestation:
             return None
         return result.stdout.strip()
 
+    def trust(self) -> Dict[str, Optional[str]]:
+        current = self.get_current_hash()
+        subprocess.run(
+            [
+                "security",
+                "add-generic-password",
+                "-a",
+                self.account,
+                "-s",
+                self.service,
+                "-w",
+                current,
+                "-U",
+            ],
+            capture_output=True,
+            text=True,
+        )
+        return {"verdict": "TRUST_ESTABLISHED", "current_hash": current, "expected": current}
+
     def verify(self) -> Dict[str, Optional[str]]:
         current = self.get_current_hash()
         trusted = self.get_trusted_hash()
