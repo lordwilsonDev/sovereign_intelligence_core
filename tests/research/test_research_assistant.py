@@ -108,3 +108,43 @@ def test_pipeline_notifies_on_sac_block(monkeypatch: pytest.MonkeyPatch) -> None
     result = assistant.run_full_pipeline()
     assert result["status"] == "blocked_by_sac"
     assert any(c[0] == "pipeline_blocked" and c[2] == "high" for c in calls)
+
+
+def test_full_pipeline_includes_evolution_and_optimization(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.research.assistant import SovereignResearchAssistant
+
+    assistant = SovereignResearchAssistant("self-improvement")
+
+    monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
+    monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
+
+    def mock_evolution(*args: Any, **kwargs: Any) -> Dict[str, Any]:
+        return {"proposal_count": 5, "top_hotspots": ["func_a", "func_b"]}
+
+    def mock_optimization(*args: Any, **kwargs: Any) -> Dict[str, Any]:
+        return {"count": 2, "proposals": [{"target": "timeout"}, {"target": "cache"}]}
+
+    monkeypatch.setattr(assistant, "_run_evolution_scan", mock_evolution)
+    monkeypatch.setattr(assistant, "_run_optimization_analysis", mock_optimization)
+
+    result = assistant.run_full_pipeline()
+    assert result["status"] == "completed"
+    assert result["evolution"]["proposal_count"] == 5
+    assert result["optimization"]["count"] == 2
+
+
+def test_evolution_scan_unreachable_is_handled(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.research.assistant import SovereignResearchAssistant
+
+    assistant = SovereignResearchAssistant("self-improvement")
+
+    monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
+    monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
+    monkeypatch.setattr(assistant, "_run_evolution_scan", lambda: {"proposal_count": -1, "error": "evolution_scan_unreachable"})
+    monkeypatch.setattr(assistant, "_run_optimization_analysis", lambda: {})
+
+    result = assistant.run_full_pipeline()
+    assert result["status"] == "completed"
+    assert result["evolution"]["proposal_count"] == -1

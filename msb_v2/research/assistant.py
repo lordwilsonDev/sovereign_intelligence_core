@@ -447,6 +447,13 @@ class SovereignResearchAssistant:
             pass
 
         summary["health"] = self._health_check()
+
+        # Phase 6: Ouroboros metabolic scan
+        summary["evolution"] = self._run_evolution_scan()
+
+        # Phase 6: SOH optimization analysis
+        summary["optimization"] = self._run_optimization_analysis()
+
         completion = self.record_completion()
         summary["completion"] = completion
         summary["status"] = "completed"
@@ -521,6 +528,43 @@ class SovereignResearchAssistant:
         except Exception:
             pass
         return status
+
+    def _run_evolution_scan(self) -> Dict[str, Any]:
+        """Run Ouroboros metabolic scan and return findings."""
+        try:
+            import requests
+            resp = requests.post(
+                "http://127.0.0.1:8766/evolution/scan",
+                json={"target": "full"},
+                timeout=10,
+            )
+            if resp.ok:
+                data = resp.json()
+                return {
+                    "proposal_count": data.get("proposal_count", 0),
+                    "top_hotspots": data.get("hotspots", [])[:3],
+                }
+        except Exception:
+            pass
+        return {"proposal_count": -1, "error": "evolution_scan_unreachable"}
+
+    def _run_optimization_analysis(self) -> Dict[str, Any]:
+        """Run SOH optimization analysis and return proposals."""
+        try:
+            import requests
+            resp = requests.post(
+                "http://127.0.0.1:8766/optimize/analyze",
+                timeout=10,
+            )
+            if resp.ok:
+                data = resp.json()
+                return {
+                    "proposals": data.get("proposals", [])[:3],
+                    "count": len(data.get("proposals", [])),
+                }
+        except Exception:
+            pass
+        return {"count": -1, "error": "optimization_unreachable"}
 
     def _persist(self, payload: Any, artifact_name: str) -> Path:
         safe_name = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in artifact_name)
