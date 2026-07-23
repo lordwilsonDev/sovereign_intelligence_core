@@ -1,0 +1,14 @@
+{
+  "id": "truth-beat-pulse",
+  "name": "Truth Beat — Continuous Lie Stripping",
+  "schedule": {"cron": "*/5 * * * *"},
+  "harness_action": {
+    "type": "http",
+    "method": "GET",
+    "url": "http://127.0.0.1:8766/truth-beat/pulse"
+  },
+  "retry_policy": {"max_retries": 1, "backoff_factor": 10},
+  "failure_policy": {"on_failure": "alert", "alert_template": "research_assistant_failure"},
+  "active": true,
+  "depends_on": []
+}
