@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import traceback
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from fastapi import APIRouter
 
@@ -116,3 +116,69 @@ def voiceprint_calibrate(payload: Dict[str, Any]) -> Dict[str, Any]:
 def voiceprint_reset() -> Dict[str, Any]:
     baseline = _store.reset()
     return {"status": "reset", "baseline": baseline}
+
+
+@router.post("/voiceprint/verify")
+def voiceprint_verify(payload: Dict[str, Any]) -> Dict[str, Any]:
+    features = payload.get("features") or {}
+    allow = bool(payload.get("allow", True))
+    fatigue = float(features.get("fatigue", 0.0))
+    frustration = float(features.get("frustration", 0.0))
+    urgency = float(features.get("urgency", 0.0))
+    dispersion = bool(payload.get("dispersion", False))
+
+    verdict = "allow"
+    reasons: List[str] = []
+    if dispersion:
+        verdict = "veto"
+        reasons.append("dispersion")
+
+    baseline = _store.baseline()
+    metadata = _store.metadata()
+    if allow:
+        if fatigue >= 0.9:
+            verdict = "veto"
+            reasons.append("fatigue")
+        if frustration >= 0.85:
+            verdict = "veto"
+            reasons.append("frustration")
+        if urgency >= 0.95:
+            verdict = "veto"
+            reasons.append("urgency")
+
+    warnings = []
+    allow_override = bool(payload.get("force", False))
+    if allow_override and verdict == "veto":
+        verdict = "allow"
+        reasons = []
+        warnings.append("allow_override")
+    if fatigue >= 0.8:
+        warnings.append("high_fatigue")
+    if frustration >= 0.75:
+        warnings.append("high_frustration")
+    if urgency >= 0.85:
+        warnings.append("high_urgency")
+
+    return {
+        "verdict": verdict,
+        "features": features,
+        "baseline": baseline,
+        "calibration_count": metadata.get("calibration_count", 0),
+        "last_calibrated": metadata.get("last_calibrated"),
+        "reasons": reasons or [],
+        "allow_override": allow_override,
+        "warning_counts": {"warnings": len(warnings), "limits": len([r for r in reasons if r != "dispersion"])},
+        "suggest_rest": fatigue >= 0.8,
+        "fatigue_delta": round(fatigue - float(baseline.get("fatigue_baseline", 0.2)), 4),
+    }
+
+
+@router.get("/voiceprint/status")
+def voiceprint_status() -> Dict[str, Any]:
+    baseline = _store.baseline()
+    metadata = _store.metadata()
+    return {
+        "baseline": baseline,
+        "calibration_count": metadata.get("calibration_count", 0),
+        "last_calibrated": metadata.get("last_calibrated"),
+    }

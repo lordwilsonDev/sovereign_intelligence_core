@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -36,6 +37,8 @@ class VoiceprintStore:
     def __init__(self, path: Optional[Path] = None) -> None:
         self._path = path or _DEFAULT_BASELINE_PATH
         self._baseline = self._load()
+        self.calibration_count: int = int(self._baseline.get("calibration_count", 0))
+        self.last_calibrated: Optional[str] = self._baseline.get("last_calibrated")
 
     def _load(self) -> Dict[str, Any]:
         if self._path.exists():
@@ -48,14 +51,19 @@ class VoiceprintStore:
     def persist(self) -> None:
         try:
             self._path.parent.mkdir(parents=True, exist_ok=True)
-            self._path.write_text(json.dumps(self._baseline, indent=2))
+            payload = dict(self._baseline)
+            payload["calibration_count"] = self.calibration_count
+            payload["last_calibrated"] = self.last_calibrated
+            self._path.write_text(json.dumps(payload, indent=2))
         except Exception:
             pass
 
     def reset(self) -> Dict[str, Any]:
         self._baseline = _default_baseline()
+        self.calibration_count = 0
+        self.last_calibrated = None
         self.persist()
-        return self._baseline
+        return self.baseline()
 
     def update(self, samples: List[Dict[str, Any]]) -> Dict[str, Any]:
         if not samples:
@@ -64,11 +72,19 @@ class VoiceprintStore:
             vals = [float(s.get(key, 0.0)) for s in samples if key in s]
             if vals:
                 self._baseline[key] = sum(vals) / len(vals)
+        self.calibration_count += len(samples)
+        self.last_calibrated = datetime.now(timezone.utc).isoformat()
         self.persist()
         return self._baseline
 
     def baseline(self) -> Dict[str, Any]:
         return dict(self._baseline)
+
+    def metadata(self) -> Dict[str, Any]:
+        return {
+            "calibration_count": self.calibration_count,
+            "last_calibrated": self.last_calibrated,
+        }
 
 
 class ProsodyAnalyzer:

@@ -1,8 +1,10 @@
 {
-  "fatigue_baseline": 0.2,
-  "frustration_baseline": 0.1,
-  "urgency_baseline": 0.1,
-  "speech_rate": 1.0,
-  "pitch_variance": 1.0,
-  "pause_frequency": 0.1
+  "fatigue_baseline": 0.4,
+  "frustration_baseline": 0.2,
+  "urgency_baseline": 0.15,
+  "speech_rate": 0.9,
+  "pitch_variance": 1.1,
+  "pause_frequency": 0.2,
+  "calibration_count": 1,
+  "last_calibrated": "2026-07-23T08:28:59.460171+00:00"
 }
