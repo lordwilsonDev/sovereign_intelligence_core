@@ -68,12 +68,10 @@ def test_desktop_approve_rejected(monkeypatch):
     monkeypatch.setenv("NEURALAGENT_USER_ACCESS_TOKEN", "tok")
     monkeypatch.setenv("NEURALAGENT_THREAD_ID", "thr")
     r1 = client.post("/desktop/execute", json={"goal": "Launch Safari and send message", "intent": "desktop"})
-    token = r1.json().get("confirm_token")
-    assert token
-    r2 = client.post(f"/desktop/approve?confirm_token={token}&approved=false")
-    assert r2.status_code in {200, 409}
-    body = r2.json()
-    assert body["state"] == "rejected"
+    data = r1.json()
+    # The new execution payload blocks dangerous desktop commands instead of returning a confirm_token
+    assert data.get("state") == "blocked"
+    assert "confirm_token" not in data
 
 
 def test_desktop_keyword_meta_route():

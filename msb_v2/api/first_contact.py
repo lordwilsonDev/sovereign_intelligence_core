@@ -24,11 +24,19 @@ def first_contact_start() -> Dict[str, Any]:
 @router.post("/advance")
 def first_contact_advance(payload: Dict[str, Any]) -> Dict[str, Any]:
     session_id = str(payload.get("session_id", "")).strip()
-    session = _engine.advance(session_id, payload)
+    if not session_id:
+        return {"error": "session_id is required", "state": "error"}
+    try:
+        session = _engine.advance(session_id, payload)
+    except KeyError:
+        return {"error": "session_not_found", "state": "error"}
     _sessions[session_id] = dict(session)
     return session
 
 
 @router.get("/status/{session_id}")
 def first_contact_status(session_id: str) -> Dict[str, Any]:
-    return _engine.status(session_id)
+    try:
+        return _engine.status(session_id)
+    except KeyError:
+        return {"error": "session_not_found", "state": "error"}

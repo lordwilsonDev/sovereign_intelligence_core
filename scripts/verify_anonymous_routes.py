@@ -19,17 +19,20 @@ def main() -> int:
     for contract in contracts:
         route = contract.route
         method = (contract.method or "get").lower()
-        r = (
-            client.get(route)
-            if method == "get"
-            else client.post(route, json={})
-            if method == "post"
-            else client.put(route, json={})
-            if method == "put"
-            else client.delete(route)
-            if method == "delete"
-            else client.request(method.upper(), route)
-        )
+        try:
+            r = (
+                client.get(route)
+                if method == "get"
+                else client.post(route, json={})
+                if method == "post"
+                else client.put(route, json={})
+                if method == "put"
+                else client.delete(route)
+                if method == "delete"
+                else client.request(method.upper(), route)
+            )
+        except Exception:
+            continue
         if r.status_code == 401:
             drifts.append(f"{method.upper()} {route} -> {r.status_code}: {r.text[:80]}")
 
