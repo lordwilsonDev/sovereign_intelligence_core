@@ -290,6 +290,11 @@ def _load_routers() -> None:
         _register(research_router, "/research")
     except Exception:
         pass
+    try:
+        from msb_v2.truth_beat.harness import router as truth_beat_router
+        _register(truth_beat_router, "/truth-beat")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:
