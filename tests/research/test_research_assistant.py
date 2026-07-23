@@ -222,7 +222,9 @@ def test_mesh_distribution_included_in_pipeline(monkeypatch: pytest.MonkeyPatch)
     result = assistant.run_full_pipeline()
     assert result["status"] == "completed"
     assert "mesh_distribution" in result["phases"]
-    assert result["phases"]["mesh_distribution"]["sub_tasks"] == 3
+    mesh = result["phases"]["mesh_distribution"]
+    assert mesh["sub_tasks"] == 3
+    assert mesh["divergent"] is False
 
 
 def test_mesh_distribution_graceful_with_no_peers(monkeypatch: pytest.MonkeyPatch) -> None:

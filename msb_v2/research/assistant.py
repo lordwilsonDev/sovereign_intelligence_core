@@ -420,10 +420,13 @@ class SovereignResearchAssistant:
 
         # Phase 8: Mesh distribution (parallel evidence grounding)
         mesh_results = self._distribute_evidence_grounding(self.topic)
-        summary["phases"]["mesh_distribution"] = {
-            "sub_tasks": len(mesh_results),
-            "results": mesh_results,
-        }
+        if isinstance(mesh_results, dict):
+            summary["phases"]["mesh_distribution"] = mesh_results
+        else:
+            summary["phases"]["mesh_distribution"] = {
+                "sub_tasks": len(mesh_results),
+                "results": mesh_results,
+            }
 
         if not self._sac_gate("report_generation"):
             summary["status"] = "blocked_during_report"
@@ -686,18 +689,22 @@ class SovereignResearchAssistant:
             pass
         return {"error": "mesh_result_failed"}
 
-    def _distribute_evidence_grounding(self, topic: str) -> List[Dict[str, Any]]:
+    def _distribute_evidence_grounding(self, topic: str) -> Dict[str, Any]:
         """Distribute evidence grounding sub-tasks across available mesh peers."""
         peers = self._discover_peers()
         if not peers:
-            return [
-                {"angle": angle, "peer": "local", "result": {"status": "local_fallback", "note": "no peers configured"}}
-                for angle in [
-                    f"Search for recent academic papers on {topic}",
-                    f"Find case studies related to {topic}",
-                    f"Gather statistical data about {topic}",
-                ]
-            ]
+            return {
+                "sub_tasks": 3,
+                "results": [
+                    {"angle": angle, "peer": "local", "result": {"status": "local_fallback", "note": "no peers configured"}}
+                    for angle in [
+                        f"Search for recent academic papers on {topic}",
+                        f"Find case studies related to {topic}",
+                        f"Gather statistical data about {topic}",
+                    ]
+                ],
+                "divergent": False,
+            }
 
         sub_angles = [
             f"Search for recent academic papers on {topic}",
@@ -711,7 +718,21 @@ class SovereignResearchAssistant:
             if "task_id" in submission:
                 result = self._collect_mesh_result(peer, submission["task_id"])
                 results.append({"angle": angle, "peer": peer.get("node_id"), "result": result})
-        return results
+        return self._reconcile_mesh_results(results)
+
+    def _reconcile_mesh_results(self, results: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Bounded reconciliation for divergent mesh outputs."""
+        base = {
+            "sub_tasks": len(results),
+            "results": results,
+            "divergent": False,
+        }
+        for item in results:
+            result = item.get("result") if isinstance(item, dict) else None
+            if isinstance(result, dict) and result.get("error"):
+                base["divergent"] = True
+                base.setdefault("errors", []).append(result["error"])
+        return base
 
     def _persist(self, payload: Any, artifact_name: str) -> Path:
         safe_name = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in artifact_name)
