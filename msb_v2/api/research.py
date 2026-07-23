@@ -12,6 +12,30 @@ router = APIRouter()
 _RUNTIME_ROOT = Path("runtime/research")
 
 
+def _probe(path: str, expected_key: str = "system_readiness") -> Dict[str, Any]:
+    import requests
+    try:
+        r = requests.get(f"http://127.0.0.1:8766{path}", timeout=3)
+        if r.ok:
+            data = r.json()
+            return {"path": path, "ok": True, "value": data.get(expected_key) or data.get("status") or data.get("readiness")}
+    except Exception as exc:
+        return {"path": path, "ok": False, "error": str(exc)}
+    return {"path": path, "ok": False}
+
+
+@router.get("/assistant/preflight")
+def research_preflight() -> Dict[str, Any]:
+    checks = {
+        "health": _probe("/health", "status"),
+        "schh": _probe("/schh/status"),
+        "sshh": _probe("/systems-health/status"),
+        "sac": _probe("/sac/status"),
+    }
+    failed = [name for name, result in checks.items() if not result.get("ok")]
+    return {"checks": checks, "passed": len(failed) == 0, "failed": failed}
+
+
 @router.post("/assistant/run")
 def run_research_assistant(payload: Dict[str, Any]) -> Dict[str, Any]:
     phase_hint = payload.get("phase") if isinstance(payload, dict) else None
