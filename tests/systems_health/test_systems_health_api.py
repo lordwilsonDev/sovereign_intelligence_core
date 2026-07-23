@@ -44,3 +44,22 @@ def test_systems_health_repair_endpoint_rejects_unsupported_action():
     response = client.post("/systems-health/repair", json={"action": "reboot"})
     assert response.status_code == 200
     assert response.json()["status"] == "error"
+
+
+def test_autoheal_storage_returns_plan():
+    client = TestClient(create_app())
+    response = client.post("/systems-health/autoheal/storage", json={"action": "purge_temp"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["component_id"] == "storage"
+    assert body["status"] == "proposed"
+    assert body["execute"] is False
+    assert isinstance(body["commands"], list)
+
+
+def test_autoheal_processes_rejects_unsupported_component():
+    client = TestClient(create_app())
+    response = client.post("/systems-health/autoheal/cpu", json={"action": "restart_process"})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "error"

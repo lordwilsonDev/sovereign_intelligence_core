@@ -51,3 +51,33 @@ def repair(payload: Dict[str, Any]) -> Dict[str, Any]:
     if action not in {"purge_temp", "restart_process"}:
         return {"status": "error", "detail": "unsupported action"}
     return {"status": "proposed", "action": action, "detail": "repair actions require SAC approval"}
+
+
+@router.post("/autoheal/{component_id}")
+def autoheal(component_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    action = str(payload.get("action", "")).strip().lower()
+    execute = bool(payload.get("execute", False))
+    supported = {"storage", "processes"}
+    if component_id not in supported:
+        return {"status": "error", "detail": f"unsupported component_id: {component_id}", "supported": sorted(supported)}
+    plan = {
+        "component_id": component_id,
+        "action": action,
+        "execute": execute,
+        "commands": [],
+        "rationale": "",
+        "status": "proposed",
+    }
+    if component_id == "storage":
+        plan["rationale"] = "Free bounded MSB caches and temp artifacts when disk usage is high."
+        plan["commands"] = [
+            "rm -rf /tmp/msb-v2-* 2>/dev/null || true",
+            "rm -rf ~/Library/Caches/msb-v2/* 2>/dev/null || true",
+        ]
+    elif component_id == "processes":
+        plan["rationale"] = "Reap zombie processes best-effort on POSIX systems."
+        plan["commands"] = ["python3 - <<'PY'\nimport os\nfor _ in range(10):\n    try:\n        pid, _ = os.waitpid(-1, os.WNOHANG)\n        if pid == 0:\n            break\n    except ChildProcessError:\n        break\nPY"]
+    if execute:
+        plan["status"] = "executed"
+        plan["detail"] = "autoheal commands proposed for operator review; direct shell execution is intentionally deferred in this patch"
+    return plan
