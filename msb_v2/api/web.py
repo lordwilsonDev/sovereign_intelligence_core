@@ -267,6 +267,11 @@ def _load_routers() -> None:
     except Exception:
         pass
     try:
+        from msb_v2.api.mesh_discovery import router as mesh_discovery_router
+        _register(mesh_discovery_router, "/mesh/discovery")
+    except Exception:
+        pass
+    try:
         from msb_v2.api.sn import router as sn_router
         _register(sn_router, "/sn")
     except Exception:
