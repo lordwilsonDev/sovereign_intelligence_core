@@ -390,7 +390,7 @@ class SovereignResearchAssistant:
         summary = {
             "topic": self.topic,
             "slug": self.slug,
-            "phases": [],
+            "phases": {},
         }
         self._notify("pipeline_start", f"Starting research on: {self.topic}")
 
@@ -400,7 +400,7 @@ class SovereignResearchAssistant:
             return summary
 
         self._notify("inversion_start", "Running axiom inversion")
-        summary["phases"].append({"phase": "inversion", "result": self.run_inversion()})
+        summary["phases"]["inversion"] = self.run_inversion()
         self._notify("inversion_complete", "Axiom inversion complete")
 
         if not self._sac_gate("evidence_grounding"):
@@ -408,15 +408,22 @@ class SovereignResearchAssistant:
             self._notify("pipeline_blocked", "SAC gate blocked evidence grounding", "high")
             return summary
         self._notify("evidence_start", "Grounding evidence")
-        summary["phases"].append({"phase": "evidence", "result": self.ground_evidence()})
+        summary["phases"]["evidence"] = self.ground_evidence()
         self._notify("evidence_complete", "Evidence grounding complete")
+
+        # Phase 8: Mesh distribution (parallel evidence grounding)
+        mesh_results = self._distribute_evidence_grounding(self.topic)
+        summary["phases"]["mesh_distribution"] = {
+            "sub_tasks": len(mesh_results),
+            "results": mesh_results,
+        }
 
         if not self._sac_gate("report_generation"):
             summary["status"] = "blocked_during_report"
             self._notify("pipeline_blocked", "SAC gate blocked report generation", "high")
             return summary
         self._notify("report_start", "Generating research report")
-        summary["phases"].append({"phase": "report", "result": {"path": str(self.draft_report())}})
+        summary["phases"]["report"] = {"path": str(self.draft_report())}
         self._notify("report_complete", "Research report generated")
 
         report_text = ""
@@ -604,6 +611,79 @@ class SovereignResearchAssistant:
         except Exception:
             pass
         return {"consolidated": False, "error": "memory_unreachable"}
+
+    def _discover_peers(self) -> List[Dict[str, Any]]:
+        """Return a list of known mesh peer addresses."""
+        try:
+            import requests
+            resp = requests.get(
+                "http://127.0.0.1:8766/mesh/discovery/peers",
+                timeout=5,
+            )
+            if resp.ok:
+                data = resp.json()
+                return data.get("peers", [])
+        except Exception:
+            pass
+        return []
+
+    def _submit_to_mesh(self, peer: Dict[str, Any], intent: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Submit a sub-task to a remote mesh peer and return the task ID."""
+        try:
+            import requests
+            address = peer.get("address", "127.0.0.1")
+            port = peer.get("port", 8766)
+            resp = requests.post(
+                f"http://{address}:{port}/mesh/tasks/submit",
+                json={
+                    "intent": intent,
+                    "context": context or {},
+                    "requesting_node_id": getattr(self, "node_id", "local"),
+                    "requesting_node_signature": "research-assistant",
+                },
+                timeout=10,
+            )
+            if resp.ok:
+                return resp.json()
+        except Exception:
+            pass
+        return {"error": "mesh_submission_failed"}
+
+    def _collect_mesh_result(self, peer: Dict[str, Any], task_id: str) -> Dict[str, Any]:
+        """Poll a remote peer for the completed task result."""
+        try:
+            import requests
+            address = peer.get("address", "127.0.0.1")
+            port = peer.get("port", 8766)
+            resp = requests.get(
+                f"http://{address}:{port}/mesh/tasks/{task_id}?execute=true",
+                timeout=30,
+            )
+            if resp.ok:
+                return resp.json()
+        except Exception:
+            pass
+        return {"error": "mesh_result_failed"}
+
+    def _distribute_evidence_grounding(self, topic: str) -> List[Dict[str, Any]]:
+        """Distribute evidence grounding sub-tasks across available mesh peers."""
+        peers = self._discover_peers()
+        if not peers:
+            return []
+
+        sub_angles = [
+            f"Search for recent academic papers on {topic}",
+            f"Find case studies related to {topic}",
+            f"Gather statistical data about {topic}",
+        ]
+        results: List[Dict[str, Any]] = []
+        for i, angle in enumerate(sub_angles):
+            peer = peers[i % len(peers)]
+            submission = self._submit_to_mesh(peer, angle)
+            if "task_id" in submission:
+                result = self._collect_mesh_result(peer, submission["task_id"])
+                results.append({"angle": angle, "peer": peer.get("node_id"), "result": result})
+        return results
 
     def _persist(self, payload: Any, artifact_name: str) -> Path:
         safe_name = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in artifact_name)

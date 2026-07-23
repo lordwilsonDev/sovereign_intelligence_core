@@ -76,3 +76,11 @@
 {"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "fd7376f68261c5876c189b312bea7504a17d765640717d30a28c45ee140ca00b"}
 {"event": {"type": "mutation", "score": 50.0}, "hash": "f6388c6e245ef7a6366e56ed3d2a18ab7bde69d5a2e8dcf14ead9ae3ceaaee2e"}
 {"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "6db91cc912950ae14b70b1b3a2e7a4e5e3890574ef67725fdae1a94e999e5060"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "7c91aeb27c3f0e7eb60d54bccb7eb41581e54026c18e9aa0889bfaf21c3b28c9"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "0c7af5e5d916de1190d15ed918b8c3567d20e1d28dd1bb06c12ee00f8feb544a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "a511681bc000045c18d6e79cc2685d15f8b566313b1528a1f246c147dff9b80b"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "abd670f0f4456f1f8d80ab265f9935691eac40fb77a60441d607f3024700e754"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "4ea69158f0a3ce1cca58d83e055a923cd55eb2fa5a8b8e55d61eda2bb57a66ff"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "27c24be1d358bd614220710e686ea8121e2c1258f6d8ddab2e9176e986d3e5a1"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "4391b601180f67c44e6d2b4cc0983fe143dc6e492d3eb6f209a6686d4b4344c8"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "9a2fdd8959810e7c0adf07915cc63a413e8c5d57a51e1a09a61d01a71f50c306"}

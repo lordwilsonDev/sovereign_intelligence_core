@@ -185,3 +185,52 @@ def test_continuity_unreachable_is_handled(monkeypatch: pytest.MonkeyPatch) -> N
     result = assistant.run_full_pipeline()
     assert result["status"] == "completed"
     assert result["continuity"]["checkpointed"] is False
+
+
+def test_mesh_distribution_included_in_pipeline(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.research.assistant import SovereignResearchAssistant
+
+    assistant = SovereignResearchAssistant("mesh-test")
+
+    monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
+    monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
+    monkeypatch.setattr(assistant, "_run_evolution_scan", lambda: {})
+    monkeypatch.setattr(assistant, "_run_optimization_analysis", lambda: {})
+    monkeypatch.setattr(assistant, "_run_continuity_checkpoint", lambda: {})
+    monkeypatch.setattr(assistant, "_run_memory_consolidation", lambda: {})
+    monkeypatch.setattr(
+        assistant,
+        "_discover_peers",
+        lambda: [{"node_id": "peer-1", "address": "127.0.0.1", "port": 8766}],
+    )
+    monkeypatch.setattr(assistant, "_submit_to_mesh", lambda *args, **kwargs: {"task_id": "task-1"})
+    monkeypatch.setattr(
+        assistant,
+        "_collect_mesh_result",
+        lambda *args, **kwargs: {"status": "completed", "result": "mesh evidence"},
+    )
+
+    result = assistant.run_full_pipeline()
+    assert result["status"] == "completed"
+    assert "mesh_distribution" in result["phases"]
+    assert result["phases"]["mesh_distribution"]["sub_tasks"] == 3
+
+
+def test_mesh_distribution_graceful_with_no_peers(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.research.assistant import SovereignResearchAssistant
+
+    assistant = SovereignResearchAssistant("mesh-empty")
+
+    monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
+    monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
+    monkeypatch.setattr(assistant, "_notify", lambda *args, **kwargs: None)
+    monkeypatch.setattr(assistant, "_run_evolution_scan", lambda: {})
+    monkeypatch.setattr(assistant, "_run_optimization_analysis", lambda: {})
+    monkeypatch.setattr(assistant, "_run_continuity_checkpoint", lambda: {})
+    monkeypatch.setattr(assistant, "_run_memory_consolidation", lambda: {})
+    monkeypatch.setattr(assistant, "_discover_peers", lambda: [])
+
+    result = assistant.run_full_pipeline()
+    assert result["status"] == "completed"
+    assert result["phases"]["mesh_distribution"]["sub_tasks"] == 0
