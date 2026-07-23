@@ -497,7 +497,7 @@ class SovereignResearchAssistant:
             resp = requests.get("http://127.0.0.1:8766/sac/status", timeout=5)
             if resp.ok:
                 data = resp.json()
-                sas = data.get("sac", {}).get("sas", {}).get("score", 0)
+                sas = (data.get("sas") or {}).get("score", 0)
                 if sas < 70:
                     self.guard_events.append({"phase": phase, "blocker": "sac", "score": sas})
                     return False
