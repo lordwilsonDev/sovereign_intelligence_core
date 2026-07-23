@@ -89,3 +89,48 @@ def latest_research_artifact() -> Dict[str, Any]:
     except Exception:
         return {"status": "error", "path": str(latest)}
     return {"status": "ok", "path": str(latest), "data": data}
+
+
+@router.post("/assistant/self-improve")
+def research_self_improve(payload: Dict[str, Any]) -> Dict[str, Any]:
+    topic = str(payload.get("topic") if isinstance(payload, dict) else None) or ""
+    latest = None
+    latest_mtime = 0.0
+    if _RUNTIME_ROOT.exists():
+        for path in _RUNTIME_ROOT.glob("*_completion.json"):
+            try:
+                mtime = path.stat().st_mtime
+            except FileNotFoundError:
+                continue
+            if mtime > latest_mtime:
+                latest_mtime = mtime
+                latest = path
+    latest_slug = None
+    if latest:
+        try:
+            latest_slug = json.loads(latest.read_text(encoding="utf-8")).get("slug")
+        except Exception:
+            latest_slug = None
+
+    improvement = "Add preflight health/SAC gate before research runs"
+    target = "msb_v2/research/assistant.py"
+    rationale = "Reduce failed unattended missions by failing fast on health/SAC regressions."
+    if latest_slug and "mesh" in latest_slug:
+        improvement = "Add cross-node mesh result reconciliation for divergent peer outputs"
+        target = "msb_v2/research/assistant.py"
+        rationale = "Improve evidence fidelity when peers return conflicting grounded claims."
+    elif latest_slug and "autonomous" in latest_slug:
+        improvement = "Add bounded retry policy around continuity checkpoint and memory consolidation"
+        target = "msb_v2/research/assistant.py"
+        rationale = "Increase robustness of unattended missions against transient infra failures."
+
+    proposal = {
+        "status": "ok",
+        "topic": topic or "autonomous-meta",
+        "improvement": improvement,
+        "target": target,
+        "rationale": rationale,
+        "verification": "pytest tests/research/test_research_assistant.py",
+        "latest_completion": latest_slug,
+    }
+    return proposal

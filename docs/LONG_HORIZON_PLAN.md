@@ -43,7 +43,17 @@
 2. Documented `docs/LONG_HORIZON_PLAN.md`: `/star/reload` does not exist; use server restart after workflow JSON changes. New workflows are ingested on startup.
 3. Open long-lived mission session and monitor artifacts nightly.
 
----
+### Phase 8 — Preflight Probe & Artifact Monitoring
+1. Add `GET /research/assistant/preflight`.
+2. Add `POST /research/assistant/self-improve` endpoint.
+3. Verify autonomous mission self-improvement proposal recording.
 
+### Phase 9 — Weekly Self-Improvement STAR Job
+1. Create `msb_v2/star/workflows/research_self_improve_weekly.json`.
+2. Verify `/evolution/memory/summary` and `/evolution/memory/batch-update`.
+3. Record completion axiom.
+
+---
+**Status:** Phases 1-9 executed. Next: peer configuration for real mesh distribution, public ingress for `/first-contact`, or new long-horizon plan.
 ### Execution Rule
 When the user says **"please continue"**, execute the current phase or next phase without asking. Do not narrate the whole plan—act on it.
