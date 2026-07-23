@@ -145,4 +145,4 @@ class TestEvolutionMemoryShape:
         }
         assert required.issubset(entry.keys())
         assert entry["risk"] in {"low", "medium", "high"}
-        assert entry["status"] in {"success", "failure", "pending", "simulated"}
+        assert entry["status"] in {"success", "failure", "pending", "simulated", "liquidated"}

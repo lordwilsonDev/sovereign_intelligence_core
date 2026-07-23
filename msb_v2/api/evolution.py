@@ -13,7 +13,6 @@ from msb_v2.evolution.proposal import EvolutionProposal
 from msb_v2.evolution.scanner import OuroborosScanner
 from msb_v2.evolution.simulator import EvolutionSimulator
 import json as _json
-import re as _re
 
 from msb_v2.v3.contracts import HarnessContract
 from msb_v2.v3.contracts import register as _register_contract
@@ -239,6 +238,47 @@ def evolution_evolve(payload: EvolveRequest, auth: Dict[str, Any] = Depends(requ
     })
 
 
+@router.get("/memory/summary")
+def memory_summary():
+    db_path = getattr(_memory, "path", None)
+    if not db_path or not Path(db_path).exists():
+        return {"counts": {}, "by_target": {}, "sample": []}
+    import sqlite3
+    with sqlite3.connect(db_path) as conn:
+        rows = conn.execute("SELECT status, target, COUNT(*) FROM proposals GROUP BY status, target").fetchall()
+        sample = conn.execute("SELECT proposal_id, title, status, target, created_at FROM proposals ORDER BY created_at DESC LIMIT 10").fetchall()
+    counts: Dict[str, int] = {}
+    by_target: Dict[str, Dict[str, int]] = {}
+    for status_, target_, cnt in rows:
+        counts[status_] = counts.get(status_, 0) + cnt
+        bucket = by_target.setdefault(target_ or "unknown", {})
+        bucket[status_] = bucket.get(status_, 0) + cnt
+    keys = ["proposal_id", "title", "status", "target", "created_at"]
+    sample_out = [dict(zip(keys, r)) for r in sample]
+    return {"counts": counts, "by_target": by_target, "sample": sample_out}
+
+
+@router.post("/memory/batch-update")
+def batch_update(payload: Dict[str, Any]):
+    db_path = getattr(_memory, "path", None)
+    if not db_path or not Path(db_path).exists():
+        return {"updated": 0}
+    status = str(payload.get("status") or "").strip()
+    target = str(payload.get("target") or "").strip()
+    new_status = str(payload.get("new_status") or "").strip()
+    if not status or not new_status:
+        return {"updated": 0, "error": "status and new_status are required"}
+    import sqlite3
+    with sqlite3.connect(db_path) as conn:
+        if target:
+            cur = conn.execute("UPDATE proposals SET status = ? WHERE status = ? AND target = ?", (new_status, status, target))
+        else:
+            cur = conn.execute("UPDATE proposals SET status = ? WHERE status = ?", (new_status, status))
+        updated = cur.rowcount
+        conn.commit()
+    return {"updated": updated, "from_status": status, "to_status": new_status, "target": target or None}
+
+
 # HCL contract registration
 _register_contract(HarnessContract(route="/evolve", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/scan", method="post", allow_anonymous=False))
@@ -248,3 +288,5 @@ _register_contract(HarnessContract(route="/proposals", method="get", allow_anony
 _register_contract(HarnessContract(route="/proposal/{proposal_id}", method="get", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/record", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/memory/latest", method="get", allow_anonymous=False))
+_register_contract(HarnessContract(route="/memory/summary", method="get", allow_anonymous=False))
+_register_contract(HarnessContract(route="/memory/batch-update", method="post", allow_anonymous=False))
