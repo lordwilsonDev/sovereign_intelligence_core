@@ -64,3 +64,7 @@
 {"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "88abd9073e2d331e75ff0cfb48765b72ef4647de8d5bece8c0e6a5aac7e9f7ca"}
 {"event": {"type": "mutation", "score": 50.0}, "hash": "0e492e36adc1a5b90243446d83e56272d41739da6db09d550eac6165aee7ad71"}
 {"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "659e5e96cd155ee3213d882b2b56f0c74630034b088094e61795c8cdc3f210ee"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "336d6a17886b46596432e74dbdbff7576cc44bfa246a57664988655847f5795e"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "b54f0888dc919b1bfcbd2ff427f253a9a21ab95eb899800bc93b881bd9aa38a4"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "3f14d61a0cd97ee7a6aa7b97a8dccad2a2e74f22180736d241a88cac4402be40"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "6a8cfa866f3d906de7b6ab5220f94e111b901dd81b1fa066529d1e9286e6aa76"}

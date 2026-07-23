@@ -386,28 +386,38 @@ class SovereignResearchAssistant:
         return completion
 
     def run_full_pipeline(self) -> Dict[str, Any]:
-        """Run the local research pipeline with sovereign immune system gates."""
+        """Run the local research pipeline with sovereign immune system gates and notifications."""
         summary = {
             "topic": self.topic,
             "slug": self.slug,
             "phases": [],
         }
+        self._notify("pipeline_start", f"Starting research on: {self.topic}")
 
         if not self._sac_gate("pipeline_start"):
             summary["status"] = "blocked_by_sac"
+            self._notify("pipeline_blocked", "SAC gate blocked pipeline start", "high")
             return summary
 
+        self._notify("inversion_start", "Running axiom inversion")
         summary["phases"].append({"phase": "inversion", "result": self.run_inversion()})
+        self._notify("inversion_complete", "Axiom inversion complete")
 
         if not self._sac_gate("evidence_grounding"):
             summary["status"] = "blocked_during_evidence"
+            self._notify("pipeline_blocked", "SAC gate blocked evidence grounding", "high")
             return summary
+        self._notify("evidence_start", "Grounding evidence")
         summary["phases"].append({"phase": "evidence", "result": self.ground_evidence()})
+        self._notify("evidence_complete", "Evidence grounding complete")
 
         if not self._sac_gate("report_generation"):
             summary["status"] = "blocked_during_report"
+            self._notify("pipeline_blocked", "SAC gate blocked report generation", "high")
             return summary
+        self._notify("report_start", "Generating research report")
         summary["phases"].append({"phase": "report", "result": {"path": str(self.draft_report())}})
+        self._notify("report_complete", "Research report generated")
 
         report_text = ""
         try:
@@ -419,6 +429,7 @@ class SovereignResearchAssistant:
 
         if not self._echo_gate("report", report_text):
             summary["status"] = "awaiting_confirmation"
+            self._notify("echo_triggered", "Report requires human confirmation before publishing", "high")
             return summary
 
         summary["evolution"] = _ouroboros_scan()
@@ -439,7 +450,25 @@ class SovereignResearchAssistant:
         completion = self.record_completion()
         summary["completion"] = completion
         summary["status"] = "completed"
+        self._notify("pipeline_complete", f"Research on '{self.topic}' completed successfully")
         return summary
+
+    def _notify(self, event: str, message: str, priority: str = "medium") -> None:
+        """Send an SNH notification to the operator."""
+        try:
+            import requests
+            requests.post(
+                "http://127.0.0.1:8766/sn/notify",
+                json={
+                    "source": "research-assistant",
+                    "priority": priority,
+                    "template": "research_assistant_update",
+                    "template_data": {"event": event, "message": message},
+                },
+                timeout=5,
+            )
+        except Exception:
+            pass
 
     def _sac_gate(self, phase: str) -> bool:
         """Check SAC status before proceeding. Returns True if safe."""

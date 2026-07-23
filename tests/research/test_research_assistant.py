@@ -68,3 +68,43 @@ def test_health_check_included_in_result(monkeypatch: pytest.MonkeyPatch) -> Non
     assert result["status"] == "completed"
     assert result["health"]["schh"] == "GREEN"
     assert result["health"]["sshh"] == "healthy"
+
+
+def test_full_pipeline_sends_notifications(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.research.assistant import SovereignResearchAssistant
+
+    assistant = SovereignResearchAssistant("snh test")
+    calls: list[tuple[str, str]] = []
+
+    monkeypatch.setattr(assistant, "_sac_gate", lambda *_: True)
+    monkeypatch.setattr(assistant, "_echo_gate", lambda *_args, **_kwargs: True)
+
+    def mock_notify(event: str, message: str, priority: str = "medium") -> None:
+        calls.append((event, message))
+
+    monkeypatch.setattr(assistant, "_notify", mock_notify)
+
+    result = assistant.run_full_pipeline()
+    assert result["status"] == "completed"
+    assert ("pipeline_start", "Starting research on: snh test") in calls
+    assert ("pipeline_complete", "Research on 'snh test' completed successfully") in calls
+
+
+def test_pipeline_notifies_on_sac_block(monkeypatch: pytest.MonkeyPatch) -> None:
+    from msb_v2.research.assistant import SovereignResearchAssistant
+
+    assistant = SovereignResearchAssistant("snh block")
+    calls: list[tuple[str, str, str]] = []
+
+    def mock_sac_block(*args: Any, **kwargs: Any) -> bool:
+        return False
+
+    def mock_notify(event: str, message: str, priority: str = "medium") -> None:
+        calls.append((event, message, priority))
+
+    monkeypatch.setattr(assistant, "_sac_gate", mock_sac_block)
+    monkeypatch.setattr(assistant, "_notify", mock_notify)
+
+    result = assistant.run_full_pipeline()
+    assert result["status"] == "blocked_by_sac"
+    assert any(c[0] == "pipeline_blocked" and c[2] == "high" for c in calls)
