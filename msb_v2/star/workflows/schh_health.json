@@ -1,1 +1,11 @@
-{"id":"schh-health","name":"Sovereign Cognitive Health Check","schedule":"*/15 * * * *","harness_action":{"type":"http","method":"GET","url":"http://127.0.0.1:8766/schh/status","body":{}},"retry_policy":{"max_retries":2,"backoff_factor":15},"failure_policy":{"on_failure":"alert","alert_template":"schh_readiness_failure"},"active":true}
+{
+  "name": "schh_health",
+  "schedule": "*/30 * * * *",
+  "target": "http://127.0.0.1:8766/schh/check/all",
+  "method": "POST",
+  "enabled": true,
+  "metadata": {
+    "owner": "SCHH",
+    "description": "Component health sweep"
+  }
+}
