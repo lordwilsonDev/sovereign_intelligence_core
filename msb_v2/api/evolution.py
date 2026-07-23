@@ -279,6 +279,32 @@ def batch_update(payload: Dict[str, Any]):
     return {"updated": updated, "from_status": status, "to_status": new_status, "target": target or None}
 
 
+@router.get("/memory/receipt")
+def memory_receipt():
+    rows = _memory.latest(1) if hasattr(_memory, "latest") else []
+    if not rows:
+        return {"status": "empty"}
+    entry = rows[0]
+    entry_dict = {
+        "proposal_id": entry[0] if isinstance(entry, (list, tuple)) else entry.get("proposal_id"),
+        "event": entry[1] if isinstance(entry, (list, tuple)) else entry.get("event"),
+        "component": entry[2] if isinstance(entry, (list, tuple)) else entry.get("component"),
+        "created_at": entry[3] if isinstance(entry, (list, tuple)) else entry.get("created_at"),
+    }
+    receipt = {
+        "status": "ok",
+        "entry": entry_dict,
+        "hash_chain": [_sha256(_json.dumps(entry_dict, sort_keys=True, default=str))],
+        "merkle_root": _sha256(_json.dumps(entry_dict, sort_keys=True, default=str)),
+    }
+    return receipt
+
+
+def _sha256(data: str) -> str:
+    import hashlib
+    return hashlib.sha256(data.encode("utf-8")).hexdigest()
+
+
 # HCL contract registration
 _register_contract(HarnessContract(route="/evolve", method="post", allow_anonymous=False))
 _register_contract(HarnessContract(route="/scan", method="post", allow_anonymous=False))

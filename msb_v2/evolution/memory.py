@@ -106,6 +106,12 @@ class EvolutionMemory:
                 rows = conn.execute("SELECT * FROM proposals ORDER BY created_at DESC").fetchall()
                 return [self._row_to_dict(r) for r in rows]
 
+    def latest(self, count: int = 1) -> List[Dict[str, Any]]:
+        with self._lock:
+            with sqlite3.connect(self.path) as conn:
+                rows = conn.execute("SELECT * FROM proposals ORDER BY created_at DESC LIMIT ?", (count,)).fetchall()
+                return [self._row_to_dict(r) for r in rows]
+
     def _row_to_dict(self, row: Any) -> Dict[str, Any]:
         return {
             "proposal_id": row[0],
