@@ -43,17 +43,17 @@ This is expected for a single‑node setup. To test mesh distribution, either co
 ## Scar 3: Health endpoints silent
 
 **Observed behavior:**  
-`_health_check()` returned `{"schh": "unknown", "sshh": "unknown"}` because both endpoints were unreachable.
+`_health_check()` returned `{"schh": "unknown", "sshh": "unknown"}` because both endpoints appeared unreachable during the mission.
 
 **Root cause:**  
-The SCHH and SSHH routers exist in code but were not mounted on the live server at the time of the mission. (This may have been resolved by subsequent restarts; verify.)
+The SCHH and SSHH routers are mounted on the live server, but `_health_check()` parsed the wrong keys. `/schh/status` and `/systems-health/status` both return `{"system_readiness": ...}`, while the old code looked for `readiness` or `status` only. This parser mismatch produced `"unknown"` even when endpoints were healthy.
 
 **Fix:**  
-Confirm `/schh/status` and `/systems-health/status` are registered in `msb_v2/api/web.py` and return `200` on the live server.
+Patched `_health_check()` to read `system_readiness` from `/schh/status`, `/memory/health`, and `/systems-health/status`, with backward-compatible fallbacks to `status`/`readiness`. Note: `/systems-health/status` is currently RED due to live disk/zombie-process warnings; this is a host-state issue, not a code issue.
 
 **Acceptance criteria:**  
-- `GET /schh/status` returns `200` with a readiness field.
-- `GET /systems-health/status` returns `200` with a status field.
+- `GET /schh/status` returns `system_readiness="GREEN"` on healthy hosts.
+- `GET /systems-health/status` returns parsed `system_readiness` when healthy.
 - Research pipeline health check reflects real component status.
 
 ---

@@ -88,3 +88,11 @@
 {"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "5f6cce7c9756cab3881ea91c2489600c6622fec2832ebca4030ed9188b245070"}
 {"event": {"type": "mutation", "score": 50.0}, "hash": "42f79cd29fb196583e0ccc3e289c170d014d09b6647454831aa2c92cc9819b45"}
 {"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "a8427323d299c4f59163ce3488ce2ed67705fe6c0a8535de526a35f865408409"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "bf16b326abf9142389e563c42c44c018e0bf6152c8947f68732ec2fd740875e5"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "495d2d41b099bf826ccc27788129d642728aa32bb51ba44e17ae6f88f1bbc005"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "0e59af8269d6b9c826c428c34aa4d277c9ff83bd5ca174702d76537d45ac1686"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "775a858a436fffaf6ceb1200d6306fd9641585110955d8b9ac8a23c5e53796bb"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "c7a4ff1eecd26b10abde2dbeadcc458c7f1a74053948813e2073c541b471f76f"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "db45e5270693531ec742ad01baac67e33ee8fbd2b89e33aa00897e44a6dc8977"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "23ee99a582b0f71307423c7a7a2284786340b9a00930f5c8081fbda59706e6d7"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "b28063b03d8e595d7bb8dd45ef1bedd5b3a71e11dc70d8212efab467da3c3a63"}
