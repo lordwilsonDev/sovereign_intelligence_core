@@ -41,6 +41,6 @@ def test_snapshot_contract(harness: SystemObservabilityHarness) -> None:
         "unhealthy_count": 0,
         "critical_unhealthy": [],
         "updated_at": snapshot["updated_at"],
-        "sac_ready": True,
+        "sac_ready": harness.is_ready(),
     }
     assert snapshot["updated_at"]

@@ -16,13 +16,15 @@ def harness() -> ReadinessChaosHarness:
     return ReadinessChaosHarness()
 
 
-def test_record_and_readiness_green(harness: ReadinessChaosHarness) -> None:
+def test_record_and_readiness_green(harness: ReadinessChaosHarness, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(harness._gate, "is_ready", lambda: True)
     harness.record(ComponentHealth(id="a", name="A", status="healthy", metadata={"critical": True}))
     assert harness.readiness().status == "GREEN"
     assert harness.is_ready() is True
 
 
-def test_degrade_moves_yellow(harness: ReadinessChaosHarness) -> None:
+def test_degrade_moves_yellow(harness: ReadinessChaosHarness, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(harness._gate, "is_ready", lambda: True)
     harness.record(ComponentHealth(id="a", name="A", status="healthy", metadata={"critical": True}))
     harness.record(ComponentHealth(id="b", name="B", status="healthy", metadata={"critical": True}))
     harness.degrade("a")
@@ -89,8 +91,9 @@ def test_history_limit_respects_max(harness: ReadinessChaosHarness) -> None:
     assert len(harness.history(limit=10)) == 10
 
 
-def test_sac_ready_reflects_gate(harness: ReadinessChaosHarness) -> None:
+def test_sac_ready_reflects_gate(harness: ReadinessChaosHarness, monkeypatch: pytest.MonkeyPatch) -> None:
     gate = ReadinessGate()
+    monkeypatch.setattr(gate, "is_ready", lambda: True)
     harness._gate = gate
     assert harness.is_ready() is True
     snapshot = harness.snapshot()

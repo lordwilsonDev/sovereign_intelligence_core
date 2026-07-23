@@ -262,6 +262,11 @@ def _load_routers() -> None:
     from msb_v2.api.mesh import router as mesh_router
     _register(mesh_router, "/mesh")
     try:
+        from msb_v2.api.mesh_tasks import router as mesh_tasks_router
+        _register(mesh_tasks_router, "/mesh/tasks")
+    except Exception:
+        pass
+    try:
         from msb_v2.api.sn import router as sn_router
         _register(sn_router, "/sn")
     except Exception:
