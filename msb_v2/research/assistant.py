@@ -386,24 +386,47 @@ class SovereignResearchAssistant:
         return completion
 
     def run_full_pipeline(self) -> Dict[str, Any]:
-        """Run the local research pipeline and append evolution/mesh artifacts."""
+        """Run the local research pipeline with sovereign immune system gates."""
         summary = {
             "topic": self.topic,
             "slug": self.slug,
             "phases": [],
         }
+
+        if not self._sac_gate("pipeline_start"):
+            summary["status"] = "blocked_by_sac"
+            return summary
+
         summary["phases"].append({"phase": "inversion", "result": self.run_inversion()})
+
+        if not self._sac_gate("evidence_grounding"):
+            summary["status"] = "blocked_during_evidence"
+            return summary
         summary["phases"].append({"phase": "evidence", "result": self.ground_evidence()})
+
+        if not self._sac_gate("report_generation"):
+            summary["status"] = "blocked_during_report"
+            return summary
         summary["phases"].append({"phase": "report", "result": {"path": str(self.draft_report())}})
+
+        report_text = ""
+        try:
+            completion = self._load_artifact("completion")
+            if isinstance(completion, dict):
+                report_text = str(completion.get("summary") or completion.get("status") or "")
+        except Exception:
+            pass
+
+        if not self._echo_gate("report", report_text):
+            summary["status"] = "awaiting_confirmation"
+            return summary
+
         summary["evolution"] = _ouroboros_scan()
         continuity = _continuity_prompt()
         memory = _memory_consolidate()
         summary["continuity"] = continuity
         summary["memory"] = memory
-        summary["mesh"] = {
-            "peers": [],
-            "submitted_tasks": [],
-        }
+        summary["mesh"] = {"peers": [], "submitted_tasks": []}
         try:
             import requests
             r = requests.get("http://127.0.0.1:8766/mesh/discover", timeout=2)
@@ -411,9 +434,64 @@ class SovereignResearchAssistant:
                 summary["mesh"] = r.json()
         except Exception:
             pass
+
+        summary["health"] = self._health_check()
         completion = self.record_completion()
         summary["completion"] = completion
+        summary["status"] = "completed"
         return summary
+
+    def _sac_gate(self, phase: str) -> bool:
+        """Check SAC status before proceeding. Returns True if safe."""
+        try:
+            import requests
+            resp = requests.get("http://127.0.0.1:8766/sac/status", timeout=5)
+            if resp.ok:
+                data = resp.json()
+                sas = data.get("sac", {}).get("sas", {}).get("score", 0)
+                if sas < 70:
+                    self.guard_events.append({"phase": phase, "blocker": "sac", "score": sas})
+                    return False
+                return True
+        except Exception:
+            pass
+        return True
+
+    def _echo_gate(self, phase: str, content: str) -> bool:
+        """Return True if the output is safe to publish without human confirmation."""
+        payload = {
+            "intent": {"action": "publish", "targets": ["research"], "raw_text": content or ""},
+            "blast_analysis": {"score": 0.3, "affected": 0},
+        }
+        try:
+            import requests
+            resp = requests.post("http://127.0.0.1:8766/echo/evaluate", json=payload, timeout=5)
+            if resp.ok:
+                data = resp.json()
+                if data.get("should_echo"):
+                    self.guard_events.append({"phase": phase, "blocker": "echo"})
+                    return False
+        except Exception:
+            pass
+        return True
+
+    def _health_check(self) -> Dict[str, Any]:
+        """Run SCHH and SSHH checks. Returns status dict."""
+        status: Dict[str, Any] = {"schh": "unknown", "sshh": "unknown"}
+        try:
+            import requests
+            for path in ("/schh/status", "/systems-health/check", "/systems-health/status"):
+                resp = requests.get(f"http://127.0.0.1:8766{path}", timeout=5)
+                if resp.ok:
+                    data = resp.json()
+                    if path.startswith("/schh"):
+                        status["schh"] = data.get("readiness") or data.get("status", "unknown")
+                    else:
+                        status["sshh"] = data.get("status", data.get("readiness", "unknown"))
+                    break
+        except Exception:
+            pass
+        return status
 
     def _persist(self, payload: Any, artifact_name: str) -> Path:
         safe_name = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "-" for ch in artifact_name)
