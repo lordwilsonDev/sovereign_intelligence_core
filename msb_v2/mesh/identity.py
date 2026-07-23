@@ -200,6 +200,9 @@ class _InMemoryChallengeStore:
     def pop(self, node_id: str) -> Optional[ChallengeRequest]:
         return self._store.pop(node_id, None)
 
+    def get(self, node_id: str) -> Optional[ChallengeRequest]:
+        return self._store.get(node_id)
+
     def exists(self, node_id: str) -> bool:
         return node_id in self._store
 

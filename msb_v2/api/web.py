@@ -45,6 +45,10 @@ _register_contract(HarnessContract(route="/demo/query", method="post", allow_ano
 _register_contract(HarnessContract(route="/first-contact/start", method="post", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/first-contact/advance", method="post", allow_anonymous=True, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/first-contact/status/{session_id}", method="get", allow_anonymous=True, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/mesh/identity/register", method="post", allow_anonymous=False, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/mesh/identity/challenge", method="post", allow_anonymous=False, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/mesh/identity/respond", method="post", allow_anonymous=False, max_body_bytes=65536))
+_register_contract(HarnessContract(route="/mesh/peers", method="get", allow_anonymous=False, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/chat", method="post", allow_anonymous=False, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/runtime/start", method="post", allow_anonymous=False, max_body_bytes=65536))
 _register_contract(HarnessContract(route="/runtime/status", method="get", allow_anonymous=False, max_body_bytes=65536))
@@ -255,6 +259,8 @@ def _load_routers() -> None:
     _register(optimize_router, "/optimize")
     from msb_v2.api.schh import router as schh_router
     _register(schh_router, "/schh")
+    from msb_v2.api.mesh import router as mesh_router
+    _register(mesh_router, "/mesh")
     try:
         from msb_v2.api.sn import router as sn_router
         _register(sn_router, "/sn")
