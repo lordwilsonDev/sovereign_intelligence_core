@@ -14,6 +14,11 @@ class SovereignCloudAgent:
         self._session_id = uuid.uuid4().hex[:8]
         self._history: list[dict[str, Any]] = []
         self._prosody = ProsodyAnalyzer()
+        try:
+            from msb_v2.local_ai.client import LocalInferenceClient
+            self._local_model = LocalInferenceClient()
+        except Exception:
+            self._local_model = None
 
     @staticmethod
     def _override_risk(text: str) -> Optional[str]:
@@ -104,7 +109,45 @@ class SovereignCloudAgent:
 
     @staticmethod
     def _fallback_alternatives(text: str) -> list[str]:
+        # Best-effort local guidance is available via `_generate_guidance_with_local_model`
+        # on the instance when `_local_model` is set; otherwise use deterministic fallbacks.
+        try:
+            import inspect
+            frame = inspect.currentframe()
+            caller_frame = frame.f_back if frame else None
+            instance = caller_frame.f_locals.get("self") if caller_frame else None
+        except Exception:
+            instance = None
+        if instance is not None and getattr(instance, "_local_model", None):
+            try:
+                guidance = instance._generate_guidance_with_local_model(text)
+                if isinstance(guidance, list) and guidance:
+                    return [g for g in guidance if isinstance(g, str) and g.strip()]
+            except Exception:
+                pass
         lower = text.strip().lower()
         if not lower:
             return ["use a more specific command", "break the request into smaller steps"]
         return [f"rephrase '{text}' with less destructive intent", "delegate this action to a supervised workflow"]
+
+    @classmethod
+    def _generate_guidance_with_local_model(cls, text: str) -> list[str]:
+        """Best-effort local guidance generation. Not used for veto decisions."""
+        try:
+            from msb_v2.local_ai.client import LocalInferenceClient
+            client = LocalInferenceClient()
+            if not client:
+                return []
+            prompt = (
+                "Given the user command, suggest 2 safer alternative actions. "
+                "Return JSON array only.\n"
+                f"Command: {text}\n"
+            )
+            raw = client.generate(prompt, max_tokens=128)
+            import json
+            data = json.loads(raw)
+            if isinstance(data, list):
+                return [str(x).strip() for x in data if str(x).strip()]
+        except Exception:
+            pass
+        return []
