@@ -1318,3 +1318,95 @@
 {"event": {"type": "kb4", "intent": "Find case studies related to continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "ce448fb1cefed94a36f74f4e1b28e1b0dc7ce23649da44617d159a28bf9d1ff7"}
 {"event": {"type": "mutation", "score": 50.0}, "hash": "b347796a4aed750e33c428a86cb3317577f9ea3500e6b4e84060fd226bb3136f"}
 {"event": {"type": "kb4", "intent": "Gather statistical data about continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "ef481ffe7f5f32364e7d5b96a4cb9738ea9a6a690ec01c5d32532032f50a63fc"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "93bcae427c0641bc74903abf0a3783d4a208daf26fb6eab578f9563fd39225e0"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "45320d9b8deba7a50f39aafb8cfed0b05adcafcd220612c3963ee642e55eee27"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "6a8e460d28ca81212d07153fc0843e7758b2f291a85416ac9291041772905735"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "da6b90f6efd4c6ef57c5362ca4020cb80ceb9a30f24af25c5adbacf9ca346f16"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e02afdb7fedb0503e9cad067d546b59ede6f2ff0d24b2cae011870366d9b9998"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "6c0b417363edc6b759cd41b128fd804151a269bc6e44dbd592ce2e8ca581a41b"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "34b3670675c3954d339281d1c5c57338e4409b19e3be131e2427da7bdb35964b"}
+{"event": {"type": "kb4", "intent": "Find case studies related to immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "bbba19b150c9ca39bc1478c9dedade08e895249e7b07d1f37dd2988f6c36ea10"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "6120f37b2cffdf1d59ce42e3d9352c37c44a4e6fb161ffb7b6cdd061e86274a5"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "d984689415c761e0b1ae673bdd516678d41a32d10633dcc5dc7197a3f2a87ad0"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "546c052c404287c96a94378e20bc4e6bef009ad6638def85d9da23c2e9059748"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "3520e0b19d79e31729bdf92d21f335c14ade70b98e16840ef6aac273561067bf"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "801bc5f7b65ec3765716dcc0c9dae632267ffa7cecef2738e7a955521f32555b"}
+{"event": {"type": "kb4", "intent": "Find case studies related to immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c182aa4f5842b9b7551bc04c8a641a35832719e04873d1000d05044721814a89"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "788336d71e2992556e8e4a660e624ed73481756c5cc9c7f19ebe2cee56fbb6a4"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "ce0ef432678d28b7290923f301205111d0add96462f77f85ef979d63eeddb111"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "a5381ccfede1fb9c9887da6ac7d99b3b8bd81000b357159cd32f280a67ee74a5"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "731c8c9fc6eee10f8614ff3dc023dd5be3f0efe06d6fb575dd70626e9ac9ef5f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "649e14e485bfa6b7ecd98eb4b9166bd477b80889014be564a5f52ea31f92ee7f"}
+{"event": {"type": "kb4", "intent": "Find case studies related to snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "7e6c0fa6d1c1e5907d5e292f5f8a6e18e16f0fbdebc1f223d62b6fc58fd78f52"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "224ac05c755cb568591f8165ecb205f28156219644e92712afc823f89efd17d2"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4702e4253c40c2c0a51e5c71eeda08f6c5a855f9761cea131f8882b191d1eb7e"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "2391033f6be6802b9b70407896a2466c6ada2dcacabd7519f996093e6eb02df6"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "baf7b007ca08b892f27c5ee139719318a20a6ff17aad5b35f7aa2fb75783ea2a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "6fc6f1e9363d14e308ad2da28ab90ec745579911836f1910061d5038db60d749"}
+{"event": {"type": "kb4", "intent": "Find case studies related to self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "49ed041760ebfbecbfd2c9ce23037e1444e6379a3a2823e0afacfb6d947e0b08"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "847e5c3f22a322ce0f4ab62dc0496fd556874f680eb10c61b12e329863921201"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "80303f574a8741fe49929628e9a3d3599605253418470c3a99692377cd4bbd66"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "48cca4d76c58ce71b3b9f45d82841751d3c451c0d01a70a2973b6017693e110d"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "8e78c9df690fd9cb2560f2049adc717c7b62039d7adede73168fa0ab6fd5719f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "5c0de417852dfead0e636e1ed46e12ad98a2e61b14a999ea5066f26eab1eaa43"}
+{"event": {"type": "kb4", "intent": "Find case studies related to self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "576f4e640c16059e83e776ca163b4d46223e3ff90e59475a5160f5f9c0da52e3"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f797ceb4bcfcba123d50f310a9059191ed9b3b138123a46f3689f38b2d515b5d"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "2110873212f1cb6f76433bbb794423f495c0da2d39aafd933a5a2bc4b80bb192"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "dff8f7009a5f20cba32bf58f154c8dd1501f348b144adc7c9b4e3e175edea0ce"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "32880ef996cb1e2abf5d28ac3d59e493af4dd62e9db2636dcf8784621431abe1"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "9a81961afa1569dcdaeb8085f140397133db6f36fe936875d4e3049822e1b6a0"}
+{"event": {"type": "kb4", "intent": "Find case studies related to continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "82c6c02f86c4dbbda36baf9d0c8e9d8742aa8b1c44bd3bfcd25feff553f59d11"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "83752cfb729337a86ef04eb2dc1f37eee3842914c982b466d29e79d371b6f22a"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "7bbafff431744328b9efa866fca3c6e758000911ab5b3b66ee7fc4c42aee656d"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "ab4040f411031bdf2cf868ffc89d6734e5a2eab158e7caf22468ff616acb64fb"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4aa2b4ac398c289a16bb93877acaa0ac6882a63be18cbbc7c64eeb8b73eab3c1"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "9c16159bb006c93c7eb6219c28ff00699f9efa1cb0e7b3d087acafc64836ebe3"}
+{"event": {"type": "kb4", "intent": "Find case studies related to continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "2260a589bff275ae47c00777f293ff306608ca20fff518753637ce003e6f7d79"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "220d6402794bf6d4bd48c29db15ebf517c09cc6e342d43e1428e58baf2b2a4b3"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "85432ba7b7079057fe74c97881d0021765c4ec1ef1981fbd0c161120368790f5"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f69abda06b216ce946560e3a507dcdd0d42dcbba58534fc25a4b67e8320bc399"}
+{"event": {"type": "kb4", "intent": "What is 2+2?", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "6050a3f4e24db45c186c46b671c593766950565b311878889014068ca0a7f274"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "00125aa3f21c8f2f7c7dfa88bfe17de1765f4ca6af55890625e2ab6c518c833c"}
+{"event": {"type": "kb4", "intent": "Return 42", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4869931428b0d02419f2dfaac4f1704692a50bf3daf6f91f6522cfd1ab209e09"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e1cbe53c107fa53dc44f051dad895e303acf9b1fee048b90c0f47f6749361afb"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "db17ced9914bf01949e45abc1ad8ce8e210de9b092546f12c402cb5726d08f3d"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "c310e7bdcc943b3b66c328019aec7ba261fb7c04756fb2f5bea4c24df86241b3"}
+{"event": {"type": "kb4", "intent": "Find case studies related to immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "56ce0c12fba3f094dc0060045f6fe744aa51651dd70b4c4522b3b0a9739a95b1"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "fda03c2824330aa1afadc2da5b114709d3bcdbb8100b5da9d562c4093f5dc6bc"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "749b6889f6f4088d9f531459e019a044a32130d0ab512e2f7cbaae4b265d08cb"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "ab987afcf886cc8601486feea95aed75773185a1b6d13267650530f00becf115"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "eba81d88cdc827a37eda862006547cd8b00c55a876d6416e6e6021b78d1e8a35"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "0f9ac246f4204b871d3fdbce7edaa55496e0d821ab7decf675843ddb488b019c"}
+{"event": {"type": "kb4", "intent": "Find case studies related to immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "601f19daf309d6735a397de41ec510a1b50a5369d62bc46c9d4023fdb27a7e8f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "11e96f0750ddc0be902e4e9ba2088bbdb7a000700046552fd8cc8e4c77c22e95"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about immune test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "7d0eb95b8cc61c3ec4eae0838d7a3ef6f03812cfc16b020df622be2b7e59b13f"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "698c071665c0cee9dd5e91bd9a32105cac6a54cb1fbfcc91078048af935068d9"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c82396432a815ee8345925530599a2a9f6ec2909b1cfa927db8a06fbfd94f1fb"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "449fecd35c0cd1d2f1684ec1073795ad3c83f7f9a194c4adb19072233b62dac3"}
+{"event": {"type": "kb4", "intent": "Find case studies related to snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "162c078fc7eeea5b31dc41426f71563325233ae1f545a22aa5e643e1862bbc64"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "5286c992a316fea153d075e80ff9a50623bd317b591c6b42db928c7f6e3246bb"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about snh test", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "e6c524b28ba2b2dfe0aaef905fe111fb5e2c9a4735d2984537cdc9c2c03a7d84"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "4108e96bb8144352eadbd5ad57f944eec46287997338dd00141bb846de4a2359"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c4a2394785226155928092dd643e7a1036de0c8aa2b5aaf3ed2d8ad561ea3e72"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "23652ef888e420717e706e862e1a847d3b1177abc05f8c4881925fb843d27b72"}
+{"event": {"type": "kb4", "intent": "Find case studies related to self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "fba6db9f2dd27e80b6191c2af4bd26f4b474277b179de7018b5c98663946cc1b"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d73ab5ba54a79f60823048247a7387df7dc144aca3a0b79b8978c8ef13a824f5"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "5cd736fdbac709c4ef2eb34f3cae94b0c434a75d13f6cb2d6f9b09b7c0751a67"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "13d855ca0b2ecb5b0e6bfc8b03a49244054ae3676bf2c1fe039e5f65e90ae9f2"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "f8b74810af647009706c9adf1f7d6efdd804d8f3aad839e015618b8f1f6efb8a"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "4b330cd8d5110fa2008ee65bbe53586471393179be8d08f7b6f59c5f53a4abe7"}
+{"event": {"type": "kb4", "intent": "Find case studies related to self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4d49adc1f986cf98b207fe10e3c08e4df590d0241c842fe52e6e4a6797beebad"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "f9759b42d143f1b9fffc165e3b976a70d4946dfac242184120473b49fce4918c"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about self-improvement", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "61bef023f528b7e41a08feb316d945c9eca51a5aaf6528ce5ff762df29a32aa3"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d5e4e54f9474daa5d549d0e978e786321339bc4c3908a9b668df859fca91696e"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "b07c3c99ad47da431e07ee3542bcb8b956d7f5d06743483d3a8afbaad73e7726"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "9f367ea86e0443d395d048242c41ee9272673fe78f8216ffb62a2d734d71122c"}
+{"event": {"type": "kb4", "intent": "Find case studies related to continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "8daf3c1e58b8372984d1d88d6288f8cdbce331724f47b1f449b3d9d2e813e873"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "3e3a924f5b55cf54b8953e878497d1168a5e210c967592046a062ab2f1c73dbe"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about continuity-memory", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "c2c73700419f416febf371a6e64646344bbaadd13e1726ed211f0faa5786b147"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "94a22a35a28d3c250a53d5eb8b5b0eeeb265c09c0699ff8e954fff850921bc48"}
+{"event": {"type": "kb4", "intent": "Search for recent academic papers on continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "137405b2efd9923ef5638e3ab2be1fa0c556265df8349a3c9cb35e0b1221c851"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "d062dd53124a694d20f0a384be90011703fd5d8f43d55df915f5aaa2a786553e"}
+{"event": {"type": "kb4", "intent": "Find case studies related to continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "4d624aa7f5878f2ab57e3144cd4648007fecc6818b4d7a33612e8a5232f5256b"}
+{"event": {"type": "mutation", "score": 50.0}, "hash": "e23863d874dafb86403be12d1fe86fcc821878f8662d157e1360aeec31faf679"}
+{"event": {"type": "kb4", "intent": "Gather statistical data about continuity-down", "score": 50.0, "fts": 0.0, "rnr": 0.0, "vetoed": false, "mutation": true}, "hash": "54319a300070151002666b780cd64510e96ef19c8d3c2f9cb906b3714670c864"}
