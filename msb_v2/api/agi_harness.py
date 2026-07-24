@@ -14,7 +14,7 @@ _harness = AGIHarness()
 @router.post("/start")
 def start_agi() -> Dict[str, Any]:
     result = _harness.cycle()
-    return result
+    return {"status": "accepted", **result}
 
 
 @router.get("/status")

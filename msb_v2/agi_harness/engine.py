@@ -1,6 +1,9 @@
 """Sovereign AGI Harness — perpetual cognition loop."""
+from __future__ import annotations
+
 import time
 from datetime import datetime, timezone
+from typing import Any, Dict, List
 
 import requests
 
@@ -10,108 +13,107 @@ from msb_v2.observer_log.thought_emitter import emit_thought
 class AGIHarness:
     """Orchestrates the full sovereign cognition cycle continuously."""
 
-    def __init__(self, base_url="http://127.0.0.1:8766"):
+    def __init__(self, base_url: str = "http://127.0.0.1:8766", cycle_timeout: float = 8.0) -> None:
         self.base_url = base_url.rstrip("/")
         self.running = False
+        self.cycle_timeout = float(cycle_timeout)
+        self._last_cycle_duration: float = 0.0
+        self._last_cycle_status: str = "idle"
 
-    def cycle(self) -> dict:
+    def cycle(self) -> Dict[str, Any]:
         emit_thought("agi-harness", "Starting cognition cycle")
         cycle_id = datetime.now(timezone.utc).isoformat()
-        observations = self._observe()
-        inversions = [self._reason(obs) for obs in observations]
-        actions = self._act(inversions)
-        self._learn(actions)
+        started = time.perf_counter()
+        observations: List[Any] = []
+        actions: List[Dict[str, Any]] = []
+        try:
+            observations = self._observe()
+            inversions = [self._reason(obs) for obs in observations]
+            actions = self._act(inversions)
+            self._learn(actions)
+            self._last_cycle_status = "completed"
+        except Exception as exc:
+            self._last_cycle_status = f"error: {exc}"
+            emit_thought("agi-harness", f"Cognition cycle error: {exc}", "high")
+        self._last_cycle_duration = time.perf_counter() - started
         emit_thought("agi-harness", f"Cognition cycle {cycle_id} complete")
-        return {"cycle_id": cycle_id, "observations": len(observations), "actions": len(actions)}
+        return {
+            "cycle_id": cycle_id,
+            "observations": len(observations),
+            "actions": len(actions),
+            "duration_seconds": round(self._last_cycle_duration, 3),
+            "status": self._last_cycle_status,
+        }
 
-    def _observe(self):
-        inputs = []
+    def _fast_get(self, path: str, timeout: float = 1.5) -> Any:
         try:
-            resp = requests.get(f"{self.base_url}/mesh/discovery/peers", timeout=3)
+            resp = requests.get(f"{self.base_url}{path}", timeout=timeout)
             if resp.ok:
-                data = resp.json()
-                if data.get("peers"):
-                    inputs.append({"source": "mesh", "data": data["peers"]})
+                return resp.json()
         except Exception:
             pass
+        return None
+
+    def _fast_post(self, path: str, payload: Dict[str, Any] | None = None, timeout: float = 2.0) -> Any:
         try:
-            resp = requests.get(f"{self.base_url}/truth-beat/pulse", timeout=3)
+            resp = requests.post(f"{self.base_url}{path}", json=payload, timeout=timeout)
             if resp.ok:
-                inputs.append({"source": "truth-beat", "data": resp.json()})
+                return resp.json()
         except Exception:
             pass
-        try:
-            resp = requests.get(f"{self.base_url}/axiom-library/random", timeout=3)
-            if resp.ok:
-                data = resp.json()
-                if "error" not in data:
-                    inputs.append({"source": "axiom-library", "data": data})
-        except Exception:
-            pass
-        try:
-            resp = requests.get(f"{self.base_url}/observer-log/recent?limit=5", timeout=3)
-            if resp.ok:
-                thoughts = resp.json().get("thoughts", [])
-                critical = [t for t in thoughts if t.get("priority") in ("high", "critical")]
-                if critical:
-                    inputs.append({"source": "observer-log", "data": critical})
-        except Exception:
-            pass
+        return None
+
+    def _observe(self) -> List[Any]:
+        inputs: List[Any] = []
+        peers = self._fast_get("/mesh/discovery/peers", timeout=1.5)
+        if peers and peers.get("peers"):
+            inputs.append({"source": "mesh", "data": peers["peers"]})
+        truth = self._fast_get("/truth-beat/pulse", timeout=1.5)
+        if truth:
+            inputs.append({"source": "truth-beat", "data": truth})
+        axiom = self._fast_get("/axiom-library/random", timeout=1.5)
+        if axiom and "error" not in axiom:
+            inputs.append({"source": "axiom-library", "data": axiom})
+        thoughts = self._fast_get("/observer-log/recent?limit=5", timeout=1.5)
+        if thoughts:
+            raw = thoughts.get("thoughts") or []
+            critical = [t for t in raw if t.get("priority") in ("high", "critical")]
+            if critical:
+                inputs.append({"source": "observer-log", "data": critical})
         return inputs
 
-    def _reason(self, obs):
-        try:
-            resp = requests.post(
-                f"{self.base_url}/kernel/run",
-                json={"intent": f"Apply Axiom Inversion Logic and Mixture of Inversion Experts to the following observation: {obs.get('data', obs)}"},
-                timeout=15,
-            )
-            if resp.ok:
-                return {"source": obs["source"], "result": resp.json()}
-        except Exception:
-            pass
-        return {"source": obs["source"], "result": "reasoning failed"}
+    def _reason(self, obs: Dict[str, Any]) -> Dict[str, Any]:
+        payload = {
+            "intent": f"Apply Axiom Inversion Logic and Mixture of Inversion Experts to the following observation: {obs.get('data', obs)}"
+        }
+        result = self._fast_post("/kernel/run", payload, timeout=3.0)
+        return {"source": obs.get("source", "unknown"), "result": result or "reasoning failed"}
 
-    def _act(self, inversions):
-        actions = []
+    def _act(self, inversions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        actions: List[Dict[str, Any]] = []
         for inv in inversions:
             if inv.get("source") == "axiom-library":
-                try:
-                    resp = requests.post(
-                        f"{self.base_url}/research/assistant/run",
-                        json={"phase": "full", "topic": f"Counterfactual exploration of axiom: {inv.get('result', '')}"},
-                        timeout=15,
-                    )
-                    if resp.ok:
-                        actions.append({"action": "research_mission", "status": resp.json().get("status")})
-                except Exception:
-                    pass
+                payload = {
+                    "phase": "full",
+                    "topic": f"Counterfactual exploration of axiom: {inv.get('result', '')}",
+                }
+                result = self._fast_post("/research/assistant/run", payload, timeout=4.0)
+                if result:
+                    actions.append({"action": "research_mission", "status": result.get("status")})
         return actions
 
-    def _learn(self, actions):
-        try:
-            requests.post(f"{self.base_url}/memory/consolidate", json={"kind": "agi-cycle"}, timeout=5)
-        except Exception:
-            pass
-        try:
-            requests.post(f"{self.base_url}/evolution/scan", json={"target": "full"}, timeout=10)
-        except Exception:
-            pass
-        try:
-            requests.post(f"{self.base_url}/autonomous-evolution/run", timeout=10)
-        except Exception:
-            pass
-        try:
-            requests.post(f"{self.base_url}/snapshot/capture", timeout=10)
-        except Exception:
-            pass
+    def _learn(self, actions: List[Dict[str, Any]]) -> None:
+        self._fast_post("/memory/consolidate", {"kind": "agi-cycle"}, timeout=2.0)
+        self._fast_post("/evolution/scan", {"target": "full"}, timeout=3.0)
+        self._fast_post("/autonomous-evolution/run", timeout=3.0)
+        self._fast_post("/snapshot/capture", timeout=3.0)
 
-    def run_forever(self, interval_seconds: int = 300):
+    def run_forever(self, interval_seconds: int = 300) -> None:
         self.running = True
         emit_thought("agi-harness", "AGI Harness started perpetual cognition loop")
         while self.running:
             try:
                 self.cycle()
-            except Exception as e:
-                emit_thought("agi-harness", f"Cognition cycle error: {e}", "high")
+            except Exception as exc:
+                emit_thought("agi-harness", f"Cognition cycle error: {exc}", "high")
             time.sleep(interval_seconds)
