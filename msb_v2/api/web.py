@@ -239,8 +239,6 @@ def _load_routers() -> None:
     _register(v3_tools_router.router, "")
     _register(v3_tasks_router.router, "")
     _register(v3_crew_router.router, "")
-    from msb_v2.api.scth import router as scth_router
-    _register(scth_router, "/scth")
     from msb_v2.api.cloud_agent import router as cloud_agent_router
     _register(cloud_agent_router, "/cloud-agent")
     from msb_v2.api.first_contact import router as first_contact_router
@@ -269,11 +267,6 @@ def _load_routers() -> None:
     try:
         from msb_v2.api.mesh_discovery import router as mesh_discovery_router
         _register(mesh_discovery_router, "/mesh/discovery")
-    except Exception:
-        pass
-    try:
-        from msb_v2.api.sn import router as sn_router
-        _register(sn_router, "/sn")
     except Exception:
         pass
     try:
