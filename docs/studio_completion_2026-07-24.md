@@ -7,7 +7,7 @@ This record covers the msb-studio dashboard addition to `msb_v2/api/studio.py` a
 - `/` JSON route map: name=`msb-studio`, includes `agent_dashboard`
 - `/studio/status`: composite JSON with `runtime`, `memory`, `verification`, `evolution`, `agent`
 - `/studio/health`: probe for Ollama reachability + filesystem disk sanity
-- `/studio/agent-dashboard`: live NeuralAgent + local Ollama assessment with latency labels
+- `/agent-dashboard`: live NeuralAgent + local Ollama assessment with latency labels
 - `/studio/metrics`: combined reasoning/memory metrics + Prometheus fragment
 - `/dashboard`: single-page visual console with 5s auto-refresh, no internal path leakage
 

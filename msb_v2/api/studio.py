@@ -43,7 +43,7 @@ async def studio_dashboard() -> Dict[str, Any]:
             "agent_loop": "/agent/run/loop",
             "evolution": "/evolution/scan",
             "verification": "/verification/integrity/trace/{trace_id}",
-            "agent_dashboard": "/studio/agent-dashboard",
+            "agent_dashboard": "/agent-dashboard",
         },
     }
 
@@ -137,7 +137,7 @@ async def studio_dashboard_html() -> HTMLResponse:
     js = """
     const ENDPOINTS = [
       {name:'studio', url:'/studio/status'},
-      {name:'agent', url:'/studio/agent-dashboard'},
+      {name:'agent', url:'/agent-dashboard'},
       {name:'observability', url:'/observability/status'},
       {name:'metrics', url:'/studio/metrics'},
     ];
