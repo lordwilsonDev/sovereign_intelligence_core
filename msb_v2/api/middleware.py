@@ -14,30 +14,38 @@ from msb_v2.v3.contracts import lookup as _hcl_lookup
 security = HTTPBearer(auto_error=False)
 
 # contextvar so TestClient runs never leak auth state across tests
-_bypass_override: contextvars.ContextVar[Optional[bool]] = contextvars.ContextVar("_bypass_override", default=None)
+_unset = object()
+_bypass_override: contextvars.ContextVar = contextvars.ContextVar("_bypass_override", default=_unset)
+_had_explicit_override: contextvars.ContextVar = contextvars.ContextVar("_had_explicit_override", default=False)
 
 def set_local_bypass(enabled: Optional[bool]) -> None:
-    _bypass_override.set(enabled)
+    if enabled is None:
+        _bypass_override.set(_unset)
+    else:
+        _bypass_override.set(enabled)
+    _had_explicit_override.set(True)
 
 
 @contextlib.contextmanager
 def _bypass_context(enabled: bool):
     token = _bypass_override.set(enabled)
+    prev = _had_explicit_override.set(True)
     try:
         yield
     finally:
         _bypass_override.reset(token)
+        _had_explicit_override.reset(prev)
 
 
 async def require_bearer_token(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)) -> Dict[str, Any]:
-    explicit = _bypass_override.get(None)
+    explicit = _bypass_override.get(_unset)
     if explicit is True:
         return {"sub": "local", "roles": ["system"], "scopes": ["*"]}
     if explicit is False:
-        # force enforcement path
         pass
-    elif str(__import__("os").getenv("MSB_AUTH_LOCAL_BYPASS", "")).lower() in {"1", "true", "yes"}:
-        return {"sub": "local", "roles": ["system"], "scopes": ["*"]}
+    elif not _had_explicit_override.get(False):
+        if str(__import__("os").getenv("MSB_AUTH_LOCAL_BYPASS", "")).lower() in {"1", "true", "yes"}:
+            return {"sub": "local", "roles": ["system"], "scopes": ["*"]}
     if credentials is None or not credentials.credentials:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing bearer token")
     result = verify_token(credentials.credentials)
