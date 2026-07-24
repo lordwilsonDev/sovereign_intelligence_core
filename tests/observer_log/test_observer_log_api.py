@@ -15,3 +15,4 @@ def test_observer_log_routes_mount_from_router() -> None:
     assert client.get("/observer-log/recent").status_code == 200
     assert client.post("/observer-log/emit", json={"source": "s", "message": "m"}).status_code == 200
     assert client.post("/observer-log/clear").status_code == 200
+    assert client.post("/observer-log/entry", json={"source": "s", "message": "m"}).status_code == 200

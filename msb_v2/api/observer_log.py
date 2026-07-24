@@ -23,6 +23,11 @@ def emit_thought(payload: dict):
     return {"status": "emitted"}
 
 
+@router.post("/entry")
+def entry_thought(payload: dict):
+    return emit_thought(payload)
+
+
 @router.post("/clear")
 def clear_thoughts():
     _log.log_path.write_text("")
