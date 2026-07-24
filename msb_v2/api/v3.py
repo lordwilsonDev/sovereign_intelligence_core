@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
@@ -21,7 +23,6 @@ _graph = KnowledgeGraph()
 _learning = LearningEngine(graph=_graph)
 _planner = MemoryEnhancedPlanner(pipeline=_pipeline, learning_engine=_learning)
 
-
 def _get_store() -> InMemoryStore:
     return _shared_store
 
@@ -32,6 +33,17 @@ def _get_pipeline() -> EventToMemoryPipeline:
 
 def _get_planner() -> MemoryEnhancedPlanner:
     return _planner
+
+
+def _safe_contract(contract: HarnessContract) -> dict:
+    out: dict = {}
+    for k, v in contract.__dict__.items():
+        try:
+            json.dumps(v)
+            out[k] = v
+        except Exception:
+            out[k] = f"<{type(v).__name__}>"
+    return out
 
 
 @router.get("/v3/health")
@@ -116,7 +128,7 @@ def search_memories(q: str, limit: int = 20) -> dict:
 def v3_contracts_list() -> JSONResponse:
     try:
         from msb_v2.v3.contracts import all_contracts as _all_contracts
-        return JSONResponse({"count": len(_all_contracts()), "contracts": [c.__dict__ for c in _all_contracts()]})
+        return JSONResponse({"count": len(_all_contracts()), "contracts": [_safe_contract(c) for c in _all_contracts()]})
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=500)
 
