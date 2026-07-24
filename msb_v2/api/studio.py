@@ -7,7 +7,7 @@ from typing import Any, Dict
 import urllib.error
 import urllib.request
 from fastapi import APIRouter
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
 from msb_v2.evolution.memory import EvolutionMemory
 from msb_v2.memory.persistence import PersistentMemoryStore
@@ -68,10 +68,7 @@ def studio_status() -> JSONResponse:
 
 @router.get("/agent-dashboard")
 def agent_dashboard() -> JSONResponse:
-    prompt = (
-        "Return a one-line sovereign OS status assessment in plain English. "
-        "No markdown, no JSON, no preface."
-    )
+    prompt = "Return a one-line sovereign OS status assessment in plain English. No markdown, no JSON, no preface."
     result = execute_neuralagent(
         {
             "provider": "ollama",
@@ -88,6 +85,44 @@ def agent_dashboard() -> JSONResponse:
             "result": result,
         }
     )
+
+
+@router.get("/dashboard", response_class=HTMLResponse)
+async def studio_dashboard_html() -> HTMLResponse:
+    js = """
+    const ENDPOINTS = [
+      {name:'studio', url:'/studio/status'},
+      {name:'agent', url:'/studio/agent-dashboard'},
+      {name:'observability', url:'/observability/status'},
+      {name:'metrics', url:'/metrics'},
+    ];
+    async function loadAll() {
+      const root = document.getElementById('grid');
+      const results = await Promise.allSettled(ENDPOINTS.map(async e => {
+        const r = await fetch(e.url);
+        const text = await r.text();
+        return {name:e.name, ok:r.ok, text};
+      }));
+      root.innerHTML = results.map((r, i) => {
+        const meta = ENDPOINTS[i];
+        const status = r.status === 'fulfilled' ? (r.value.ok ? 'ok' : 'err') : 'fail';
+        const body = r.status === 'fulfilled' ? r.value.text : String(r.reason);
+        let content = '';
+        try { content = JSON.stringify(JSON.parse(body), null, 2); } catch { content = body; }
+        return `<div class='card ${status}'><h3>${meta.name} · <span class='pill ${status}'>${status}</span></h3><pre>${content}</pre></div>`;
+      }).join('');
+    }
+    """
+    css = """:root{--bg:#0b0c10;--panel:#111318;--line:#1f2833;--text:#c5c6c7;--accent:#66fcf1;--good:#66fcf1;--warn:#ffd166;--bad:#ef476f}*{box-sizing:border-box}body{font-family:ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--text);margin:0;padding:24px}h1{margin:0 0 18px;font-size:22px;color:#fff}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px}.card h3{margin:0 0 8px;font-size:12px;color:var(--accent);text-transform:uppercase;letter-spacing:.12em}.card pre{white-space:pre-wrap;word-break:break-word;font-size:12px;color:#e6e6e6;max-height:320px;overflow:auto;margin:0}.ok{border-color:var(--good)}.ok h3{color:var(--good)}.err{border-color:var(--bad)}.err h3{color:var(--bad)}.fail{border-color:var(--warn)}.fail h3{color:var(--warn)}.pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:10px;background:var(--line);color:#fff}.ok .pill{background:var(--good);color:#0b0c10}.err .pill{background:var(--bad);color:#0b0c10}.fail .pill{background:var(--warn);color:#0b0c10}"""
+    html = (
+        "<!doctype html><html><head><meta charset='utf-8'><title>msb-studio</title><style>"
+        + css
+        + "</style></head><body>"
+        + "<h1>msb-studio</h1>"
+        + "<div class='grid' id='grid'>loading...</div>"
+        + f"<script>{js}loadAll();</script></body></html>"
+    )
+    return HTMLResponse(html)
 
 
 def _runtime_summary() -> Dict[str, Any]:
