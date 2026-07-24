@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any, Dict
 
+import urllib.error
+import urllib.request
 from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
@@ -10,9 +13,10 @@ from msb_v2.evolution.memory import EvolutionMemory
 from msb_v2.memory.persistence import PersistentMemoryStore
 from msb_v2.reasoning.integrity import EventStreamStore
 from msb_v2.verification.integrity_verifier import IntegrityVerifier
+from msb_v2.engine.neuralagent import execute_neuralagent
 
 router = APIRouter(tags=["studio"])
-
+logger = logging.getLogger(__name__)
 _REPO_ROOT = Path("/Users/lordwilson/msb-v2")
 
 
@@ -36,6 +40,7 @@ async def studio_dashboard() -> Dict[str, Any]:
             "agent_loop": "/agent/run/loop",
             "evolution": "/evolution/scan",
             "verification": "/verification/integrity/trace/{trace_id}",
+            "agent_dashboard": "/studio/agent-dashboard",
         },
     }
 
@@ -46,35 +51,48 @@ def studio_status() -> JSONResponse:
     memory = _safe(_memory_summary)
     verification = _safe(_verification_summary)
     evolution = _safe(_evolution_summary)
-    agent = {
-        "run_endpoint": "/agent/run",
-        "status_endpoint": "/agent/run/{run_id}",
-        "loop_endpoint": "/agent/run/loop",
-        "loop_schema": {
-            "max_iterations": 1,
-            "interval_seconds": 0.0,
-            "task_template": {
-                "name": "loop-iteration",
-                "callable": "msb_v2.agent.runtime:_agent_echo",
-                "payload": {"payload": {}},
-            },
-            "stop_on_error": False,
-        },
-    }
-
     return JSONResponse(
         {
             "runtime": runtime_summary,
             "memory": memory,
             "verification": verification,
             "evolution": evolution,
-            "agent": agent,
+            "agent": {
+                "run_endpoint": "/agent/run",
+                "status_endpoint": "/agent/run/{run_id}",
+                "loop_endpoint": "/agent/run/loop",
+            },
+        }
+    )
+
+
+@router.get("/agent-dashboard")
+def agent_dashboard() -> JSONResponse:
+    prompt = (
+        "Return a one-line sovereign OS status assessment in plain English. "
+        "No markdown, no JSON, no preface."
+    )
+    result = execute_neuralagent(
+        {
+            "provider": "ollama",
+            "endpoint": "http://localhost:11434",
+            "model": "qwen2.5:0.5b",
+            "prompt": prompt,
+        }
+    )
+    return JSONResponse(
+        {
+            "model": "qwen2.5:0.5b",
+            "provider": "ollama",
+            "prompt": prompt,
+            "result": result,
         }
     )
 
 
 def _runtime_summary() -> Dict[str, Any]:
     from msb_v2.runtime.context import RuntimeContext
+
     ctx = RuntimeContext()
     summary = ctx.summary()
     return {
@@ -101,13 +119,15 @@ def _memory_summary() -> Dict[str, Any]:
 
 
 def _verification_summary() -> Dict[str, Any]:
-    from msb_v2.reasoning.integrity import EventStreamStore
-    from msb_v2.verification.hardware_attestation import HardwareAttestation
     stream = EventStreamStore()
     verifier = IntegrityVerifier(stream=stream)
     trace = verifier.verify_trace("studio")
     try:
-        attestation = HardwareAttestation(binary_path=Path(__file__).resolve().parents[2] / "msb_v2" / "api" / "verification.py").verify()
+        from msb_v2.verification.hardware_attestation import HardwareAttestation
+
+        attestation = HardwareAttestation(
+            binary_path=Path(__file__).resolve().parents[2] / "msb_v2" / "api" / "verification.py"
+        ).verify()
     except Exception as exc:
         attestation = {"verdict": "ERROR", "error": str(exc)}
     return {"trace": trace, "hardware_attestation": attestation}
