@@ -79,6 +79,7 @@ def test_studio_dashboard_contains_fallback_status_cards() -> None:
     assert "agent" in body
     assert "observability" in body
     assert "metrics" in body
+    assert "updated " in body
 
 
 def test_studio_dashboard_does_not_expose_internal_backend_paths() -> None:
@@ -88,3 +89,12 @@ def test_studio_dashboard_does_not_expose_internal_backend_paths() -> None:
     body = response.text
     assert "/debug" not in body.lower()
     assert "pydantic_core" not in body
+
+
+def test_studio_dashboard_autorefresh_cadence_is_nonzero() -> None:
+    client = TestClient(create_app())
+    response = client.get("/dashboard")
+    assert response.status_code == 200
+    body = response.text
+    assert "setInterval" in body
+    assert "5000" in body

@@ -120,7 +120,7 @@ async def studio_dashboard_html() -> HTMLResponse:
         + "</style></head><body>"
         + "<h1>msb-studio</h1>"
         + "<div class='grid' id='grid'>loading...</div>"
-        + f"<script>{js}loadAll();</script></body></html>"
+        + f"<script>const TS=document.createElement('div');TS.className='sub';TS.id='ts';document.body.insertBefore(TS,document.body.firstChild.nextSibling);{js}loadAll();setInterval(()=>{{loadAll();document.getElementById('ts').textContent='updated '+new Date().toISOString();}},5000);</script></body></html>"
     )
     return HTMLResponse(html)
 
