@@ -112,6 +112,15 @@ def search_memories(q: str, limit: int = 20) -> dict:
     return {"query": q, "entries": [e.__dict__ for e in entries], "count": len(entries)}
 
 
+@router.get("/v3/contracts")
+def v3_contracts_list() -> JSONResponse:
+    try:
+        from msb_v2.v3.contracts import all_contracts as _all_contracts
+        return JSONResponse({"count": len(_all_contracts()), "contracts": [c.__dict__ for c in _all_contracts()]})
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @router.post("/v3/planner/plan")
 def plan_task(payload: dict, auth: Dict[str, Any] = Depends(require_bearer_token)) -> JSONResponse:
     planner = _get_planner()
