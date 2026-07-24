@@ -12,6 +12,7 @@ from msb_v2.evolution.memory import EvolutionMemory
 from msb_v2.evolution.proposal import EvolutionProposal
 from msb_v2.evolution.scanner import OuroborosScanner
 from msb_v2.evolution.simulator import EvolutionSimulator
+import hashlib as _hashlib
 import json as _json
 
 from msb_v2.v3.contracts import HarnessContract
@@ -185,7 +186,7 @@ def evolution_evolve(payload: EvolveRequest, auth: Dict[str, Any] = Depends(requ
     for hotspot in hotspots[: max(1, payload.max_refactors)]:
         target = hotspot.get("file") or hotspot.get("path") or ""
         function = hotspot.get("function") or hotspot.get("name") or ""
-        proposal_id = f"evolv:{_json.loads(_json.dumps(hotspot, default=str)).__hash__()}"
+        proposal_id = f"evolv:{_hashlib.sha256(_json.dumps(hotspot, default=str).encode()).hexdigest()[:12]}"
         if not target:
             continue
         proposal = EvolutionProposal(
