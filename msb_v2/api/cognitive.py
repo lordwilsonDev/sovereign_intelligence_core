@@ -28,7 +28,10 @@ def _refresh_graph_cache() -> None:
 
 @router.get("/assess/{trace_id}")
 def cognitive_assess(trace_id: str) -> JSONResponse:
-    return JSONResponse(_engine.assess(trace_id))
+    try:
+        return JSONResponse(_engine.assess(trace_id))
+    except KeyError:
+        return JSONResponse({"detail": f"trace not found: {trace_id}"}, status_code=404)
 
 
 @router.get("/reason/{trace_id}")
