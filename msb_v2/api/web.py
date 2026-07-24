@@ -300,6 +300,21 @@ def _load_routers() -> None:
         _register(snapshot_router, "/snapshot")
     except Exception:
         pass
+    try:
+        from msb_v2.axiom_library.api import router as axiom_library_router
+        _register(axiom_library_router, "/axiom-library")
+    except Exception:
+        pass
+    try:
+        from msb_v2.observer_log.api import router as observer_log_router
+        _register(observer_log_router, "/observer-log")
+    except Exception:
+        pass
+    try:
+        from msb_v2.api.sovereign_identity import router as sovereign_identity_router
+        _register(sovereign_identity_router, "/sovereign-identity")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:

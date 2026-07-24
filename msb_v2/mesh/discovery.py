@@ -67,14 +67,20 @@ class MeshDiscovery:
 
     def announce(self) -> dict:
         """Return this node's announcement payload for peer exchange."""
-        hostname = socket.gethostname()
-        return {
+        payload = {
             "node_id": self.node_id,
-            "hostname": hostname,
+            "hostname": socket.gethostname(),
             "address": self.bind_host,
             "port": self.port,
             "timestamp": time.time(),
         }
+        try:
+            from msb_v2.sovereign_identity.identity_card import SovereignIdentityCard
+            sic = SovereignIdentityCard()
+            payload["identity_card"] = sic.generate()
+        except Exception:
+            pass
+        return payload
 
     def discover_local(self) -> List[dict]:
         """Placeholder for mDNS-based local peer discovery."""
