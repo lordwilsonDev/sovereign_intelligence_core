@@ -38,6 +38,9 @@ def _get_planner() -> MemoryEnhancedPlanner:
 def _safe_contract(contract: HarnessContract) -> dict:
     out: dict = {}
     for k, v in contract.__dict__.items():
+        if isinstance(v, type):
+            out[k] = v.__name__
+            continue
         try:
             json.dumps(v)
             out[k] = v
