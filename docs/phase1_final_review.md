@@ -33,10 +33,11 @@
 | Memory consolidation | `/memory/consolidate` accepted | PASS |
 
 ### Known Gaps
-- `/recovery/snapshot` requires `key`/`snapshot` auth — ORS live validation blocked
-- `/observer-log/entry` returns 404 in current build
-- Mesh remote peers (`remote-node-1`, `remote-node-2`) unreachable from host
+- `/recovery/snapshot` auth contract resolved by middleware precedence fix (`5f0a701`); live ORS validation still requires external-terminal `scripts/studio-live.sh`
+- `/observer-log/entry` added as `/entry` endpoint and router wiring fixed (`eba2db6`, `cc548e1`)
+- Mesh remote peers (`remote-node-1`, `remote-node-2`) unreachable from host — Day 4 marked as failed node
 - Host disk saturation persists at OS level (`/dev/disk3s1s1`)
+- Zombie process PID 28952 under `datadog-agent` (PID 1029) — defunct, safe to ignore or reap by restarting Agent
 
 ### Verdict
 Phase 1 closed with repository artifacts clean, live substrate operational under Yellow degradation, and all planned days executed. Next recommended path: deploy to a reachable remote node or advance to Phase 2 capability build.
