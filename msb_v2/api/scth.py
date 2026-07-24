@@ -36,7 +36,7 @@ class EventIn(BaseModel):
 
 
 @router.post("/ingest")
-def ingest(event: EventIn, request: Request) -> Dict[str, Any]:
+def scth_ingest(event: EventIn, request: Request) -> Dict[str, Any]:
     payload = event.model_dump()
     try:
         record_run(payload)
@@ -48,7 +48,7 @@ def ingest(event: EventIn, request: Request) -> Dict[str, Any]:
 
 
 @router.get("/runs")
-def runs(
+def scth_runs(
     job_id: Optional[str] = None,
     status: Optional[str] = None,
     start: Optional[str] = None,
@@ -59,12 +59,12 @@ def runs(
 
 
 @router.get("/summary")
-def summary(job_id: Optional[str] = None, period: str = "daily") -> Dict[str, Any]:
+def scth_summary(job_id: Optional[str] = None, period: str = "daily") -> Dict[str, Any]:
     return _queries.summaries(job_id=job_id, period=period)
 
 
 @router.get("/anomalies")
-def anomalies(
+def scth_anomalies(
     job_id: Optional[str] = None,
     limit: int = 50,
 ) -> Dict[str, Any]:
@@ -72,12 +72,12 @@ def anomalies(
 
 
 @router.post("/query")
-def query(payload: Dict[str, Any]) -> Dict[str, Any]:
+def scth_query(payload: Dict[str, Any]) -> Dict[str, Any]:
     return _queries.run_anomaly_detection(job_id=payload.get("job_id"))
 
 
 @router.get("/status")
-def status() -> Dict[str, Any]:
+def scth_status() -> Dict[str, Any]:
     status = _queries.status()
     chain = _store.validate_chain()
     status["merkle_chain"] = chain
@@ -85,7 +85,7 @@ def status() -> Dict[str, Any]:
 
 
 @router.post("/retention")
-def retention(background_tasks: BackgroundTasks) -> Dict[str, Any]:
+def scth_retention(background_tasks: BackgroundTasks) -> Dict[str, Any]:
     result = _apply_retention()
     return result
 
