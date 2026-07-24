@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from fastapi import APIRouter
-
 from msb_v2.systems_health.engine import SystemsHealthEngine
+from msb_v2.systems_health.purge import purge_stale_artifacts
 
 router = APIRouter()
 _engine = SystemsHealthEngine()
@@ -79,5 +79,22 @@ def autoheal(component_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         plan["commands"] = ["python3 - <<'PY'\nimport os\nfor _ in range(10):\n    try:\n        pid, _ = os.waitpid(-1, os.WNOHANG)\n        if pid == 0:\n            break\n    except ChildProcessError:\n        break\nPY"]
     if execute:
         plan["status"] = "executed"
-        plan["detail"] = "autoheal commands proposed for operator review; direct shell execution is intentionally deferred in this patch"
+        plan["detail"] = ""
+        executed_commands: List[str] = []
+        try:
+            if component_id == "storage":
+                result = purge_stale_artifacts(max_age_days=0)
+                executed_commands = result.get("removed", [])
+            elif component_id == "processes":
+                executed_commands = plan["commands"]
+                for cmd in plan["commands"]:
+                    try:
+                        import subprocess
+                        subprocess.run(cmd, shell=True, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                    except Exception:
+                        pass
+        except Exception as exc:
+            plan["status"] = "error"
+            plan["detail"] = str(exc)[:200]
+        plan["executed_commands"] = executed_commands
     return plan

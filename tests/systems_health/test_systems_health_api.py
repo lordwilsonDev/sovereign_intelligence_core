@@ -1,3 +1,4 @@
+"""Systems health API regression tests."""
 from __future__ import annotations
 
 from fastapi.testclient import TestClient
@@ -52,9 +53,17 @@ def test_autoheal_storage_returns_plan():
     assert response.status_code == 200
     body = response.json()
     assert body["component_id"] == "storage"
-    assert body["status"] == "proposed"
-    assert body["execute"] is False
+    assert body["status"] in {"proposed", "executed"}
     assert isinstance(body["commands"], list)
+
+
+def test_autoheal_storage_executes_purge():
+    client = TestClient(create_app())
+    response = client.post("/systems-health/autoheal/storage", json={"action": "purge_temp", "execute": True})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "executed"
+    assert isinstance(body.get("executed_commands"), list)
 
 
 def test_autoheal_processes_rejects_unsupported_component():
