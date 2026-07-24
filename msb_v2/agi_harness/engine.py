@@ -65,16 +65,16 @@ class AGIHarness:
 
     def _observe(self) -> List[Any]:
         inputs: List[Any] = []
-        peers = self._fast_get("/mesh/discovery/peers", timeout=1.5)
+        peers = self._fast_get("/mesh/discovery/peers", timeout=1.0)
         if peers and peers.get("peers"):
             inputs.append({"source": "mesh", "data": peers["peers"]})
-        truth = self._fast_get("/truth-beat/pulse", timeout=1.5)
+        truth = self._fast_get("/truth-beat/pulse", timeout=1.0)
         if truth:
             inputs.append({"source": "truth-beat", "data": truth})
-        axiom = self._fast_get("/axiom-library/random", timeout=1.5)
+        axiom = self._fast_get("/axiom-library/random", timeout=1.0)
         if axiom and "error" not in axiom:
             inputs.append({"source": "axiom-library", "data": axiom})
-        thoughts = self._fast_get("/observer-log/recent?limit=5", timeout=1.5)
+        thoughts = self._fast_get("/observer-log/recent?limit=5", timeout=1.0)
         if thoughts:
             raw = thoughts.get("thoughts") or []
             critical = [t for t in raw if t.get("priority") in ("high", "critical")]
@@ -86,7 +86,7 @@ class AGIHarness:
         payload = {
             "intent": f"Apply Axiom Inversion Logic and Mixture of Inversion Experts to the following observation: {obs.get('data', obs)}"
         }
-        result = self._fast_post("/kernel/run", payload, timeout=3.0)
+        result = self._fast_post("/kernel/run", payload, timeout=2.0)
         return {"source": obs.get("source", "unknown"), "result": result or "reasoning failed"}
 
     def _act(self, inversions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -97,16 +97,16 @@ class AGIHarness:
                     "phase": "full",
                     "topic": f"Counterfactual exploration of axiom: {inv.get('result', '')}",
                 }
-                result = self._fast_post("/research/assistant/run", payload, timeout=4.0)
+                result = self._fast_post("/research/assistant/run", payload, timeout=3.0)
                 if result:
                     actions.append({"action": "research_mission", "status": result.get("status")})
         return actions
 
     def _learn(self, actions: List[Dict[str, Any]]) -> None:
-        self._fast_post("/memory/consolidate", {"kind": "agi-cycle"}, timeout=2.0)
-        self._fast_post("/evolution/scan", {"target": "full"}, timeout=3.0)
-        self._fast_post("/autonomous-evolution/run", timeout=3.0)
-        self._fast_post("/snapshot/capture", timeout=3.0)
+        self._fast_post("/memory/consolidate", {"kind": "agi-cycle"}, timeout=1.0)
+        self._fast_post("/evolution/scan", {"target": "full"}, timeout=1.5)
+        self._fast_post("/autonomous-evolution/run", timeout=1.5)
+        self._fast_post("/snapshot/capture", timeout=1.5)
 
     def run_forever(self, interval_seconds: int = 300) -> None:
         self.running = True
