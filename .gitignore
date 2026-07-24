@@ -49,3 +49,4 @@ runtime/
 snapshots/
 msb-backups/
 .kb4/
+msb_v2/cloud_agent/voiceprint_baseline.json
