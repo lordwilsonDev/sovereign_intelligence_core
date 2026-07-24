@@ -320,6 +320,11 @@ def _load_routers() -> None:
         _register(cross_node_router, "/cross-node")
     except Exception:
         pass
+    try:
+        from msb_v2.api.hardware_identity import router as hardware_identity_router
+        _register(hardware_identity_router, "/hardware-identity")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:
