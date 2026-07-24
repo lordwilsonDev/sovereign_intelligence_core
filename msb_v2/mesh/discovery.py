@@ -7,6 +7,10 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from msb_v2.mesh.health_cache import PeerHealthCache
+
+_HEALTH_CACHE = PeerHealthCache(ttl_seconds=60)
+
 
 class MeshDiscovery:
     """Discovers peer nodes on the local network and from configured lists."""
@@ -76,6 +80,7 @@ class MeshDiscovery:
         }
         try:
             from msb_v2.sovereign_identity.identity_card import SovereignIdentityCard
+
             sic = SovereignIdentityCard()
             payload["identity_card"] = sic.generate()
         except Exception:
@@ -88,8 +93,23 @@ class MeshDiscovery:
 
     def peer_health(self, peer: Dict[str, Any]) -> Dict[str, Any]:
         """Return basic reachability metadata for a configured peer."""
+        cache_key = (
+            str(peer.get("node_id") or ""),
+            str(peer.get("address", "127.0.0.1")),
+            int(peer.get("port", 8766) or 8766),
+        )
+        cached = _HEALTH_CACHE.get(*cache_key)
+        if cached is not None:
+            return cached
+
+        result = self._probe_peer_health(peer)
+        _HEALTH_CACHE.put(*cache_key, result)
+        return result
+
+    def _probe_peer_health(self, peer: Dict[str, Any]) -> Dict[str, Any]:
         try:
             import urllib.request
+
             address = peer.get("address", "127.0.0.1")
             port = int(peer.get("port", 8766) or 8766)
             url = f"http://{address}:{port}/health"
