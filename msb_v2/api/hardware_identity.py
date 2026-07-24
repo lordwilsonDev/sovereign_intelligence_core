@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 from msb_v2.hardware_identity.hardware_identity import HardwareIdentity
 
-router = APIRouter(prefix="/hardware-identity", tags=["hardware-identity"])
+router = APIRouter(tags=["hardware-identity"])
 _engine = HardwareIdentity()
 
 

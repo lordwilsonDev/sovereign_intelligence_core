@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 from msb_v2.evolution.cross_node_verification import CrossNodeVerification
 
-router = APIRouter(prefix="/cross-node", tags=["cross-node"])
+router = APIRouter(tags=["cross-node"])
 _engine = CrossNodeVerification()
 
 

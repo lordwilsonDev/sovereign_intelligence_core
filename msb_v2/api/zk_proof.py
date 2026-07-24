@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 from msb_v2.zk_proof.receipts import ZKProofReceipt, verify_proof
 
-router = APIRouter(prefix="/zk-proof", tags=["zk-proof"])
+router = APIRouter(tags=["zk-proof"])
 
 
 @router.post("/verify")

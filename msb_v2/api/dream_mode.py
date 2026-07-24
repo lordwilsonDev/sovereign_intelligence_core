@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 from msb_v2.dream_mode.engine import DreamMode
 
-router = APIRouter(prefix="/dream-mode", tags=["dream-mode"])
+router = APIRouter(tags=["dream-mode"])
 _engine = DreamMode()
 
 

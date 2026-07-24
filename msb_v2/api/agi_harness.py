@@ -7,7 +7,7 @@ from fastapi import APIRouter
 
 from msb_v2.agi_harness.engine import AGIHarness
 
-router = APIRouter(prefix="/agi-harness", tags=["agi-harness"])
+router = APIRouter(tags=["agi-harness"])
 _harness = AGIHarness()
 
 
