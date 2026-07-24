@@ -69,6 +69,13 @@ def studio_status() -> JSONResponse:
     )
 
 
+@router.get("/studio/health")
+def studio_health() -> JSONResponse:
+    ollama = _safe(_ollama_reachable)
+    fs = _safe(_filesystem_sanity)
+    return JSONResponse({"ollama": ollama, "filesystem": fs})
+
+
 @router.get("/agent-dashboard")
 def agent_dashboard() -> JSONResponse:
     prompt = "Return a one-line sovereign OS status assessment in plain English. No markdown, no JSON, no preface."
@@ -94,7 +101,7 @@ def agent_dashboard() -> JSONResponse:
     )
 
 
-@router.get("/metrics")
+@router.get("/studio/metrics")
 def studio_metrics() -> JSONResponse:
     started = time.perf_counter()
     reasoning: Any = {}
@@ -132,7 +139,7 @@ async def studio_dashboard_html() -> HTMLResponse:
       {name:'studio', url:'/studio/status'},
       {name:'agent', url:'/studio/agent-dashboard'},
       {name:'observability', url:'/observability/status'},
-      {name:'metrics', url:'/metrics'},
+      {name:'metrics', url:'/studio/metrics'},
     ];
     async function loadAll() {
       const root = document.getElementById('grid');
@@ -210,3 +217,38 @@ def _evolution_summary() -> Dict[str, Any]:
     memory = EvolutionMemory(path=_REPO_ROOT / "evolution_memory.db")
     proposals = memory.all()
     return {"count": len(proposals), "proposals": proposals}
+
+
+def _ollama_reachable() -> Dict[str, Any]:
+    import socket
+
+    host = "127.0.0.1"
+    port = 11434
+    try:
+        with socket.create_connection((host, port), timeout=1.0):
+            pass
+    except Exception as exc:
+        return {"reachable": False, "error": str(exc)}
+    return {"reachable": True, "host": host, "port": port}
+
+
+def _filesystem_sanity() -> Dict[str, Any]:
+    import os
+    import shutil
+
+    try:
+        usage = shutil.disk_usage(_REPO_ROOT)
+        writable = os.access(_REPO_ROOT, os.W_OK)
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+    return {
+        "ok": True,
+        "repo_path": str(_REPO_ROOT),
+        "disk_usage": {
+            "total_gb": round(usage.total / 1e9, 2),
+            "used_gb": round(usage.used / 1e9, 2),
+            "free_gb": round(usage.free / 1e9, 2),
+            "percent_used": round((usage.used / usage.total) * 100, 2),
+        },
+        "writable": bool(writable),
+    }

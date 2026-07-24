@@ -60,7 +60,7 @@ def test_studio_agent_dashboard_response_shape_is_stable() -> None:
 
 def test_studio_metrics_returns_combined_payload() -> None:
     client = TestClient(create_app())
-    response = client.get("/metrics")
+    response = client.get("/studio/metrics")
     assert response.status_code == 200
     body = response.json()
     assert "dashboard_latency_ms" in body

@@ -8,8 +8,10 @@ bash /Users/lordwilson/msb-v2/scripts/studio-live.sh
 ## Verify
 ```bash
 curl -s http://127.0.0.1:8766/studio/status | jq
-curl -s http://127.0.0.1:8766/studio/dashboard | head -n 3
+curl -s http://127.0.0.1:8766/studio/health | jq
+curl -s http://127.0.0.1:8766/studio/agent-dashboard | jq
 curl -s http://127.0.0.1:8766/studio/metrics | jq '.dashboard_latency_ms'
+curl -s http://127.0.0.1:8766/studio/dashboard | head -n 3
 ```
 
 ## Tests
