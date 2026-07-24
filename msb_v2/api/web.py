@@ -315,6 +315,11 @@ def _load_routers() -> None:
         _register(sovereign_identity_router, "/sovereign-identity")
     except Exception:
         pass
+    try:
+        from msb_v2.api.cross_node import router as cross_node_router
+        _register(cross_node_router, "/cross-node")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:
