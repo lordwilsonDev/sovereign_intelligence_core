@@ -330,6 +330,11 @@ def _load_routers() -> None:
         _register(zk_proof_router, "/zk-proof")
     except Exception:
         pass
+    try:
+        from msb_v2.api.agi_harness import router as agi_harness_router
+        _register(agi_harness_router, "/agi-harness")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:
