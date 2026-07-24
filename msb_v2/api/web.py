@@ -306,7 +306,7 @@ def _load_routers() -> None:
     except Exception:
         pass
     try:
-        from msb_v2.observer_log.api import router as observer_log_router
+        from msb_v2.api.observer_log import router as observer_log_router
         _register(observer_log_router, "/observer-log")
     except Exception:
         pass
