@@ -325,6 +325,11 @@ def _load_routers() -> None:
         _register(hardware_identity_router, "/hardware-identity")
     except Exception:
         pass
+    try:
+        from msb_v2.api.zk_proof import router as zk_proof_router
+        _register(zk_proof_router, "/zk-proof")
+    except Exception:
+        pass
 
 
 def create_app() -> FastAPI:
