@@ -51,10 +51,23 @@ def test_studio_agent_dashboard_response_shape_is_stable() -> None:
     assert "result" in body
     assert "model" in body
     assert "provider" in body
+    assert "latency_ms" in body
     text = str(body)
     assert "http://localhost:11434" not in text
     assert "api/generate" not in text
     assert "qwen2.5:0.5b" in text
+
+
+def test_studio_metrics_returns_combined_payload() -> None:
+    client = TestClient(create_app())
+    response = client.get("/metrics")
+    assert response.status_code == 200
+    body = response.json()
+    assert "dashboard_latency_ms" in body
+    assert "reasoning" in body
+    assert "memory" in body
+    assert "prometheus_fragment" in body
+    assert isinstance(body["dashboard_latency_ms"], (int, float))
 
 
 def test_studio_dashboard_page_renders_html() -> None:

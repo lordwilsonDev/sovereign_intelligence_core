@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import logging
+import time
 from pathlib import Path
 from typing import Any, Dict
 
@@ -14,6 +16,7 @@ from msb_v2.memory.persistence import PersistentMemoryStore
 from msb_v2.reasoning.integrity import EventStreamStore
 from msb_v2.verification.integrity_verifier import IntegrityVerifier
 from msb_v2.engine.neuralagent import execute_neuralagent
+from msb_v2.api.observability_metrics import MetricsStore
 
 router = APIRouter(tags=["studio"])
 logger = logging.getLogger(__name__)
@@ -69,6 +72,7 @@ def studio_status() -> JSONResponse:
 @router.get("/agent-dashboard")
 def agent_dashboard() -> JSONResponse:
     prompt = "Return a one-line sovereign OS status assessment in plain English. No markdown, no JSON, no preface."
+    started = time.perf_counter()
     result = execute_neuralagent(
         {
             "provider": "ollama",
@@ -77,12 +81,46 @@ def agent_dashboard() -> JSONResponse:
             "prompt": prompt,
         }
     )
+    latency_ms = round((time.perf_counter() - started) * 1000, 2)
+    result.setdefault("latency_ms", latency_ms)
     return JSONResponse(
         {
             "model": "qwen2.5:0.5b",
             "provider": "ollama",
             "prompt": prompt,
             "result": result,
+            "latency_ms": latency_ms,
+        }
+    )
+
+
+@router.get("/metrics")
+def studio_metrics() -> JSONResponse:
+    started = time.perf_counter()
+    reasoning: Any = {}
+    memory: Any = {}
+    prometheus_fragment = ""
+    try:
+        store = MetricsStore()
+        raw_reasoning, raw_memory = store.recompute(EventStreamStore(), PersistentMemoryStore())
+        reasoning = {k: getattr(raw_reasoning, k) for k in dir(raw_reasoning) if not k.startswith("_") and not callable(getattr(raw_reasoning, k))}
+        memory = {k: getattr(raw_memory, k) for k in dir(raw_memory) if not k.startswith("_") and not callable(getattr(raw_memory, k))}
+    except Exception as exc:
+        reasoning = {"error": str(exc)}
+        memory = {"error": str(exc)}
+    try:
+        req = urllib.request.Request("http://127.0.0.1:8766/metrics", method="GET")
+        with urllib.request.urlopen(req, timeout=1.0) as r:
+            prometheus_fragment = r.read().decode("utf-8", "ignore")[:256]
+    except Exception:
+        prometheus_fragment = ""
+    latency_ms = round((time.perf_counter() - started) * 1000, 2)
+    return JSONResponse(
+        {
+            "dashboard_latency_ms": latency_ms,
+            "reasoning": reasoning,
+            "memory": memory,
+            "prometheus_fragment": prometheus_fragment,
         }
     )
 
