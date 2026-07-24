@@ -1,24 +1,18 @@
-# Studio Verification — Local Command
+# Studio Live Runbook
 
-## Start
+## Start dashboard server
 ```bash
-cd /Users/lordwilson/msb-v2 && PYTHONPATH=/Users/lordwilson/msb-v2 MSB_REASONING_SCORER=1 MSB_AUTH_LOCAL_BYPASS=*** /opt/homebrew/Caskroom/miniforge/base/bin/python -m uvicorn msb_v2.api.main:create_app --factory --host 127.0.0.1 --port 8766
+bash /Users/lordwilson/msb-v2/scripts/studio-live.sh
 ```
 
 ## Verify
 ```bash
-curl -s http://127.0.0.1:8766/studio/status | jq '.agent'
-curl -s http://127.0.0.1:8766/studio/agent-dashboard | jq
-curl -s http://127.0.0.1:8766/studio/dashboard | head -n 5
+curl -s http://127.0.0.1:8766/studio/status | jq
+curl -s http://127.0.0.1:8766/studio/dashboard | head -n 3
+curl -s http://127.0.0.1:8766/studio/metrics | jq '.dashboard_latency_ms'
 ```
 
-## Test slice
+## Tests
 ```bash
 PYTHONPATH=/Users/lordwilson/msb-v2 MSB_REASONING_SCORER=1 MSB_AUTH_LOCAL_BYPASS=1 /opt/homebrew/Caskroom/miniforge/base/bin/python -m pytest tests/test_studio.py -q
 ```
-
-## Expected
-- `/studio/status` → composite JSON with `runtime`, `memory`, `verification`, `evolution`, `agent`
-- `/agent-dashboard` → JSON with `provider: ollama`, `model: qwen2.5:0.5b`, `result.ok: true`
-- `/dashboard` → HTML page containing `msb-studio`, `/studio/status`, `/agent-dashboard`, `/metrics`
-- tests: **7 passed, 0 failed**
