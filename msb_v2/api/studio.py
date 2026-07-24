@@ -170,6 +170,11 @@ async def studio_dashboard_html() -> HTMLResponse:
     return HTMLResponse(html)
 
 
+@router.get("/studio/dashboard", response_class=HTMLResponse)
+async def studio_dashboard_html_alias() -> HTMLResponse:
+    return await studio_dashboard_html()
+
+
 def _runtime_summary() -> Dict[str, Any]:
     from msb_v2.runtime.context import RuntimeContext
 

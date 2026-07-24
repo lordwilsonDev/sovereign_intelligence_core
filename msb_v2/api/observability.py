@@ -43,8 +43,8 @@ def dashboard() -> HTMLResponse:
         f"""<!doctype html>
 <html>
 <head>
-  <meta charset=\"utf-8\" />
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MSB Observability</title>
   <style>
     body {{ font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:#0b0c10; color:#c5c6c7; margin:0; padding:24px; }}
@@ -58,16 +58,29 @@ def dashboard() -> HTMLResponse:
   </style>
 </head>
 <body>
-  <h1 style=\"margin-top:0\">MSB Observability</h1>
-  <div class=\"grid\">
-    <div class=\"card\"><h3>Traces</h3><div class=\"metric\">{reasoning.total_traces}</div><div class=\"sub\">Active: {reasoning.active_traces}</div></div>
-    <div class=\"card\"><h3>Events</h3><div class=\"metric\">{reasoning.total_events}</div><div class=\"sub\">Tool: {reasoning.tool_call_count} | Memory: {reasoning.memory_read_count} | Human: {reasoning.human_feedback_count}</div></div>
-    <div class=\"card\"><h3>Avg Score</h3><div class=\"metric\">{round(reasoning.avg_score,4)}</div><div class=\"sub\">Confidence: {round(reasoning.avg_confidence,4)}</div></div>
-    <div class=\"card\"><h3>Avg Entropy</h3><div class=\"metric\">{round(reasoning.avg_entropy,4)}</div><div class=\"sub\">Drift events: {reasoning.drift_count}</div></div>
-    <div class=\"card\"><h3>Memory</h3><div class=\"metric\">{memory.total_memories}</div><div class=\"sub\">Active: {memory.active_memories} | Archived: {memory.archived_memories}</div></div>
-    <div class=\"card\"><h3>Verification</h3><div class=\"metric\">{round(memory.verification_rate,4)}</div><div class=\"sub\">Avg reliability: {round(memory.avg_source_reliability,4)}</div></div>
+  <h1 style="margin-top:0">MSB Observability</h1>
+  <div class="grid">
+    <div class="card"><h3>Traces</h3><div class="metric">{reasoning.total_traces}</div><div class="sub">Active: {reasoning.active_traces}</div></div>
+    <div class="card"><h3>Events</h3><div class="metric">{reasoning.total_events}</div><div class="sub">Tool: {reasoning.tool_call_count} | Memory: {reasoning.memory_read_count} | Human: {reasoning.human_feedback_count}</div></div>
+    <div class="card"><h3>Avg Score</h3><div class="metric">{round(reasoning.avg_score,4)}</div><div class="sub">Confidence: {round(reasoning.avg_confidence,4)}</div></div>
+    <div class="card"><h3>Avg Entropy</h3><div class="metric">{round(reasoning.avg_entropy,4)}</div><div class="sub">Drift events: {reasoning.drift_count}</div></div>
+    <div class="card"><h3>Memory</h3><div class="metric">{memory.total_memories}</div><div class="sub">Active: {memory.active_memories} | Archived: {memory.archived_memories}</div></div>
+    <div class="card"><h3>Verification</h3><div class="metric">{round(memory.verification_rate,4)}</div><div class="sub">Avg reliability: {round(memory.avg_source_reliability,4)}</div></div>
   </div>
-  <div style=\"margin-top:18px\" class=\"sub\">Endpoints: <a href=\"/metrics\">/metrics</a> · <a href=\"/reasoning/integrity/events\">reasoning events</a> · <a href=\"/reasoning/counterfactual/scan\">counterfactual scan</a></div>
+  <div style="margin-top:18px" class="sub">Endpoints: <a href="/metrics">/metrics</a> · <a href="/reasoning/integrity/events">reasoning events</a> · <a href="/reasoning/counterfactual/scan">counterfactual scan</a></div>
 </body>
 </html>"""
     )
+
+
+@router.get("/status")
+def observability_status() -> dict:
+    try:
+        reasoning, memory = _refresh()
+        return {
+            "status": "ok",
+            "reasoning": reasoning.payload() if hasattr(reasoning, "payload") else reasoning,
+            "memory": memory.payload() if hasattr(memory, "payload") else memory,
+        }
+    except Exception as exc:
+        return {"status": "error", "error": str(exc)}
